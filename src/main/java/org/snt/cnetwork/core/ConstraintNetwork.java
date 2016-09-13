@@ -1,0 +1,612 @@
+package org.snt.cnetwork.core;
+
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.range.BasicRange;
+import org.snt.cnetwork.core.range.NumRange;
+import org.snt.cnetwork.sig.JavaMethodSignature;
+
+
+import java.util.*;
+
+public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
+
+    final static Logger logger = LoggerFactory.getLogger(ConstraintNetwork.class);
+
+    // keep track of sat edges
+    private HashSet<Edge> sat;
+    private HashSet<Edge> unsat;
+
+    // just used during construction
+    private HashMap<String, Node> operands;
+    private HashMap<String, Node> operations;
+    private HashMap<String, Node> nodeLookup;
+    private HashMap<String, Operation> opLookup = new HashMap<String, Operation>();
+
+    // this is usually null - we just use it for thread models
+    private Node startNode = null;
+
+    private String variablePfx = "_v";
+    private int vidx = 0;
+
+    public ConstraintNetwork() {
+        this.sat = new HashSet<Edge>();
+        this.unsat = new HashSet<Edge>();
+        this.nodeLookup = new HashMap<String, Node>();
+
+        // just a helper to keep track of operands
+        this.operands = new HashMap<String, Node>();
+        this.operations = new HashMap<String, Node>();
+
+    }
+
+    public ConstraintNetwork(ConstraintNetwork other) {
+        this();
+        for(Node n : other.vertexSet()) {
+            this.addVertex(n.clone());
+        }
+        for(Edge e : other.edgeSet()) {
+            Node src = this.getNodeById(e.getSrcNode().getId());
+            Node dest = this.getNodeById(e.getDestNode().getId());
+            Edge ne = new Edge(src,dest,e.getSequence());
+            this.addConnection(ne);
+        }
+        buildNodeIdx();
+    }
+
+    public Set<Edge> getAllConnectedEdges(Node n) {
+        Set<Edge> ret = new HashSet<Edge>();
+
+        ret.addAll(super.incomingEdgesOf(n));
+        ret.addAll(super.outgoingEdgesOf(n));
+
+        return ret;
+    }
+
+    public Node getNodeById(int id) {
+
+        Node ret = null;
+
+        for(Node n : this.vertexSet()) {
+            if(n.getId() == id)
+                ret = n;
+        }
+
+        assert(ret != null);
+        return ret;
+    }
+
+    public ConstraintNetwork subgraph(Collection<Node> vertices) {
+        ConstraintNetwork g = new ConstraintNetwork();
+
+        for (Node n : vertices) {
+            g.addVertex(n);
+        }
+
+        for (Node n : vertices) {
+            for (Edge e : getAllConnectedEdges(n)) {
+                g.addConnection(e);
+            }
+        }
+
+        return g;
+    }
+
+
+
+    public Node getStartNode() {
+        return this.startNode;
+    }
+
+    public void setStartNode(Node startNode) {
+        this.startNode = startNode;
+    }
+
+    public void unsetStartNode() {
+        this.startNode = null;
+    }
+
+    public List<Edge> getIncomingEdgesOfKind(Node n, EdgeKind kind) {
+
+        LinkedList<Edge> ret = new LinkedList<Edge>();
+
+        Set<Edge> allIncoming = incomingEdgesOf(n);
+
+        if (allIncoming == null)
+            return null;
+
+        for (Edge e : allIncoming) {
+            //logger.info("EEEE " + e.toString());
+            if (e.getKind() == kind) {
+                ret.add(e);
+            }
+        }
+
+        // sort parameter Order
+        Collections.sort(ret);
+
+        return ret;
+    }
+
+    public List<Node> getParametersFor(Node n) {
+        List<Node> params = new LinkedList<>();
+
+        if (n instanceof Operation) {
+            for (Edge paredge : this.getIncomingEdgesOfKind(n, EdgeKind.PAR_IN)) {
+                params.add(paredge.getSrcNode());
+            }
+        }
+        return params;
+    }
+
+    public Operand getAuxiliaryVariable(OperandKind kind) {
+        Operand op = new Operand(variablePfx + (vidx++), kind);
+        addNode(op);
+        return op;
+    }
+
+    public Operand addOperand(OperandKind kind, String label, int min, int max) {
+        Node n = this.getNodeByLabel(label);
+        if (n == null) {
+            n = new Operand(label, kind);
+            n.setRange(new NumRange(new BasicRange(min, max)));
+            this.addNode(n);
+        }
+        assert (n instanceof Operand);
+        Operand op = (Operand) n;
+        return op;
+    }
+
+    public Operation registerExtOperation(String bytecodesig, String label) {
+
+        //logger.info("bytecodesig " + bytecodesig);
+        //logger.info("name " + label);
+
+        if (opLookup.containsKey(bytecodesig))
+            return null;
+
+        JavaMethodSignature sig = JavaMethodSignature.fromString(bytecodesig);
+
+
+        Operation op = new Operation(label, sig);
+        opLookup.put(label, op);
+
+        //logger.info("OPLOOKUP " + op.toString());
+
+        return op;
+    }
+
+    public Operation getExtOperation(String label) {
+        if (!this.opLookup.containsKey(label))
+            return null;
+        return this.opLookup.get(label);
+    }
+
+    public Operation addExtOperation(String identifier, List<Node> params) {
+
+        Operation ext = getExtOperation(identifier);
+
+        if (ext == null)
+            return null;
+
+        String label = ext.getLabel() + "(" + getParameterList(params) + ")";
+
+        Operation op = (Operation) getNodeByLabel(label);
+
+        if (op == null) {
+            op = new Operation(ext);
+            op.setLabel(label);
+        } else {
+            return op;
+        }
+
+        linkParams(op, params);
+        addNode(op);
+        return op;
+    }
+
+
+    private String getParameterList(List<Node> params) {
+
+        String label = "";
+
+        for (int i = 0; i < params.size(); i++) {
+            Node par = params.get(i);
+            assert (par != null);
+            //logger.info("Par " + par.getKind());
+            //logger.info("Par" + par.getId());
+            //logger.info("+PAR " + par.getLabel());
+            String plbl = par.getLabel();
+            if (par instanceof Operand && par.isLiteral() && par.isString()) {
+                plbl = par.getLabel();
+            }
+
+            label += plbl + (i < params.size() - 1 ? "," : "");
+        }
+
+        return label;
+    }
+
+    private void linkParams(Operation op, List<Node> params) {
+        for (int i = 0; i < params.size(); i++) {
+            Node par = this.getNodeByLabel(params.get(i).getLabel());
+            if (par == null) {
+                par = addNode(params.get(i));
+            }
+            this.addConnection(par, op, EdgeKind.PAR_IN, i);
+        }
+    }
+
+    public Set<Node> getConnectedInNodes(Node n) {
+        Set<Node> ret = new HashSet<Node>();
+        Set<Edge> incoming = null;
+        if((incoming = this.incomingEdgesOf(n)) != null && !incoming.isEmpty()) {
+            for(Edge e : incoming) {
+                ret.add(e.getSrcNode());
+            }
+        }
+        return ret;
+    }
+
+    public Set<Node> getConnectedOutNodes(Node n) {
+        Set<Node> ret = new HashSet<Node>();
+        Set<Edge> outgoing = null;
+        if((outgoing = this.outgoingEdgesOf(n)) != null && !outgoing.isEmpty()) {
+            for(Edge e : outgoing) {
+                ret.add(e.getDestNode());
+            }
+        }
+        return ret;
+    }
+
+    public Operation addConstraint(OperationKind kind, Node... params) {
+        List<Node> lst = Arrays.asList(params);
+        return addConstraint(kind, lst);
+    }
+
+    public Operation addConstraint(OperationKind kind, List<Node> params) {
+        return addOperation(kind, true, params);
+    }
+
+    public Operation addOperation(OperationKind kind, Node... params) {
+        List<Node> lst = Arrays.asList(params);
+        return addOperation(kind, lst);
+    }
+
+    public Operation addOperation(OperationKind kind, List<Node> params) {
+        return addOperation(kind, false, params);
+    }
+
+
+    public Operation addOperation(OperationKind kind, boolean isConstraint, List<Node> params) {
+        //logger.info("PARAMS LEN " + params.size());
+        Operation op;
+
+        String label = kind.toString() + "(" + getParameterList(params) + ")";
+        //logger.info("LABEL IS " + label);
+
+        op = (Operation) getNodeByLabel(label);
+
+        if (op == null) {
+
+            if (!isConstraint)
+                op = new Operation(label, kind);
+            else
+                op = new Constraint(label, kind);
+
+            addNode(op);
+        } else {
+            return op;
+        }
+        linkParams(op, params);
+        return op;
+
+    }
+
+
+    public Edge addConnection(Node src, Node target, EdgeKind kind, int priority) {
+        Edge e = new Edge(src, target, kind, priority);
+        addConnection(e);
+        return e;
+    }
+
+    public Edge addConnection(Edge e) {
+        addVertex(e.getSrcNode());
+        addVertex(e.getDestNode());
+        super.addEdge(e.getSrcNode(), e.getDestNode(), e);
+        return e;
+    }
+
+    public void addConnections(Set<Edge> edges) {
+        for (Edge e : edges) {
+            addConnection(e);
+        }
+    }
+
+    @Override
+    public boolean removeAllVertices(Collection<? extends Node> arg0) {
+
+        int size = vertexSet().size();
+        for(Node n : arg0) {
+            removeVertex(n);
+        }
+        return this.vertexSet().size() < size;
+    }
+
+    @Override
+    public boolean removeVertex(Node n) {
+
+        assert (this.containsVertex(n));
+
+        if (n.isOperation())
+            this.operations.remove(n);
+
+        if (n.isOperand())
+            this.operands.remove(n);
+
+        this.nodeLookup.remove(n);
+
+        return super.removeVertex(n);
+    }
+
+    @Override
+    public boolean addVertex(Node n) {
+        //logger.info("ADD NODE " + n.getLabel());
+
+        Node ret = null;
+
+        // never add a node twice
+        if ((ret = getNodeByLabel(n.getLabel())) != null)
+            return false;
+
+        ret = n;
+
+        super.addVertex(ret);
+        this.nodeLookup.put(ret.getLabel(), ret);
+
+        if (ret instanceof Operand) {
+            Operand op = (Operand) ret;
+            //logger.info(">>> " + op.getLabel());
+            this.operands.put(op.getName(), op);
+        }
+        if (ret instanceof Operation) {
+            Operation op = (Operation) ret;
+            this.operations.put(op.getLabel(), op);
+        }
+        return true;
+    }
+
+    public Node addNode(Node n) {
+        addVertex(n);
+        return n;
+    }
+
+    public void buildNodeIdx() {
+        this.nodeLookup.clear();
+        for (Node n : this.vertexSet()) {
+            this.nodeLookup.put(n.getLabel(), n);
+        }
+    }
+
+    public Node getOperandByLabel(String label) {
+        return this.operands.get(label);
+    }
+
+    public Node getOperationByLabel(String label) {
+        return this.operations.get(label);
+    }
+
+    public Node getNodeByLabel(String label) {
+        return this.nodeLookup.get(label);
+    }
+
+
+    public Collection<Node> getAllVariables() {
+        Set<Node> variables = new HashSet<Node>();
+        for (Node n : this.vertexSet()) {
+            if (n.isOperand() && !n.isLiteral())
+                variables.add(n);
+        }
+        return variables;
+    }
+
+
+    public void join(OperationKind kind, Node cpoint, ConstraintNetwork othercn) {
+
+
+        assert (othercn.getStartNode() != null);
+        logger.info("Start node is " + othercn.getStartNode().toString());
+
+        for (Node n : othercn.vertexSet()) {
+            this.addNode(n);
+        }
+
+        for (Edge e : othercn.edgeSet()) {
+            this.addConnection(e);
+        }
+
+        //Node snode = this.getNodeByLabel(othercn.getStartNode().getLabel());
+
+        assert (this.vertexSet().contains(cpoint));
+
+        this.addConstraint(kind, cpoint, othercn.getStartNode());
+    }
+
+
+    public String toDot() {
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("digraph {\n" +
+                "\trankdir=TB;\n");
+
+        sb.append("\tnode [fontname=Helvetica,fontsize=11];\n");
+        sb.append("\tedge [fontname=Helvetica,fontsize=10];\n");
+
+        String shape = "";
+        String label = "";
+        String color = "";
+
+        for (Node n : this.vertexSet()) {
+            String kind = "";
+            if (n instanceof Operand) {
+                kind = ((Operand) n).getKind().toString();
+            } else {
+                kind = ((Operation) n).getKind().toString();
+            }
+
+            if (n.isOperation()) {
+                shape = "box";
+                label = "label";
+
+                if (n.isConstraint()) {
+                    color = "blue";
+                } else {
+                    color = "green";
+                }
+
+            } else {
+                shape = "ellipse";
+                label = "label";
+                color = "black";
+            }
+
+            //logger.info(n.getLabel());
+            //logger.info(n.toString());
+
+            String annotation = n.isAnnotated() ? "\\n" + n.getAnnotation() : "";
+
+            sb.append("\tn" + n.getId() + " [color=" + color + ",shape=\"" + shape + "\"," + label + "=\"" +
+                    StringEscapeUtils.escapeJava(n.toString() + "\n") + kind + annotation + "\"];\n");
+        }
+
+
+        String dir = "";
+        String option = "";
+        String ecolor = "black";
+        String par = "";
+
+        for (Edge e : this.edgeSet()) {
+            Node src = e.getSrcNode();
+            Node dest = e.getDestNode();
+
+            assert (outgoingEdgesOf(src).contains(e));
+            assert (incomingEdgesOf(dest).contains(e));
+
+            assert (src != null);
+            assert (dest != null);
+
+            if (e.getKind() == EdgeKind.PAR_IN) {
+                par = " " + e.getSequence();
+            } else {
+                par = "";
+            }
+
+            if (this.sat.contains(e)) {
+                ecolor = "green";
+            } else if (this.unsat.contains(e)) {
+                ecolor = "red";
+            } else {
+                ecolor = "black";
+            }
+
+            sb.append("\tn" + src.getId() + " -> n" + dest.getId() +
+                    "[color=\"" + ecolor + "\",label=\"p" + par.trim() + "\"" + option + "];\n");
+
+        }
+
+
+        sb.append("}");
+
+        return sb.toString();
+    }
+
+    public void debug() {
+
+        for (Map.Entry<String, Node> e : this.nodeLookup.entrySet()) {
+
+            //logger.info(e.getKey() + " :: " + e.getValue());
+
+        }
+    }
+
+
+    private String handleNode(Node nod) {
+        StringBuilder sb = new StringBuilder();
+
+        if (nod.isOperation()) {
+            sb.append(nod.getKind().getValue() + "(");
+            List<Edge> parEdges = getIncomingEdgesOfKind(nod, EdgeKind.PAR_IN);
+            for (Edge param : parEdges) {
+                if (parEdges.indexOf(param) > 0) {
+                    sb.append(",");
+                }
+                sb.append(handleNode(param.getSrcNode()));
+            }
+            sb.append(")");
+        } else {
+            sb.append(nod.getLabel());
+        }
+
+        return sb.toString();
+    }
+
+    public String toConfig() {
+
+        StringBuilder sb = new StringBuilder();
+
+        LinkedList<Node> other = new LinkedList<Node>();
+        LinkedList<Operand> links = new LinkedList<Operand>();
+
+
+        for (Node n : this.vertexSet()) {
+            if (n.isOperand() && !n.isLiteral() && !n.isRegex()) {
+
+                String type;
+
+                if (n.isBoolean()) {
+                    type = "bool";
+                } else if (n.isString()) {
+                    type = "string";
+                } else {
+                    type = "int";
+                }
+
+                if (((Operand) n).getKind().isThreatModel()) {
+                    links.add((Operand) n);
+                }
+
+                sb.append("var " + type + " " + n.getLabel() + ";\n");
+            } else if (n.isOperation() && n.getKind() == OperationKind.EXTERNAL) {
+                sb.append("fun " + "\"" + n.getLabel() + "\";\n");
+            } else if (n.isBoolean() && !n.isLiteral()) {
+                if (outgoingEdgesOf(n) == null || outgoingEdgesOf(n).size() == 0) {
+                    other.add(n);
+                }
+            }
+        }
+
+        // handle Threat Models
+        sb.append("\n");
+        for (Operand o : links) {
+            sb.append("&(" + o.getLabel() + "," + o.getKind().getValue() + ");");
+        }
+
+        sb.append("\n");
+
+        while (!other.isEmpty()) {
+            Node o = other.poll();
+            sb.append(o.getLabel() + ";\n");
+        }
+
+        return sb.toString();
+    }
+
+    @Override
+    public ConstraintNetwork clone() {
+        return new ConstraintNetwork(this);
+    }
+
+
+}

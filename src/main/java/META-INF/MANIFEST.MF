@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Class-Path: commons-lang3-3.5-SNAPSHOT.jar slf4j-api-2.0.99.jar slf4j-
+ simple-1.6.99.jar automaton.jar
+
