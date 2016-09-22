@@ -104,7 +104,7 @@ public class AutomatonUtils {
         }
 
         if (!a.isFinite()) {
-            logger.info("SHORTEST " + a.getShortestExample(true));
+        //    logger.info("SHORTEST " + a.getShortestExample(true));
             return new BasicRange(minlen, Integer.MAX_VALUE);
         }
 
