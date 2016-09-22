@@ -36,7 +36,7 @@ public enum OperationKind implements NetworkEntity.NetworkEntityKind {
     AND(44,"and", OperationReturnType.BOOLEAN),
     XOR(46,"xor", OperationReturnType.BOOLEAN),
     NOT(48,"not", OperationReturnType.BOOLEAN),
-    ITE(50,"ite", OperationReturnType.UNKNOWN),
+    ITE(50,"ite", OperationReturnType.BOOLEAN),
 
     SUBSTR(52,"substr",OperationReturnType.STRING),
     INDEXOF(54,"indexof",OperationReturnType.NUMERIC_N),

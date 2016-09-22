@@ -2,7 +2,6 @@ package org.snt.cnetwork.utils;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.owasp.esapi.codecs.OracleCodec;
-import org.owasp.esapi.reference.IntegerAccessReferenceMap;
 import org.snt.cnetwork.core.OperationKind;
 import org.snt.cnetwork.sig.JavaMethodSignature;
 
@@ -21,6 +20,7 @@ public class StandardWrappers {
             case STRINV:
             case SEARCH:
             case NEQUALS:
+            case ITE:
                 return "org.snt.cnetwork.utils.StandardWrappers.noOp()Ljava/lang/String;";
             case STR_EQUALS:
                 return "org.snt.cnetwork.utils.StandardWrappers.strEq(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";

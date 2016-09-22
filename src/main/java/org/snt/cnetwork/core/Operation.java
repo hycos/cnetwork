@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.range.BooleanRange;
 import org.snt.cnetwork.core.range.NumRange;
 import org.snt.cnetwork.sig.JavaMethodSignature;
+import org.snt.cnetwork.utils.AutomatonUtils;
 import org.snt.cnetwork.utils.StandardWrappers;
 
 
@@ -101,7 +102,7 @@ public class Operation extends Node {
 
     @Override
     public boolean isLiteral() {
-        return this.automaton.getSingleton() != null;
+        return AutomatonUtils.isLiteral(this.getAutomaton());
     }
 
     @Override
