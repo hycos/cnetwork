@@ -21,6 +21,7 @@ public class StandardWrappers {
             case SEARCH:
             case NEQUALS:
             case ITE:
+            case DIV:
                 return "org.snt.cnetwork.utils.StandardWrappers.noOp()Ljava/lang/String;";
             case STR_EQUALS:
                 return "org.snt.cnetwork.utils.StandardWrappers.strEq(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";

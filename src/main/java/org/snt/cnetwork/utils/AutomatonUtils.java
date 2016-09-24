@@ -6,9 +6,6 @@ import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.automaton.AutomatonTrans;
-import org.snt.cnetwork.automaton.FullTransition;
-import org.snt.cnetwork.automaton.StateEliminator;
 import org.snt.cnetwork.core.range.BasicRange;
 import org.snt.cnetwork.core.range.BooleanRange;
 import org.snt.cnetwork.core.range.NumRange;
@@ -76,21 +73,6 @@ public class AutomatonUtils {
 
         return mina.intersection(maxa);
     }
-
-
-    public static Set<FullTransition> getFullTransitionsFor(Automaton a) {
-
-        Set<FullTransition> fullTrans = new HashSet<FullTransition>();
-        // get all transitions
-        for (State s : a.getStates()) {
-            for (Transition t : s.getTransitions()) {
-                FullTransition ft = new FullTransition(s, t, t.getDest());
-                fullTrans.add(ft);
-            }
-        }
-        return fullTrans;
-    }
-
 
     public static BasicRange getApproxLenRange(Automaton a) {
         assert (a != null);
@@ -215,20 +197,6 @@ public class AutomatonUtils {
             pred = c;
         }
         return out.toString();
-    }
-
-
-    public static int getGraphDistance(Automaton a, Automaton b) {
-        AutomatonTrans amod = new AutomatonTrans(a);
-        AutomatonTrans bmod = new AutomatonTrans(b);
-        logger.info(amod.toDot());
-        return 0;
-    }
-
-
-    public static String getRegexpFromAutomaton(Automaton a) {
-        StateEliminator dcom = new StateEliminator(new AutomatonTrans(a));
-        return dcom.stateElimination();
     }
 
     public static Automaton getSubstringAutomaton(Automaton a) {

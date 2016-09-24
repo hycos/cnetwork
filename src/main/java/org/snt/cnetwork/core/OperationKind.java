@@ -74,7 +74,9 @@ public enum OperationKind implements NetworkEntity.NetworkEntityKind {
     EMTPY(108,"emtpy", OperationReturnType.BOOLEAN),
 
     // special search procedure
-    SEARCH(110,"search", OperationReturnType.BOOLEAN);
+    SEARCH(110,"search", OperationReturnType.BOOLEAN),
+
+    DIV(112,"div", OperationReturnType.NUMERIC_Z);
 
 
 
