@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 public class Edge implements NetworkEntity,Comparable<Edge>, Cloneable {
 
-    final static Logger logger = LoggerFactory.getLogger(Edge.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(Edge.class);
 
     private Node srcNode;
     private Node destNode;

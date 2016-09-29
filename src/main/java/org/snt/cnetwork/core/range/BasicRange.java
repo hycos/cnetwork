@@ -11,7 +11,7 @@ import java.util.Set;
 
 public class BasicRange implements Comparable<BasicRange> {
 
-    final static Logger logger = LoggerFactory.getLogger(BasicRange.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(BasicRange.class);
 
     public static BasicRange N = new BasicRange(0, Integer.MAX_VALUE);
     public static BasicRange Z = new BasicRange(Integer.MIN_VALUE, Integer.MAX_VALUE);
@@ -145,13 +145,13 @@ public class BasicRange implements Comparable<BasicRange> {
 
     public BasicRange intersection(BasicRange other) {
 
-        //logger.info("get overlap " + this.toString() + " " + other.toString());
+        //LOGGER.info("get overlap " + this.toString() + " " + other.toString());
 
         if(other.min > this.max || other.max < this.min)
             return null;
 
         BasicRange overlap = new BasicRange(Math.max(this.min, other.min),Math.min(this.max, other.max));
-        //logger.info("Overlap is "+ overlap);
+        //LOGGER.info("Overlap is "+ overlap);
 
         assert(overlap.max >= overlap.min);
 
@@ -215,7 +215,7 @@ public class BasicRange implements Comparable<BasicRange> {
 
         BasicRange isect = this.intersection(N.clone());
 
-        logger.info("getlenauto" + isect.toString());
+        LOGGER.info("getlenauto" + isect.toString());
 
 
         if(isect == null) {

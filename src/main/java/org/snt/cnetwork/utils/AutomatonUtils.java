@@ -14,7 +14,7 @@ import java.util.*;
 
 public class AutomatonUtils {
 
-    final static Logger logger = LoggerFactory.getLogger(AutomatonUtils.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(AutomatonUtils.class);
 
     private static int transId = 0;
 
@@ -119,7 +119,7 @@ public class AutomatonUtils {
         if(!ra.intersection(a).equals(a))
             return null;
 
-        logger.info(a.toString());
+        LOGGER.info(a.toString());
 
 
         Set<String> result = a.getFiniteStrings();
@@ -278,7 +278,7 @@ public class AutomatonUtils {
         if (s.isAccept() && choice == 0 && sb.length() >= minsize)
             return;
 
-        logger.info(transitions.size() + " --- " + choice);
+        LOGGER.info(transitions.size() + " --- " + choice);
 
         Transition t = transitions.get(choice);
 

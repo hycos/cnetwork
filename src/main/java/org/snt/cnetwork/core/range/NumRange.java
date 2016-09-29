@@ -8,7 +8,7 @@ import java.util.*;
 
 public class NumRange extends BasicRange {
 
-    final static Logger logger = LoggerFactory.getLogger(NumRange.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(NumRange.class);
 
     public static NumRange N = new NumRange(BasicRange.N);
     public static NumRange Z = new NumRange(BasicRange.Z);
@@ -39,7 +39,7 @@ public class NumRange extends BasicRange {
 
         // all the elements that are not contained in this
         NumRange complement = nr.complement(this);
-        //logger.info("COMPLEMEN " + complement);
+        //LOGGER.info("COMPLEMEN " + complement);
 
         if(complement == null)
             return null;
@@ -60,7 +60,7 @@ public class NumRange extends BasicRange {
             next = this.ran.higherEntry(e.getKey());
 
            if(next != null) {
-               //logger.info("NEXT " + next.toString());
+               //LOGGER.info("NEXT " + next.toString());
                if(ret == null) ret = new NumRange();
                ret.add(new BasicRange(e.getValue().getMax() + 1, next.getValue().getMin()-1));
             }
@@ -82,7 +82,7 @@ public class NumRange extends BasicRange {
 
     public NumRange intersection(NumRange nr) {
 
-        //logger.info("Get intersection: " + this.toString() + " " + nr.toString());
+        //LOGGER.info("Get intersection: " + this.toString() + " " + nr.toString());
 
         NumRange rs = null;
 
@@ -108,7 +108,7 @@ public class NumRange extends BasicRange {
             thisptr != null;
             thisptr = this.ran.higherEntry(thisptr.getValue().getMin())) {
 
-            //logger.info(">> " + thisptr.getValue().toString());
+            //LOGGER.info(">> " + thisptr.getValue().toString());
             long thismin = thisptr.getValue().getMin();
             long thismax = thisptr.getValue().getMax();
 
@@ -118,8 +118,8 @@ public class NumRange extends BasicRange {
                     nr.ran.floorEntry(thismax) : nr.ran.ceilingEntry(thismax));
 
 
-            //logger.info("SFROM " + sfrom.getValue().toString());
-            //logger.info("STO " + sto.getValue().toString());
+            //LOGGER.info("SFROM " + sfrom.getValue().toString());
+            //LOGGER.info("STO " + sto.getValue().toString());
 
             if(sfrom == null || sto == null)
                 continue;
@@ -128,7 +128,7 @@ public class NumRange extends BasicRange {
             for(Map.Entry <Long, BasicRange> sptr = sfrom;
                 sptr != null;
                 sptr = nr.ran.higherEntry(sptr.getKey())) {
-                //logger.info("++==");
+                //LOGGER.info("++==");
 
 
 
@@ -136,7 +136,7 @@ public class NumRange extends BasicRange {
 
                 BasicRange ret = sptr.getValue().intersection(thisptr.getValue());
 
-                //logger.info("*** " + sptr);
+                //LOGGER.info("*** " + sptr);
 
                 if(ret != null)
                     toadd.add(ret);
@@ -156,7 +156,7 @@ public class NumRange extends BasicRange {
             if(thisptr == thisto)
                 break;
         }
-        //logger.info("DONE ");
+        //LOGGER.info("DONE ");
 
         return rs;
     }
@@ -179,7 +179,7 @@ public class NumRange extends BasicRange {
 
     public void add(BasicRange e) {
 
-        //logger.info("ADD NR " + e);
+        //LOGGER.info("ADD NR " + e);
 
         if(this.ran.isEmpty()){
             this.ran.put(e.getMin(), e);
@@ -198,16 +198,16 @@ public class NumRange extends BasicRange {
 
         if(floorMax != null) {
             fMax = floorMax.getValue();
-            //logger.info("FMAX : " + fMax.toString());
+            //LOGGER.info("FMAX : " + fMax.toString());
         }
 
         if(ceilMin != null) {
             cMin = ceilMin.getValue();
-            //logger.info("CMIN : " + cMin.toString());
+            //LOGGER.info("CMIN : " + cMin.toString());
         }
 
         if(cMin != null) {
-            //logger.info("here");
+            //LOGGER.info("here");
             BasicRange overlap = cMin.intersection(e);
             if(overlap != null) {
                 long min = Math.min(cMin.getMin(), e.getMin());
@@ -221,12 +221,12 @@ public class NumRange extends BasicRange {
         }
 
         if(fMax != null) {
-            //logger.info("there");
+            //LOGGER.info("there");
             BasicRange overlap = fMax.intersection(e);
             if (overlap != null) {
                 long min = (ceilMin != null ? Math.min(ceilMin.getValue().getMin(), e.getMin()) : e.getMin());
                 long max = Math.max(fMax.getMax(), e.getMax());
-                //logger.info("MIN " + min + " " + fMax.getMax());
+                //LOGGER.info("MIN " + min + " " + fMax.getMax());
                 BasicRange newfmax = new BasicRange(min, max);
                 cleanupAscending(newfmax);
                 //this.remove(fMax.getMin());
@@ -255,7 +255,7 @@ public class NumRange extends BasicRange {
 
         if(floor != null) {
             rfloor = floor.getValue();
-            //logger.info("RFLOOR " + rfloor);
+            //LOGGER.info("RFLOOR " + rfloor);
             if(e.intersection(rfloor) != null || e.getMin() - 1 == rfloor.getMax()) {
                 nr.setMin(rfloor.getMin());
                 removeFloor = true;
@@ -264,7 +264,7 @@ public class NumRange extends BasicRange {
 
         if(ceil != null) {
             rceil = ceil.getValue();
-            //logger.info("RCEIL " + rceil);
+            //LOGGER.info("RCEIL " + rceil);
             if(e.intersection(rceil) != null || e.getMax() + 1 == rceil.getMin()) {
                 nr.setMax(rceil.getMax());
                 removeCeil = true;
@@ -288,7 +288,7 @@ public class NumRange extends BasicRange {
     }
 
     private void cleanupDescending(BasicRange from) {
-        logger.info("cleanup desc " + from) ;
+        LOGGER.info("cleanup desc " + from) ;
         Map.Entry<Long, BasicRange> todel = this.ran.higherEntry(from.getMin());
 
         while (todel != null &&
@@ -301,7 +301,7 @@ public class NumRange extends BasicRange {
     }
 
     private void cleanupAscending(BasicRange from) {
-        logger.info("cleanup asc " + from);
+        LOGGER.info("cleanup asc " + from);
         Map.Entry<Long, BasicRange> todel = this.ran.lowerEntry(from.getMax());
 
         while (todel != null &&
@@ -367,7 +367,7 @@ public class NumRange extends BasicRange {
 
                 BasicRange sum = eout.getValue().numadd(ein.getValue());
 
-                logger.info(eout.getValue() + "+" + ein.getValue() + "=" + sum);
+                LOGGER.info(eout.getValue() + "+" + ein.getValue() + "=" + sum);
                 ret.add(sum);
             }
         }
@@ -381,7 +381,7 @@ public class NumRange extends BasicRange {
 
                 BasicRange sum = eout.getValue().numsub(ein.getValue());
 
-                logger.info(eout.getValue() + "-" + ein.getValue() + "=" + sum);
+                LOGGER.info(eout.getValue() + "-" + ein.getValue() + "=" + sum);
                 ret.add(sum);
             }
         }

@@ -24,7 +24,7 @@ public class Operand extends Node {
 
     public Operand(String label, OperandKind kind) {
 
-        //logger.info("LABEL " + label);
+        //LOGGER.info("LABEL " + label);
 
         this.label = label;
         this.kind = kind;

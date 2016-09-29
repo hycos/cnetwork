@@ -9,6 +9,7 @@ public abstract class Node implements NetworkEntity, Cloneable {
 
     final static Logger logger = LoggerFactory.getLogger(Node.class);
 
+
     // most generic regular expressions
     public static String Z_REXP = "-?([0-9]|[1-9][0-9]{0,7})";
     public static String N_REXP = "[0-9]|([1-9][0-9]{0,7})";
@@ -76,17 +77,17 @@ public abstract class Node implements NetworkEntity, Cloneable {
     public abstract NetworkEntityKind getKind();
 
     public void setAutomaton(Automaton a) {
-        //logger.info("set " + this.getId() + " " + a.getShortestExample(true));
+        //LOGGER.info("set " + this.getId() + " " + a.getShortestExample(true));
         this.automaton = a.clone();
     }
 
     public boolean isOperation() {
-        //logger.info("ID " + getKindId());
+        //LOGGER.info("ID " + getKindId());
         return getKindId()%2 == 0;
     }
 
     public boolean isOperand() {
-        //logger.info("ID " + getKindId());
+        //LOGGER.info("ID " + getKindId());
         return getKindId()%2 != 0;
     }
 

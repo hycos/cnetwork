@@ -11,7 +11,7 @@ public class BooleanRange extends BasicRange {
     public static BooleanRange TRUE = new BooleanRange(BooleanValue.TRUE);
 
 
-    final static Logger logger = LoggerFactory.getLogger(BooleanRange.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(BooleanRange.class);
 
     public BooleanRange() {
         super(BooleanValue.TRUE.id, BooleanValue.FALSE.id);

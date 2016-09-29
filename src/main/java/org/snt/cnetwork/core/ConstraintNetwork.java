@@ -12,7 +12,7 @@ import java.util.*;
 
 public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
 
-    final static Logger logger = LoggerFactory.getLogger(ConstraintNetwork.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(ConstraintNetwork.class);
 
     // keep track of sat edges
     private HashSet<Edge> sat;
@@ -117,7 +117,7 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
             return null;
 
         for (Edge e : allIncoming) {
-            //logger.info("EEEE " + e.toString());
+            //LOGGER.info("EEEE " + e.toString());
             if (e.getKind() == kind) {
                 ret.add(e);
             }
@@ -160,8 +160,8 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
 
     public Operation registerExtOperation(String bytecodesig, String label) {
 
-        //logger.info("bytecodesig " + bytecodesig);
-        //logger.info("name " + label);
+        //LOGGER.info("bytecodesig " + bytecodesig);
+        //LOGGER.info("name " + label);
 
         if (opLookup.containsKey(bytecodesig))
             return null;
@@ -172,7 +172,7 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
         Operation op = new Operation(label, sig);
         opLookup.put(label, op);
 
-        //logger.info("OPLOOKUP " + op.toString());
+        //LOGGER.info("OPLOOKUP " + op.toString());
 
         return op;
     }
@@ -214,9 +214,9 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
         for (int i = 0; i < params.size(); i++) {
             Node par = params.get(i);
             assert (par != null);
-            //logger.info("Par " + par.getKind());
-            //logger.info("Par" + par.getId());
-            //logger.info("+PAR " + par.getLabel());
+            //LOGGER.info("Par " + par.getKind());
+            //LOGGER.info("Par" + par.getId());
+            //LOGGER.info("+PAR " + par.getLabel());
             String plbl = par.getLabel();
             if (par instanceof Operand && par.isLiteral() && par.isString()) {
                 plbl = par.getLabel();
@@ -280,11 +280,11 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
 
 
     public Operation addOperation(OperationKind kind, boolean isConstraint, List<Node> params) {
-        //logger.info("PARAMS LEN " + params.size());
+        //LOGGER.info("PARAMS LEN " + params.size());
         Operation op;
 
         String label = kind.toString() + "(" + getParameterList(params) + ")";
-        //logger.info("LABEL IS " + label);
+        //LOGGER.info("LABEL IS " + label);
 
         op = (Operation) getNodeByLabel(label);
 
@@ -352,7 +352,7 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
 
     @Override
     public boolean addVertex(Node n) {
-        //logger.info("ADD NODE " + n.getLabel());
+        //LOGGER.info("ADD NODE " + n.getLabel());
 
         Node ret = null;
 
@@ -367,7 +367,7 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
 
         if (ret instanceof Operand) {
             Operand op = (Operand) ret;
-            //logger.info(">>> " + op.getLabel());
+            //LOGGER.info(">>> " + op.getLabel());
             this.operands.put(op.getName(), op);
         }
         if (ret instanceof Operation) {
@@ -416,7 +416,7 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
 
 
         assert (othercn.getStartNode() != null);
-        logger.info("Start node is " + othercn.getStartNode().toString());
+        LOGGER.info("Start node is " + othercn.getStartNode().toString());
 
         for (Node n : othercn.vertexSet()) {
             this.addNode(n);
@@ -472,8 +472,8 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
                 color = "black";
             }
 
-            //logger.info(n.getLabel());
-            //logger.info(n.toString());
+            //LOGGER.info(n.getLabel());
+            //LOGGER.info(n.toString());
 
             String annotation = n.isAnnotated() ? "\\n" + n.getAnnotation() : "";
 
@@ -526,7 +526,7 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
 
         for (Map.Entry<String, Node> e : this.nodeLookup.entrySet()) {
 
-            //logger.info(e.getKey() + " :: " + e.getValue());
+            //LOGGER.info(e.getKey() + " :: " + e.getValue());
 
         }
     }

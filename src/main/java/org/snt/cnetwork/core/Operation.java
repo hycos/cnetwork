@@ -12,7 +12,8 @@ import org.snt.cnetwork.utils.StandardWrappers;
 
 public class Operation extends Node {
 
-    final static Logger logger = LoggerFactory.getLogger(Operation.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(Operation.class);
+    
 
     private OperationKind kind;
     private String label;

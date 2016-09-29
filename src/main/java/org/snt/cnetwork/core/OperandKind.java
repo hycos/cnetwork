@@ -87,7 +87,8 @@ public enum OperandKind implements NetworkEntity.NetworkEntityKind {
     }
 
     public boolean isThreatModel() {
-        return this == XMLI || this == SQLISTR || this == SQLINUM || this == XPATHSTR || this == XPATHNUM || this == LDAPI || this == XSS;
+        return this == XMLI || this == SQLISTR || this == SQLINUM ||
+                this == XPATHSTR || this == XPATHNUM || this == LDAPI || this == XSS;
     }
 
     public boolean isRegex() {

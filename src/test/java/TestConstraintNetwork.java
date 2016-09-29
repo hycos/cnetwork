@@ -7,7 +7,7 @@ import org.snt.cnetwork.core.*;
 
 public class TestConstraintNetwork {
 
-    final static Logger logger = LoggerFactory.getLogger(TestConstraintNetwork.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(TestConstraintNetwork.class);
 
 
     @Test
@@ -44,7 +44,7 @@ public class TestConstraintNetwork {
         tm2.setStartNode(orv1compv2);
         tm2.addConstraint(OperationKind.MATCHES, x, orv1compv2);
 
-        logger.info(tm2.toDot());
+        LOGGER.info(tm2.toDot());
     }
 
 
@@ -69,9 +69,9 @@ public class TestConstraintNetwork {
         tm2.setStartNode(orv1compv2);
         tm2.addConstraint(OperationKind.MATCHES, x, orv1compv2);
 
-        logger.info(tm2.toDot());
+        LOGGER.info(tm2.toDot());
         ConstraintNetwork tm3 = tm2.clone();
-        logger.info(tm3.toDot());
+        LOGGER.info(tm3.toDot());
 
     }
 
