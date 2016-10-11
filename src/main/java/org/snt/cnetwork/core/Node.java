@@ -7,7 +7,7 @@ import org.snt.cnetwork.core.range.BasicRange;
 
 public abstract class Node implements NetworkEntity, Cloneable {
 
-    final static Logger logger = LoggerFactory.getLogger(Node.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(Node.class);
 
 
     // most generic regular expressions

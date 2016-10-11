@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 public class RexpUtils {
 
-    final static Logger logger = LoggerFactory.getLogger(RexpUtils.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(RexpUtils.class);
 
     public static String getRexpForRange(long min, long max) {
         return getRexpForMin(min) + "&" + getRexpForMax(max);
@@ -121,7 +121,7 @@ public class RexpUtils {
 
                     if (digit != '0') {
                         carry = "[0-" + (digit) + "]";
-                        //logger.info("CARRY " + carry);
+                        //LOGGER.info("CARRY " + carry);
                     } else {
                         // if we reached the max significant digit
                         carry = "0";
@@ -146,7 +146,7 @@ public class RexpUtils {
             }
 
         }
-        //logger.info("DREXP " + drexp.toString());
+        //LOGGER.info("DREXP " + drexp.toString());
         return drexp.toString();
 
     }

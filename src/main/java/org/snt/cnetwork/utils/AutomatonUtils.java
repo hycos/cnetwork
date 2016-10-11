@@ -59,9 +59,9 @@ public class AutomatonUtils {
         }
 
         String mins = RexpUtils.getRexpForMin(min);
-        //logger.info("MINS " + mins);
+        //LOGGER.info("MINS " + mins);
         String maxs = RexpUtils.getRexpForMax(max);
-        //logger.info("MAXS " + maxs);
+        //LOGGER.info("MAXS " + maxs);
 
         RegExp minr = new RegExp(mins);
         RegExp maxr = new RegExp(maxs);
@@ -86,7 +86,7 @@ public class AutomatonUtils {
         }
 
         if (!a.isFinite()) {
-        //    logger.info("SHORTEST " + a.getShortestExample(true));
+        //    LOGGER.info("SHORTEST " + a.getShortestExample(true));
             return new BasicRange(minlen, Integer.MAX_VALUE);
         }
 

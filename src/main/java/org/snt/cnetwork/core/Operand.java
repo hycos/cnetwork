@@ -30,7 +30,7 @@ public class Operand extends Node {
         this.kind = kind;
 
         if(this.getKind() == OperandKind.STRLIT) {
-            logger.info("create strlit with " + label);
+            LOGGER.info("create strlit with " + label);
             this.automaton = new RegExp(label).toAutomaton();
             this.range = new NumRange(AutomatonUtils.getApproxLenRange(this.automaton));
             assert(this.range.getDiff() == 0);
