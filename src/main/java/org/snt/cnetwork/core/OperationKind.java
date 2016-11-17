@@ -37,46 +37,47 @@ public enum OperationKind implements NetworkEntity.NetworkEntityKind {
     XOR(46,"xor", OperationReturnType.BOOLEAN),
     NOT(48,"not", OperationReturnType.BOOLEAN),
     ITE(50,"ite", OperationReturnType.BOOLEAN),
+    IMPLIES(52,"implies", OperationReturnType.BOOLEAN),
 
-    SUBSTR(52,"substr",OperationReturnType.STRING),
-    INDEXOF(54,"indexof",OperationReturnType.NUMERIC_N),
-    TOLOWER(56,"tolower",OperationReturnType.STRING_LOWER),
-    TOUPPER(58,"toupper",OperationReturnType.STRING_UPPER),
-    CONCAT(60,"concat",OperationReturnType.STRING),
-    TRIM(62,"trim",OperationReturnType.STRING),
-    LEN(64,"len",OperationReturnType.NUMERIC_N),
-    REPLACE(66,"replace",OperationReturnType.STRING),
-    STRINV(68,"strinv",OperationReturnType.STRING),
-    CHARAT(70,"charat", OperationReturnType.STRING),
+    SUBSTR(54,"substr",OperationReturnType.STRING),
+    INDEXOF(56,"indexof",OperationReturnType.NUMERIC_N),
+    TOLOWER(58,"tolower",OperationReturnType.STRING_LOWER),
+    TOUPPER(60,"toupper",OperationReturnType.STRING_UPPER),
+    CONCAT(62,"concat",OperationReturnType.STRING),
+    TRIM(64,"trim",OperationReturnType.STRING),
+    LEN(66,"len",OperationReturnType.NUMERIC_N),
+    REPLACE(68,"replace",OperationReturnType.STRING),
+    STRINV(70,"strinv",OperationReturnType.STRING),
+    CHARAT(72,"charat", OperationReturnType.STRING),
 
-    VALUEOF(72,"valueof",OperationReturnType.NUMERIC_Z),
-    TOSTR(74,"tostr",OperationReturnType.STRING),
+    VALUEOF(74,"valueof",OperationReturnType.NUMERIC_Z),
+    TOSTR(76,"tostr",OperationReturnType.STRING),
 
-    ADD(76,"add", OperationReturnType.NUMERIC_LZ),
-    SUB(78,"sub", OperationReturnType.NUMERIC_Z),
+    ADD(78,"add", OperationReturnType.NUMERIC_LZ),
+    SUB(80,"sub", OperationReturnType.NUMERIC_Z),
 
-    APACHE_ESCHTML(80,"apache_eschtml", OperationReturnType.STRING),
-    APACHE_UESCHTML(82,"apache_ueschtml", OperationReturnType.STRING),
-    APACHE_ESCXML10(84,"apache_escxml10", OperationReturnType.STRING),
-    APACHE_ESCXML11(86,"apache_escxml11", OperationReturnType.STRING),
-    APACHE_ESCJSON(88,"apache_escjson", OperationReturnType.STRING),
-    APACHE_ESCECMA(90,"apache_escecma", OperationReturnType.STRING),
+    APACHE_ESCHTML(82,"apache_eschtml", OperationReturnType.STRING),
+    APACHE_UESCHTML(84,"apache_ueschtml", OperationReturnType.STRING),
+    APACHE_ESCXML10(86,"apache_escxml10", OperationReturnType.STRING),
+    APACHE_ESCXML11(88,"apache_escxml11", OperationReturnType.STRING),
+    APACHE_ESCJSON(90,"apache_escjson", OperationReturnType.STRING),
+    APACHE_ESCECMA(92,"apache_escecma", OperationReturnType.STRING),
 
-    ESAPI_ESCLDAP(92,"esapi_escldap", OperationReturnType.STRING),
-    ESAPI_ESCDN(94,"esapi_escdn", OperationReturnType.STRING),
-    ESAPI_ESCHTML(96,"esapi_eschtml", OperationReturnType.STRING),
-    ESAPI_ESCHTMLATTR(98,"esapi_eschtmlattr", OperationReturnType.STRING),
-    ESAPI_ESCXML(100,"esapi_escxml", OperationReturnType.STRING),
-    ESAPI_ESCXMLATTR(102,"esapi_escxmlattr", OperationReturnType.STRING),
-    ESAPI_ESCXPATH(104,"esapi_escxpath", OperationReturnType.STRING),
-    ESAPI_ESCSQL(106,"esapi_escsql", OperationReturnType.STRING),
+    ESAPI_ESCLDAP(94,"esapi_escldap", OperationReturnType.STRING),
+    ESAPI_ESCDN(96,"esapi_escdn", OperationReturnType.STRING),
+    ESAPI_ESCHTML(98,"esapi_eschtml", OperationReturnType.STRING),
+    ESAPI_ESCHTMLATTR(100,"esapi_eschtmlattr", OperationReturnType.STRING),
+    ESAPI_ESCXML(102,"esapi_escxml", OperationReturnType.STRING),
+    ESAPI_ESCXMLATTR(104,"esapi_escxmlattr", OperationReturnType.STRING),
+    ESAPI_ESCXPATH(106,"esapi_escxpath", OperationReturnType.STRING),
+    ESAPI_ESCSQL(108,"esapi_escsql", OperationReturnType.STRING),
 
-    EMTPY(108,"emtpy", OperationReturnType.BOOLEAN),
+    EMTPY(110,"emtpy", OperationReturnType.BOOLEAN),
 
     // special search procedure
-    SEARCH(110,"search", OperationReturnType.BOOLEAN),
+    SEARCH(112,"search", OperationReturnType.BOOLEAN),
 
-    DIV(112,"div", OperationReturnType.NUMERIC_Z);
+    DIV(114,"div", OperationReturnType.NUMERIC_Z);
 
 
 
@@ -148,6 +149,7 @@ public enum OperationKind implements NetworkEntity.NetworkEntityKind {
             case "and": return AND;
             case "not": return NOT;
             case "ite": return ITE;
+            case "implies": return IMPLIES;
 
             case "=": return ASSIGNMENT;
 

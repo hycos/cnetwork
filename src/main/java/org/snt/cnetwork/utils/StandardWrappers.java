@@ -63,6 +63,9 @@ public class StandardWrappers {
                 return "org.snt.cnetwork.utils.StandardWrappers.xor(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case NOT:
                 return "org.snt.cnetwork.utils.StandardWrappers.not(Ljava/lang/String;)Ljava/lang/String;";
+            case IMPLIES:
+                return "org.snt.cnetwork.utils.StandardWrappers.implies" +
+                        "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case SUBSTR:
                 return "org.snt.cnetwork.utils.StandardWrappers.substring(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case INDEXOF:
@@ -174,6 +177,17 @@ public class StandardWrappers {
 
     public static String xor(String a, String b) {
         return (Boolean.parseBoolean(a) && !Boolean.parseBoolean(b)) || (!Boolean.parseBoolean(a) && Boolean.parseBoolean(b)) ? "true" : "false";
+    }
+
+    public static String implies(String a, String b) {
+        boolean ba = Boolean.parseBoolean(b);
+        boolean aa = Boolean.parseBoolean(a);
+
+        if(aa && !aa)
+            return "false";
+        else
+            return "true";
+
     }
 
     public static String strEqIc(String s0, String s1) {
