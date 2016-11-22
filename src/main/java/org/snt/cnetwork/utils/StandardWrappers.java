@@ -2,16 +2,16 @@ package org.snt.cnetwork.utils;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.owasp.esapi.codecs.OracleCodec;
-import org.snt.cnetwork.core.OperationKind;
+import org.snt.cnetwork.core.NodeKind;
 import org.snt.cnetwork.sig.JavaMethodSignature;
 
 public class StandardWrappers {
 
-    public static JavaMethodSignature getSigForOperation(OperationKind kind) {
+    public static JavaMethodSignature getSigForOperation(NodeKind kind) {
         return JavaMethodSignature.fromString(getSigStringForOperation(kind));
     }
 
-    private static String getSigStringForOperation(OperationKind kind) {
+    private static String getSigStringForOperation(NodeKind kind) {
         switch(kind) {
             case ASSIGNMENT:
             case UNKNOWN:

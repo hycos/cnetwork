@@ -1,35 +1,8 @@
-package org.snt.cnetwork.core.range;
+package org.snt.cnetwork.core;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public class BooleanRange extends AtomicNumRange {
 
-public class BooleanRange extends BasicRange {
-
-    public static BasicRange B = new BooleanRange();
-
-    public static BooleanRange FALSE = new BooleanRange(BooleanValue.FALSE);
-    public static BooleanRange TRUE = new BooleanRange(BooleanValue.TRUE);
-
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(BooleanRange.class);
-
-    public BooleanRange() {
-        super(BooleanValue.TRUE.id, BooleanValue.FALSE.id);
-    }
-
-    public BooleanRange(long min, long max) {
-        super(min,max);
-    }
-
-    public BooleanRange(BooleanRange br) {
-        super(br.min,br.max);
-    }
-
-    public BooleanRange(BooleanValue val) {
-        super(val.id,val.id);
-    }
-
-    public static enum BooleanValue {
+    public enum BooleanValue {
 
         TRUE(0L,"true"),
         FALSE(1L,"false");
@@ -65,6 +38,23 @@ public class BooleanRange extends BasicRange {
         public String getValue() {
             return this.sval;
         }
+    }
+
+
+    public BooleanRange() {
+        super(BooleanValue.TRUE.id, BooleanValue.FALSE.id);
+    }
+
+    public BooleanRange(long min, long max) {
+        super(min,max);
+    }
+
+    public BooleanRange(BooleanRange br) {
+        super(br.min,br.max);
+    }
+
+    public BooleanRange(BooleanValue val) {
+        super(val.id,val.id);
     }
 
     public BooleanRange or(BooleanRange other) {
@@ -128,9 +118,11 @@ public class BooleanRange extends BasicRange {
     }
 
     @Override
-    public BooleanRange intersection(BasicRange other) {
+    public BooleanRange intersect(Range dother) {
 
-        BasicRange nr = super.intersection(other);
+        BooleanRange other = (BooleanRange)dother;
+
+        AtomicNumRange nr = super.intersect(other);
 
         if(nr == null) {
             return null;

@@ -1,22 +1,23 @@
 package org.snt.cnetwork.core;
 
-import org.snt.cnetwork.core.range.BooleanRange;
-
 public class Constraint extends Operation {
 
     public Constraint(String name, String kind) {
-        this(name, OperationKind.KindFromString(kind));
+        super(name, kind);
     }
 
-    public Constraint(String name, OperationKind kind) {
+    public Constraint(String name, NodeKind kind) {
         super(name,kind);
-        this.setRange(new BooleanRange(BooleanRange.BooleanValue.TRUE));
+        assert kind.isComparative();
+        this.dom = NodeDomainFactory.getInstance().getDomain(NodeKind
+                .BOOLLIT, "true");
         assert(this.isBoolean());
     }
 
     public Constraint(Constraint c) {
         super(c);
-        this.setRange(new BooleanRange(BooleanRange.BooleanValue.TRUE));
+        this.dom = NodeDomainFactory.getInstance().getDomain(NodeKind
+                .BOOLLIT, "true");
         assert(this.isBoolean());
     }
 

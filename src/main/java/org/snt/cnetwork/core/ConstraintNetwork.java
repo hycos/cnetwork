@@ -3,10 +3,7 @@ package org.snt.cnetwork.core;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.range.BasicRange;
-import org.snt.cnetwork.core.range.NumRange;
 import org.snt.cnetwork.sig.JavaMethodSignature;
-
 
 import java.util.*;
 
@@ -140,17 +137,16 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
         return params;
     }
 
-    public Operand getAuxiliaryVariable(OperandKind kind) {
+    public Operand getAuxiliaryVariable(NodeKind kind) {
         Operand op = new Operand(variablePfx + (vidx++), kind);
         addNode(op);
         return op;
     }
 
-    public Operand addOperand(OperandKind kind, String label, int min, int max) {
+    public Operand addOperand(NodeKind kind, String label, int min, int max) {
         Node n = this.getNodeByLabel(label);
         if (n == null) {
             n = new Operand(label, kind);
-            n.setRange(new NumRange(new BasicRange(min, max)));
             this.addNode(n);
         }
         assert (n instanceof Operand);
@@ -260,26 +256,26 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
         return ret;
     }
 
-    public Operation addConstraint(OperationKind kind, Node... params) {
+    public Operation addConstraint(NodeKind kind, Node... params) {
         List<Node> lst = Arrays.asList(params);
         return addConstraint(kind, lst);
     }
 
-    public Operation addConstraint(OperationKind kind, List<Node> params) {
+    public Operation addConstraint(NodeKind kind, List<Node> params) {
         return addOperation(kind, true, params);
     }
 
-    public Operation addOperation(OperationKind kind, Node... params) {
+    public Operation addOperation(NodeKind kind, Node... params) {
         List<Node> lst = Arrays.asList(params);
         return addOperation(kind, lst);
     }
 
-    public Operation addOperation(OperationKind kind, List<Node> params) {
+    public Operation addOperation(NodeKind kind, List<Node> params) {
         return addOperation(kind, false, params);
     }
 
 
-    public Operation addOperation(OperationKind kind, boolean isConstraint, List<Node> params) {
+    public Operation addOperation(NodeKind kind, boolean isConstraint, List<Node> params) {
         //LOGGER.info("PARAMS LEN " + params.size());
         Operation op;
 
@@ -412,7 +408,7 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
     }
 
 
-    public void join(OperationKind kind, Node cpoint, ConstraintNetwork othercn) {
+    public void join(NodeKind kind, Node cpoint, ConstraintNetwork othercn) {
 
 
         assert (othercn.getStartNode() != null);
@@ -578,7 +574,7 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
                 }
 
                 sb.append("var " + type + " " + n.getLabel() + ";\n");
-            } else if (n.isOperation() && n.getKind() == OperationKind.EXTERNAL) {
+            } else if (n.isOperation() && n.getKind() == NodeKind.EXTERNAL) {
                 sb.append("fun " + "\"" + n.getLabel() + "\";\n");
             } else if (n.isBoolean() && !n.isLiteral()) {
                 if (outgoingEdgesOf(n) == null || outgoingEdgesOf(n).size() == 0) {

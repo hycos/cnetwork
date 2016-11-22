@@ -1,7 +1,7 @@
 package org.snt.cnetwork.core;
 
 
-public enum OperationReturnType {
+public enum DomainKind {
 
     UNKNOWN(0,"unknown"),
     NUMERIC_Z(1,"numeric_z"),
@@ -16,7 +16,7 @@ public enum OperationReturnType {
     private final String sval;
     private final int ival;
 
-    OperationReturnType(int ival, String sval) {
+    DomainKind(int ival, String sval) {
         this.sval = sval;
         this.ival = ival;
     }
@@ -29,7 +29,7 @@ public enum OperationReturnType {
         return this.sval;
     }
 
-    public static OperationReturnType ReturnTypeFromString(String kind) {
+    public static DomainKind ReturnTypeFromString(String kind) {
         switch(kind) {
             case "unknown": return UNKNOWN;
             case "numeric_z": return NUMERIC_Z;
@@ -45,5 +45,19 @@ public enum OperationReturnType {
         assert(false);
         return null;
     }
+
+    public boolean isNumeric() {
+        return this == NUMERIC_Z || this == NUMERIC_LZ || this == NUMERIC_N;
+    }
+
+    public boolean isBoolean() {
+        return this == BOOLEAN;
+    }
+
+    public boolean isString() {
+        return this == STRING || this == STRING_LOWER || this == STRING_UPPER ||
+                this == STRING_TRIMMED;
+    }
+
 }
 

@@ -1,20 +1,16 @@
 package org.snt.cnetwork.utils;
 
-import dk.brics.automaton.Automaton;
-import dk.brics.automaton.RegExp;
 import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.range.BasicRange;
-import org.snt.cnetwork.core.range.BooleanRange;
-import org.snt.cnetwork.core.range.NumRange;
+import org.snt.cnetwork.core.*;
 
 import java.util.*;
 
-public class AutomatonUtils {
+public class DomainUtils {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(AutomatonUtils.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(DomainUtils.class);
 
     private static int transId = 0;
 
@@ -23,19 +19,41 @@ public class AutomatonUtils {
     private static Set<Character> special = new HashSet<Character>(Arrays.asList(sarray));
 
 
-    public static Automaton getStrAutomatonForRange(long min, long max) {
+    public static Automaton getAutomatonForRange(long min, long max) {
         return new RegExp(".{" + Math.max(0,min) + "," + max + "}").toAutomaton();
     }
 
-    public static Automaton getStrAutomatonForRange(BasicRange r) {
-        return getStrAutomatonForRange(Math.max(0,r.getMin()), r.getMax());
+    public static Automaton getAutomatonForRange(AtomicNumRange r) {
+        return getAutomatonForRange(Math.max(0,r.getMin()), r.getMax());
     }
 
-    public static Automaton getNumAutomatonForRange(BasicRange r) {
+    public static Automaton getAutomatonForRange(Range r) {
+        if(r instanceof NumRange) {
+            getAutomatonForRange((NumRange)r);
+        } else if (r instanceof BooleanRange) {
+            getAutomatonForRange((BooleanRange)r);
+        } else if (r instanceof AtomicNumRange) {
+            getAutomatonForRange((AtomicNumRange)r);
+        }
+        // should never ever happen
+        assert false;
+
+        return null;
+    }
+
+    private static Automaton getAutomatonForRange(NumRange r) {
+        Automaton a = new Automaton();
+        r.getRangeMap().values().forEach(
+                v -> a.union(getAutomatonForRange(v))
+        );
+        return a;
+    }
+
+    private static Automaton getNumAutomatonForRange(AtomicNumRange r) {
         return getNumAutomatonForRange(r.getMin(), r.getMax());
     }
 
-    public static Automaton getBoolAutomatonForRange(BooleanRange r) {
+    private static Automaton getBoolAutomatonForRange(BooleanRange r) {
 
         String strue = BooleanRange.BooleanValue.TRUE.getValue();
         String sfalse = BooleanRange.BooleanValue.FALSE.getValue();
@@ -71,10 +89,10 @@ public class AutomatonUtils {
         Automaton maxa = maxr.toAutomaton();
 
 
-        return mina.intersection(maxa);
+        return mina.intersect(maxa);
     }
 
-    public static BasicRange getApproxLenRange(Automaton a) {
+    public static AtomicNumRange getApproxLenRange(Automaton a) {
         assert (a != null);
 
         int minlen = 0;
@@ -87,16 +105,16 @@ public class AutomatonUtils {
 
         if (!a.isFinite()) {
         //    LOGGER.info("SHORTEST " + a.getShortestExample(true));
-            return new BasicRange(minlen, Integer.MAX_VALUE);
+            return new AtomicNumRange(minlen, Integer.MAX_VALUE);
         }
 
-        BasicRange nr = new BasicRange(minlen, getLongestExample(a));
+        AtomicNumRange nr = new AtomicNumRange(minlen, getLongestExample(a));
 
 
         return nr;
     }
 
-    public static BasicRange getExactLenRange(Automaton a) {
+    public static NumRange getExactLenRange(Automaton a) {
         assert (a != null);
 
         Set<String> result = a.getFiniteStrings();
@@ -110,9 +128,10 @@ public class AutomatonUtils {
         return nr;
     }
 
-    public static BasicRange getNumRangeForAutomaton(Automaton a) {
+    public static NumRange getNumRangeForAutomaton(Automaton a) {
 
-        String r = RexpUtils.getRexpForRange(NumRange.Z.getMin(), NumRange.Z.getMax());
+        String r = RexpUtils.getRexpForRange(NodeDomainFactory.Z.getMin(), NodeDomainFactory.Z
+                .getMax());
 
         Automaton ra = new RegExp(r).toAutomaton();
 
@@ -179,24 +198,6 @@ public class AutomatonUtils {
 
         }
         return max;
-    }
-
-
-    public static String escapeSpecialCharacters(String s) {
-        StringBuilder out = new StringBuilder();
-        char pred = ' ';
-        for (char c : s.toCharArray()) {
-            if (pred != '\\' && special.contains(c)) {
-                out.append("\\" + c);
-            } else if (pred == '\\' && special.contains(c)) {
-                out.deleteCharAt(out.length() - 1); // delete NULL
-                out.append(c);
-            } else {
-                out.append(c);
-            }
-            pred = c;
-        }
-        return out.toString();
     }
 
     public static Automaton getSubstringAutomaton(Automaton a) {

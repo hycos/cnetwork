@@ -1,6 +1,6 @@
 package org.snt.cnetwork.core;
 
-public enum EdgeKind implements NetworkEntity.NetworkEntityKind {
+public enum EdgeKind {
     UNKNOWN(0,"unknown"),
     PAR_IN(1,"parin");
 
