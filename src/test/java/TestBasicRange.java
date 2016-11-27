@@ -80,6 +80,8 @@ public class TestBasicRange {
         AtomicNumRange r1 = new AtomicNumRange(2014, 3050);
         AtomicNumRange r2 = new AtomicNumRange(1000, 3050);
 
+        AtomicNumRange isect = r1.intersect(r2);
+
         assert(r1.intersect(r2) != null);
         assert(r1.getMin() == 2014 && r1.getMax() == 3050);
 

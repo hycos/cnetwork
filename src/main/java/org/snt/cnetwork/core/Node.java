@@ -11,8 +11,8 @@ public abstract class Node implements Cloneable {
 
     protected NodeDomain dom = null;
 
-    protected String instance;
-    protected String label;
+    protected String instance = "";
+    protected String label = "";
     protected String annotation = "";
 
 
@@ -24,6 +24,7 @@ public abstract class Node implements Cloneable {
         this.id = nid++;
         this.kind = kind;
         this.label = label;
+        LOGGER.debug(".. " + label);
         // compute the appropriate domain automatically
         this.dom = NodeDomainFactory.getInstance().getDomain(this);
     }

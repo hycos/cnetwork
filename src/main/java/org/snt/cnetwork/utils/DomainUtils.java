@@ -93,7 +93,7 @@ public class DomainUtils {
     }
 
     public static AtomicNumRange getApproxLenRange(Automaton a) {
-        assert (a != null);
+        assert a != null;
 
         int minlen = 0;
 

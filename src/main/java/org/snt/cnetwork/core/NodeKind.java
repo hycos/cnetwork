@@ -220,7 +220,8 @@ public enum NodeKind {
                 this == BOOL_NEQUALS || this == STR_NEQUALSIC || this ==
                 STR_EQUALSIC || this == EMTPY || this == MATCHES || this ==
                 OR || this == AND || this == XOR || this == IMPLIES || this
-                == NOT || this == CONTAINS;
+                == NOT || this == CONTAINS || this == GREATEREQ || this ==
+                SMALLEREQ || this == SMALLER || this == GREATER;
     }
 
     public boolean isOperation() {

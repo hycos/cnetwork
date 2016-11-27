@@ -1,8 +1,11 @@
 package org.snt.cnetwork.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.utils.DomainUtils;
 
 public class NodeDomainFactory {
+    final static Logger LOGGER = LoggerFactory.getLogger(NodeDomainFactory.class);
 
     private static NodeDomainFactory factory = null;
 
@@ -32,7 +35,7 @@ public class NodeDomainFactory {
     }
 
     public NodeDomain getDomain(Node n) {
-        return getDomain(n.getKind());
+        return getDomain(n.getKind(), n.getLabel());
     }
 
     public NodeDomain getDomain(NodeKind n) {
@@ -64,7 +67,7 @@ public class NodeDomainFactory {
             case STRING:
                 if ((n.isLiteral() || n.isRegex())) {
 
-                    assert lbl != null && lbl.matches(STR_REXP);
+                    assert lbl != null;
 
                     Automaton a = new RegExp(lbl).toAutomaton();
                     return new NodeDomain(a, DomainUtils
@@ -85,6 +88,8 @@ public class NodeDomainFactory {
                         .toAutomaton(), N.clone());
             case BOOLEAN:
                 if (n.isLiteral()) {
+                    LOGGER.debug("__" + lbl);
+
                     assert lbl != null && lbl.matches("(true|false)");
                     BooleanRange.BooleanValue bv = BooleanRange.BooleanValue
                             .KindFromString(lbl);

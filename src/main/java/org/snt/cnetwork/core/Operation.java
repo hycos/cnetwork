@@ -22,7 +22,8 @@ public class Operation extends Node {
 
     public Operation(String name, NodeKind kind) {
         super(name, kind);
-        assert kind.isOperation();
+        LOGGER.debug("Node kind {}", kind);
+        assert kind.isOperation() || kind.isComparative();
         this.sig = StandardWrappers.getSigForOperation(this.kind);
     }
 

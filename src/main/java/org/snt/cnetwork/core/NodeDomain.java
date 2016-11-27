@@ -10,7 +10,7 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
 
 
     public NodeDomain(NodeDomain other) {
-        this.automaton = other.automaton.clone();
+        this.automaton = new Automaton(other.automaton);
         this.range = other.range.clone();
     }
 
@@ -51,7 +51,7 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
 
     @Override
     protected NodeDomain clone() {
-        return new NodeDomain(this.automaton.clone(), this.range.clone());
+        return new NodeDomain(this.automaton, this.range.clone());
     }
 
     @Override

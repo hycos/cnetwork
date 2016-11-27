@@ -13,8 +13,6 @@ public class AtomicNumRange extends Range {
     public static AtomicNumRange N = new AtomicNumRange(0, Integer.MAX_VALUE);
     public static AtomicNumRange Z = new AtomicNumRange(Integer.MIN_VALUE, Integer.MAX_VALUE);
 
-    protected long min = 0;
-    protected long max = -1;
 
     public AtomicNumRange(long min, long max) {
         super(min,max);
@@ -164,7 +162,8 @@ public class AtomicNumRange extends Range {
 
         AtomicNumRange other = (AtomicNumRange)dother;
 
-        //LOGGER.info("get overlap " + this.toString() + " " + other.toString());
+        LOGGER.info("get overlap " + this.toString() + " " + other.toString
+                 ());
 
         if(other.min > this.max || other.max < this.min)
             return null;

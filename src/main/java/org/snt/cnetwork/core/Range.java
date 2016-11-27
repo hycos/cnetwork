@@ -8,8 +8,8 @@ public abstract class Range implements DomainInterface<Range> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(Range.class);
 
-    protected long min;
-    protected long max;
+    protected long min = 0;
+    protected long max = -1;
 
     public Range(long min, long max) {
         assert max >= min;
