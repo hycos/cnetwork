@@ -2,6 +2,7 @@ package org.snt.cnetwork.core;
 
 
 import org.snt.cnetwork.core.domain.DomainKind;
+import org.snt.cnetwork.exception.IllegalDomainException;
 
 public enum NodeKind {
 
@@ -54,7 +55,7 @@ public enum NodeKind {
     AND("and", DomainKind.BOOLEAN),
     XOR("xor", DomainKind.BOOLEAN),
     NOT("not", DomainKind.BOOLEAN),
-    ITE("ite", DomainKind.BOOLEAN),
+    ITE("ite", DomainKind.BOOLEAN, true),
     IMPLIES("implies", DomainKind.BOOLEAN),
 
     SUBSTR("substr", DomainKind.STRING),
@@ -99,11 +100,25 @@ public enum NodeKind {
 
 
     private final String sval;
-    private DomainKind dom;
+    private final boolean changeable;
+    private DomainKind dkind;
 
     NodeKind(String sval, DomainKind type) {
+        this(sval, type, false);
+    }
+
+    NodeKind(String sval, DomainKind type, boolean changeable) {
         this.sval = sval;
-        this.dom = type;
+        this.dkind = type;
+        this.changeable = changeable;
+    }
+
+    public void setDomainKind(DomainKind kind) throws IllegalDomainException {
+        if(!changeable)
+            throw new IllegalDomainException("domain is not supposed to be " +
+                    "changed for " + this.toString());
+
+        dkind = kind;
     }
 
 
@@ -221,7 +236,8 @@ public enum NodeKind {
                 STR_EQUALSIC || this == EMTPY || this == MATCHES || this ==
                 OR || this == AND || this == XOR || this == IMPLIES || this
                 == NOT || this == CONTAINS || this == GREATEREQ || this ==
-                SMALLEREQ || this == SMALLER || this == GREATER;
+                SMALLEREQ || this == SMALLER || this == GREATER || this ==
+                STARTSWITH || this == ENDSWITH;
     }
 
     public boolean isOperation() {
@@ -232,18 +248,22 @@ public enum NodeKind {
                 this == EXTERNAL;
     }
 
+    public boolean isBranch() {
+        return this == ITE;
+    }
+
     public boolean isLiteral() {
         return this == NUMLIT || this == STRLIT || this == BOOLLIT ;
     }
 
     public boolean isNumeric() {
-        return this.dom.isNumeric();
+        return this.dkind.isNumeric();
     }
 
-    public boolean isBoolean() { return this.dom.isBoolean(); }
+    public boolean isBoolean() { return this.dkind.isBoolean(); }
 
     public boolean isString() {
-        return this.dom.isString();
+        return this.dkind.isString();
     }
 
     public boolean isThreatModel() {
@@ -258,7 +278,7 @@ public enum NodeKind {
     public boolean isVariable() { return !isLiteral(); }
 
     public DomainKind getDomainKind() {
-        return this.dom;
+        return this.dkind;
     }
 
     public String getValue() {

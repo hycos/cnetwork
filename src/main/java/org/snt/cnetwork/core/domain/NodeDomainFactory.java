@@ -45,11 +45,15 @@ public class NodeDomainFactory {
     }
 
     public NodeDomain getDomain(NodeKind n, String lbl) {
+
+        LOGGER.debug("getDomain " + n.getDomainKind() + " " + lbl);
+
         switch (n.getDomainKind()) {
             case UNKNOWN:
                 return new NodeDomain(new Automaton(STR_REXP),
                         Z.clone());
             case NUMERIC_Z:
+            case NUMERIC_LZ:
                 return new NodeDomain(new Automaton(Z_REXP),
                         Z.clone());
             case NUMERIC_N:
