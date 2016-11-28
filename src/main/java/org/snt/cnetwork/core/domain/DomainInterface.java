@@ -1,4 +1,4 @@
-package org.snt.cnetwork.core;
+package org.snt.cnetwork.core.domain;
 
 
 public interface DomainInterface<T> extends Cloneable {
@@ -12,10 +12,14 @@ public interface DomainInterface<T> extends Cloneable {
     boolean isSingleton();
     boolean isEmpty();
 
+    String getDomainName();
+
     @Override
     String toString();
 
     @Override
     boolean equals(Object o);
+
+    T clone();
 
 }

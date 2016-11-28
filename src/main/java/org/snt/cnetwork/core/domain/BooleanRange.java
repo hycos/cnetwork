@@ -1,4 +1,4 @@
-package org.snt.cnetwork.core;
+package org.snt.cnetwork.core.domain;
 
 public class BooleanRange extends AtomicNumRange {
 

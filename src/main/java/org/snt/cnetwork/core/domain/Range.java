@@ -1,4 +1,4 @@
-package org.snt.cnetwork.core;
+package org.snt.cnetwork.core.domain;
 
 
 import org.slf4j.Logger;
@@ -44,5 +44,10 @@ public abstract class Range implements DomainInterface<Range> {
 
     @Override
     public abstract Range clone();
+
+    @Override
+    public String getDomainName() {
+        return "range";
+    }
 
 }

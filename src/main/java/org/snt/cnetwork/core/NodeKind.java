@@ -1,6 +1,8 @@
 package org.snt.cnetwork.core;
 
 
+import org.snt.cnetwork.core.domain.DomainKind;
+
 public enum NodeKind {
 
     UNKNOWN("unkown", DomainKind.UNKNOWN),

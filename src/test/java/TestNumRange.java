@@ -1,9 +1,9 @@
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.AtomicNumRange;
-import org.snt.cnetwork.core.NodeDomainFactory;
-import org.snt.cnetwork.core.NumRange;
+import org.snt.cnetwork.core.domain.AtomicNumRange;
+import org.snt.cnetwork.core.domain.NodeDomainFactory;
+import org.snt.cnetwork.core.domain.NumRange;
 
 
 public class TestNumRange {

@@ -1,5 +1,7 @@
 package org.snt.cnetwork.core;
 
+import org.snt.cnetwork.core.domain.NodeDomainFactory;
+
 public class Constraint extends Operation {
 
     public Constraint(String name, String kind) {

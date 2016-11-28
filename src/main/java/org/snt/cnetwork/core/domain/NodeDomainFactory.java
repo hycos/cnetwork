@@ -1,7 +1,9 @@
-package org.snt.cnetwork.core;
+package org.snt.cnetwork.core.domain;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.Node;
+import org.snt.cnetwork.core.NodeKind;
 import org.snt.cnetwork.utils.DomainUtils;
 
 public class NodeDomainFactory {
@@ -45,10 +47,10 @@ public class NodeDomainFactory {
     public NodeDomain getDomain(NodeKind n, String lbl) {
         switch (n.getDomainKind()) {
             case UNKNOWN:
-                return new NodeDomain(new RegExp(STR_REXP).toAutomaton(),
+                return new NodeDomain(new Automaton(STR_REXP),
                         Z.clone());
             case NUMERIC_Z:
-                return new NodeDomain(new RegExp(Z_REXP).toAutomaton(),
+                return new NodeDomain(new Automaton(Z_REXP),
                         Z.clone());
             case NUMERIC_N:
                 assert n.isNumeric();
@@ -56,12 +58,11 @@ public class NodeDomainFactory {
                     assert lbl != null & lbl.length() > 0;
                     assert lbl.matches(N_REXP);
                     int value = Integer.parseInt(lbl);
-                    return new NodeDomain(new RegExp(lbl)
-                            .toAutomaton(), new NumRange(value));
+                    return new NodeDomain(new Automaton(lbl), new NumRange(value));
                 } else {
 
                     assert n.isOperation() || n.isVariable() || n.isRegex();
-                    return new NodeDomain(new RegExp(N_REXP).toAutomaton(),
+                    return new NodeDomain(new Automaton(N_REXP),
                             N.clone());
                 }
             case STRING:
@@ -69,23 +70,20 @@ public class NodeDomainFactory {
 
                     assert lbl != null;
 
-                    Automaton a = new RegExp(lbl).toAutomaton();
+                    Automaton a = new Automaton(lbl);
                     return new NodeDomain(a, DomainUtils
                             .getApproxLenRange(a));
                 } else {
                     assert n.isOperation() || n.isVariable() || n.isRegex();
-                    return new NodeDomain(new RegExp(STR_REXP).toAutomaton(),
+                    return new NodeDomain(new Automaton(STR_REXP),
                             N.clone());
                 }
             case STRING_UPPER:
-                return new NodeDomain(new RegExp(STR_REXP_UPPER).toAutomaton
-                        (), N.clone());
+                return new NodeDomain(new Automaton(STR_REXP_UPPER), N.clone());
             case STRING_LOWER:
-                return new NodeDomain(new RegExp(STR_REXP_LOWER).toAutomaton
-                        (), N.clone());
+                return new NodeDomain(new Automaton(STR_REXP_LOWER), N.clone());
             case STRING_TRIMMED:
-                return new NodeDomain(new RegExp(STR_REXP_TRIMMED)
-                        .toAutomaton(), N.clone());
+                return new NodeDomain(new Automaton(STR_REXP_TRIMMED), N.clone());
             case BOOLEAN:
                 if (n.isLiteral()) {
                     LOGGER.debug("__" + lbl);
@@ -94,11 +92,11 @@ public class NodeDomainFactory {
                     BooleanRange.BooleanValue bv = BooleanRange.BooleanValue
                             .KindFromString(lbl);
 
-                    return new NodeDomain(new RegExp(bv.getValue())
-                            .toAutomaton(), new BooleanRange(bv));
+                    return new NodeDomain(new Automaton(bv.getValue()), new
+                            BooleanRange(bv));
                 } else {
                     assert n.isOperation() || n.isVariable() || n.isRegex();
-                    return new NodeDomain(new RegExp(BOOL_REXP).toAutomaton(),
+                    return new NodeDomain(new Automaton(BOOL_REXP),
                             new BooleanRange());
                 }
         }

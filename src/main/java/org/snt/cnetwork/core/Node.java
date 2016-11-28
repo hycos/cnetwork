@@ -2,6 +2,8 @@ package org.snt.cnetwork.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.domain.NodeDomain;
+import org.snt.cnetwork.core.domain.NodeDomainFactory;
 
 public abstract class Node implements Cloneable {
 

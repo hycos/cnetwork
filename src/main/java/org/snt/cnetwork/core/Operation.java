@@ -2,6 +2,8 @@ package org.snt.cnetwork.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.domain.DomainKind;
+import org.snt.cnetwork.core.domain.NodeDomainFactory;
 import org.snt.cnetwork.sig.JavaMethodSignature;
 import org.snt.cnetwork.utils.StandardWrappers;
 

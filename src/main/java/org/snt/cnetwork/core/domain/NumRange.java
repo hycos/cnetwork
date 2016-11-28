@@ -1,4 +1,4 @@
-package org.snt.cnetwork.core;
+package org.snt.cnetwork.core.domain;
 
 import dk.brics.automaton.Automaton;
 import org.slf4j.Logger;
