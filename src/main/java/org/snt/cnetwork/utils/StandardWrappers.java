@@ -13,7 +13,6 @@ public class StandardWrappers {
 
     private static String getSigStringForOperation(NodeKind kind) {
         switch(kind) {
-            case ASSIGNMENT:
             case UNKNOWN:
             case EXTERNAL:
             case EQUALS:

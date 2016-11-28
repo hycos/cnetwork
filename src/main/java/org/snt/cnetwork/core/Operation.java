@@ -34,16 +34,16 @@ public class Operation extends Node {
 
         switch(sig.getReturnType().toBCString()) {
             case "Ljava/lang/String;":
-                this.dom = NodeDomainFactory.getInstance().getDomain
-                        (NodeKind.STRVAR);
+                setDomain(NodeDomainFactory.getInstance().getDomain
+                        (NodeKind.STRVAR));
                 break;
             case "Z":
-                this.dom = NodeDomainFactory.getInstance().getDomain
-                        (NodeKind.BOOLVAR);
+                setDomain(NodeDomainFactory.getInstance().getDomain
+                        (NodeKind.BOOLVAR));
                 break;
             case "I":
-                this.dom = NodeDomainFactory.getInstance().getDomain
-                        (NodeKind.NUMVAR);
+                setDomain(NodeDomainFactory.getInstance().getDomain
+                        (NodeKind.NUMVAR));
                 break;
             default:
                 assert(false); // shouldn't happen
@@ -55,7 +55,7 @@ public class Operation extends Node {
 
     @Override
     public boolean isLiteral() {
-        return this.dom.isSingleton();
+        return this.getKind().isLiteral();
     }
 
     @Override
