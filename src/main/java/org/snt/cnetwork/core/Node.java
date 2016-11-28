@@ -5,13 +5,16 @@ import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.NodeDomain;
 import org.snt.cnetwork.core.domain.NodeDomainFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public abstract class Node implements Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(Node.class);
 
     protected final int id;
 
-    protected NodeDomain dom = null;
+    protected Map<Integer, NodeDomain> dom = new HashMap();
 
     protected String instance = "";
     protected String label = "";
@@ -28,12 +31,12 @@ public abstract class Node implements Cloneable {
         this.label = label;
         LOGGER.debug(".. " + label);
         // compute the appropriate domain automatically
-        this.dom = NodeDomainFactory.getInstance().getDomain(this);
+        this.dom.put(0,NodeDomainFactory.getInstance().getDomain(this));
     }
 
     public Node(Node other) {
         this.id = other.id;
-        this.dom = new NodeDomain(other.dom);
+        other.dom.forEach((i,d) -> this.dom.put(i, d.clone()));
         this.annotation = other.annotation;
         this.kind = other.getKind();
         this.label = other.getLabel();
@@ -60,12 +63,18 @@ public abstract class Node implements Cloneable {
         return this.id == n.id;
     }
 
-    public NodeDomain getDomain() {
+    public NodeDomain getDomain(int id) {
+        assert dom.containsKey(id);
+        return dom.get(id);
+    }
+
+    public Map<Integer, NodeDomain> getDomain() {
         return this.dom;
     }
 
     public void setDomain(NodeDomain d) {
-        this.dom = d.clone();
+        this.dom.clear();
+        this.dom.put(0,d);
     }
 
     public NodeKind getKind() {

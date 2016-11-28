@@ -32,6 +32,10 @@ public class Automaton implements DomainInterface<Automaton> {
         this.a = a;
     }
 
+    public String getSingleton() {
+        return this.a.getSingleton();
+    }
+
     @Override
     public boolean equals(Object o) {
 
@@ -269,7 +273,5 @@ public class Automaton implements DomainInterface<Automaton> {
     public final static int getRandomInt(int min, int max, Random random) {
         return (min + Math.round(random.nextFloat() * (max - min)));
     }
-
-
 
 }

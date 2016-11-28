@@ -50,8 +50,6 @@ public enum NodeKind {
     ENDSWITH("endswith", DomainKind.BOOLEAN),
     CONTAINS("contains", DomainKind.BOOLEAN),
 
-    ASSIGNMENT("=", DomainKind.BOOLEAN),
-
     OR("or", DomainKind.BOOLEAN),
     AND("and", DomainKind.BOOLEAN),
     XOR("xor", DomainKind.BOOLEAN),
