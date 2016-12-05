@@ -274,4 +274,7 @@ public class Automaton implements DomainInterface<Automaton> {
         return (min + Math.round(random.nextFloat() * (max - min)));
     }
 
+    public dk.brics.automaton.Automaton getAutomaton() {
+        return this.a;
+    }
 }
