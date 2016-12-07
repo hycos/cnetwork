@@ -118,5 +118,17 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
         dom.put(iface.getDomainName(), iface);
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder s = new StringBuilder();
+        s.append("{");
+        dom.forEach((v,k) -> {
+            if(s.length() > 1) s.append(",");
+            s.append(k.toString());
+        });
+        s.append("}");
+        return s.toString();
+    }
+
 
 }

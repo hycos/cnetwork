@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.Node;
 import org.snt.cnetwork.core.NodeKind;
 import org.snt.cnetwork.utils.DomainUtils;
+import org.snt.cnetwork.utils.EscapeUtils;
 
 public class NodeDomainFactory {
     final static Logger LOGGER = LoggerFactory.getLogger(NodeDomainFactory.class);
@@ -70,13 +71,13 @@ public class NodeDomainFactory {
                             N.clone());
                 }
             case STRING:
-                if ((n.isLiteral() || n.isRegex())) {
-
-                    assert lbl != null;
-
+                assert lbl != null;
+                if (n.isLiteral()) {
+                    Automaton a = new Automaton(EscapeUtils.escapeSpecialCharacters(lbl));
+                    return new NodeDomain(a, DomainUtils.getApproxLenRange(a));
+                } else if (n.isRegex()) {
                     Automaton a = new Automaton(lbl);
-                    return new NodeDomain(a, DomainUtils
-                            .getApproxLenRange(a));
+                    return new NodeDomain(a, DomainUtils.getApproxLenRange(a));
                 } else {
                     assert n.isOperation() || n.isVariable() || n.isRegex();
                     return new NodeDomain(new Automaton(STR_REXP),

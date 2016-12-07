@@ -21,7 +21,7 @@ public class AbstractNetwork implements DirectedGraph<Node, Edge>, Cloneable {
     private final DirectedPseudograph<Node, Edge> delegate;
 
     public AbstractNetwork() {
-        this.delegate = new DirectedPseudograph<Node, Edge>(new SimpleEdgeFactory());
+        this.delegate = new DirectedPseudograph(Edge.class);
     }
 
     public boolean addEdge(Node arg0, Node arg1, Edge arg2) {

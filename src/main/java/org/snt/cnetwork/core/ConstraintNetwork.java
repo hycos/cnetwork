@@ -1,6 +1,5 @@
 package org.snt.cnetwork.core;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.sig.JavaMethodSignature;
@@ -28,13 +27,13 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
     private int vidx = 0;
 
     public ConstraintNetwork() {
-        this.sat = new HashSet<Edge>();
-        this.unsat = new HashSet<Edge>();
-        this.nodeLookup = new HashMap<String, Node>();
+        this.sat = new HashSet();
+        this.unsat = new HashSet();
+        this.nodeLookup = new HashMap();
 
         // just a helper to keep track of operands
-        this.operands = new HashMap<String, Node>();
-        this.operations = new HashMap<String, Node>();
+        this.operands = new HashMap();
+        this.operations = new HashMap();
 
     }
 
@@ -78,18 +77,25 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
         ConstraintNetwork g = new ConstraintNetwork();
 
         for (Node n : vertices) {
+            LOGGER.debug("add vertex {}" , n.getId());
             g.addVertex(n);
         }
 
         for (Node n : vertices) {
-            for (Edge e : getAllConnectedEdges(n)) {
-                g.addConnection(e);
+            for (Edge e : outgoingEdgesOf(n)) {
+                if (vertices.contains(e.getDestNode())) {
+                    g.addEdge(e);
+                }
             }
         }
+
 
         return g;
     }
 
+    public boolean addEdge(Edge edge) {
+        return super.addEdge(edge.getSrcNode(), edge.getDestNode(), edge);
+    }
 
 
     public Node getStartNode() {
@@ -468,17 +474,10 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
                 color = "black";
             }
 
-            //LOGGER.info(n.getLabel());
-            //LOGGER.info(n.toString());
-
-            String annotation = n.isAnnotated() ? "\\n" + n.getAnnotation() : "";
-
             sb.append("\tn" + n.getId() + " [color=" + color + ",shape=\"" + shape + "\"," + label + "=\"" +
-                    StringEscapeUtils.escapeJava(n.toString() + "\n") + kind + annotation + "\"];\n");
+                    kind + "\\n" + n.getDotLabel() + "\"];\n");
         }
 
-
-        String dir = "";
         String option = "";
         String ecolor = "black";
         String par = "";
@@ -525,27 +524,6 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
             //LOGGER.info(e.getKey() + " :: " + e.getValue());
 
         }
-    }
-
-
-    private String handleNode(Node nod) {
-        StringBuilder sb = new StringBuilder();
-
-        if (nod.isOperation()) {
-            sb.append(nod.getKind().getValue() + "(");
-            List<Edge> parEdges = getIncomingEdgesOfKind(nod, EdgeKind.PAR_IN);
-            for (Edge param : parEdges) {
-                if (parEdges.indexOf(param) > 0) {
-                    sb.append(",");
-                }
-                sb.append(handleNode(param.getSrcNode()));
-            }
-            sb.append(")");
-        } else {
-            sb.append(nod.getLabel());
-        }
-
-        return sb.toString();
     }
 
     public String toConfig() {

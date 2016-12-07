@@ -60,15 +60,6 @@ public class Operand extends Node {
         return false;
     }
 
-    @Override
-    public String toString(){ return "{" + this.id + "} " + this.label; }
-
-
-    @Override
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
 
     public String getName() {
         return this.label;
@@ -76,4 +67,5 @@ public class Operand extends Node {
 
     @Override
     public Operand clone() { return new Operand(this); }
+
 }

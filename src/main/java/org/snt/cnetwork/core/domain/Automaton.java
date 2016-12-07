@@ -21,7 +21,7 @@ public class Automaton implements DomainInterface<Automaton> {
     private dk.brics.automaton.Automaton a = null;
 
     public Automaton(String rexp) {
-        this(new dk.brics.automaton.RegExp(".*").toAutomaton());
+        this(new dk.brics.automaton.RegExp(rexp).toAutomaton());
     }
 
     public Automaton() {
@@ -259,6 +259,15 @@ public class Automaton implements DomainInterface<Automaton> {
         sb.append((char) getRandomInt(t.getMin(), t.getMax(), rgen));
 
         generate(sb, t.getDest(), minsize);
+    }
+
+    @Override
+    public String toString() {
+        if(this.isLiteral()){
+            return getShortestExample();
+        } else {
+            return "|a|";
+        }
     }
 
     /**

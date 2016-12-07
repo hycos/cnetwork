@@ -91,6 +91,9 @@ public class DomainUtils {
     public static AtomicNumRange getApproxLenRange(Automaton a) {
         assert a != null;
 
+        LOGGER.debug("get approx len range");
+        LOGGER.debug("shortes " + a.getShortestExample());
+
         int minlen = 0;
 
         if (a.isEmpty() || a.isEmptyString()) {

@@ -100,21 +100,6 @@ public class Operation extends Node {
         return false;
     }
 
-    @Override
-    public String toString(){
-
-        String ssig = "";
-
-        if(this.sig != null)
-            ssig = "\n" + this.sig.getMethodName();
-
-        return "{" + this.id + "}"; }
-
-    @Override
-    public String getLabel() {
-        return this.label;
-    }
-
 
     public JavaMethodSignature getSig() {
         return this.sig;

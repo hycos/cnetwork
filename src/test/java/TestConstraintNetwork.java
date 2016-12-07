@@ -1,4 +1,5 @@
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +60,21 @@ public class TestConstraintNetwork {
         LOGGER.info(tm2.toDot());
         ConstraintNetwork tm3 = tm2.clone();
         LOGGER.info(tm3.toDot());
+
+
+        for(Edge e1 : tm2.edgeSet()) {
+            for (Edge e2 : tm3.edgeSet()) {
+                Assert.assertTrue(e1 != e2);
+            }
+        }
+
+        for(Node n1: tm2.vertexSet()) {
+            for (Node n2 : tm3.vertexSet()) {
+                Assert.assertTrue(n1 != n2);
+            }
+        }
+
+
 
     }
 

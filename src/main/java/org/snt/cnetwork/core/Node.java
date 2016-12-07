@@ -5,20 +5,17 @@ import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.NodeDomain;
 import org.snt.cnetwork.core.domain.NodeDomainFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public abstract class Node implements Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(Node.class);
 
     protected final int id;
 
-    protected Map<Integer, NodeDomain> dom = new HashMap();
-
     protected String instance = "";
     protected String label = "";
     protected String annotation = "";
+    protected NodeDomain dom;
+
 
 
     private static int nid = 0;
@@ -29,14 +26,14 @@ public abstract class Node implements Cloneable {
         this.id = nid++;
         this.kind = kind;
         this.label = label;
-        LOGGER.debug(".. " + label);
+        LOGGER.debug(".. " + label + " " + kind.toString());
         // compute the appropriate domain automatically
-        this.dom.put(0,NodeDomainFactory.getInstance().getDomain(this));
+        this.dom = NodeDomainFactory.getInstance().getDomain(this);
     }
 
     public Node(Node other) {
         this.id = other.id;
-        other.dom.forEach((i,d) -> this.dom.put(i, d.clone()));
+        this.dom = other.dom.clone();
         this.annotation = other.annotation;
         this.kind = other.getKind();
         this.label = other.getLabel();
@@ -55,26 +52,20 @@ public abstract class Node implements Cloneable {
     @Override
     public boolean equals(Object o) {
 
-        if(!(o instanceof Node))
+        if (!(o instanceof Node))
             return false;
 
-        Node n = (Node)o;
+        Node n = (Node) o;
 
         return this.id == n.id;
     }
 
-    public NodeDomain getDomain(int id) {
-        assert dom.containsKey(id);
-        return dom.get(id);
-    }
-
-    public Map<Integer, NodeDomain> getDomain() {
+    public NodeDomain getDomain() {
         return this.dom;
     }
 
     public void setDomain(NodeDomain d) {
-        this.dom.clear();
-        this.dom.put(0,d);
+        this.dom = d;
     }
 
     public NodeKind getKind() {
@@ -103,11 +94,20 @@ public abstract class Node implements Cloneable {
         this.instance = instance;
     }
 
-
-    @Override
-    public abstract String toString();
+    public String getDotLabel() {
+        final StringBuilder s = new StringBuilder();
+        s.append("{" + this.id + "}\\n");
+        s.append(isAnnotated() ? "\\n" + getAnnotation() : "");
+        s.append("dom:" + dom.toString()+"\\n");
+        return s.toString();
+    }
 
     public String getLabel() {
+       return this.label;
+    }
+
+    @Override
+    public String toString() {
         return label;
     }
 
@@ -129,6 +129,5 @@ public abstract class Node implements Cloneable {
 
     @Override
     public abstract Node clone();
-
 
 }
