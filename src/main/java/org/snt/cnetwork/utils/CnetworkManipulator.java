@@ -11,11 +11,11 @@ import org.snt.cnetwork.slicer.CnetworkSlicerBackward;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public enum CnetworkTool {
+public enum CnetworkManipulator {
 
     INSTANCE;
 
-    final static Logger LOGGER = LoggerFactory.getLogger(CnetworkTool.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(CnetworkManipulator.class);
 
 
     public Collection<ConstraintNetwork> removeDisjunctions(ConstraintNetwork
