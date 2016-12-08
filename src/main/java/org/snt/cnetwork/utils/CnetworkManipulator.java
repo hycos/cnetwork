@@ -19,12 +19,13 @@ public enum CnetworkManipulator {
 
 
     public Collection<ConstraintNetwork> removeDisjunctions(ConstraintNetwork
-                                                                  cn) {
+                                                                    cn) {
         return split(cn);
     }
 
     /**
      * A fixed point iteration that resolves one disjunction at time
+     *
      * @param cn constraint network
      * @return
      */
@@ -34,18 +35,20 @@ public enum CnetworkManipulator {
         LinkedList<ConstraintNetwork> worklist = new LinkedList<>();
         worklist.add(cn);
 
-        while(!worklist.isEmpty()) {
+        while (!worklist.isEmpty()) {
 
             ConstraintNetwork nextNetwork = worklist.poll();
+            cleanup(nextNetwork);
+
             assert !nextNetwork.vertexSet().isEmpty();
 
             Set<Node> disjunctions = nextNetwork.vertexSet()
                     .stream()
                     .filter(v -> v
-                    .getKind() == NodeKind.OR).collect(Collectors.toSet());
+                            .getKind() == NodeKind.OR).collect(Collectors.toSet());
 
 
-            if(disjunctions == null || disjunctions.isEmpty()) {
+            if (disjunctions == null || disjunctions.isEmpty()) {
                 ret.add(nextNetwork);
                 continue;
             }
@@ -59,31 +62,30 @@ public enum CnetworkManipulator {
             // remove disjunction
             nextNetwork.removeVertex(dis);
 
-            for(Node out : disout) {
-                for(Node par : disparams) {
+            for (Node par : disparams) {
+                for (Node out : disout) {
                     nextNetwork.addEdge(par, out);
-                    par.setDomain(dis.getDomain().clone());
                 }
+                par.setDomain(dis.getDomain().clone());
             }
 
             Node par0 = disparams.get(0);
             Node par1 = disparams.get(1);
 
-            // clone the domain of the original element
-            par0.setDomain(dis.getDomain().clone());
-            par1.setDomain(dis.getDomain().clone());
-
 
             LOGGER.debug("first param of dis {}", par0.getId());
             LOGGER.debug("second param of dis {}", par1.getId());
 
-            CnetworkSlicerBackward bw = new CnetworkSlicerBackward(nextNetwork);
+            CnetworkSlicerBackward bw = new CnetworkSlicerBackward
+                    (nextNetwork);
 
             Collection<Node> par0bw = bw.slice(par0);
             Collection<Node> par1bw = bw.slice(par1);
 
             // get the intersection to find elemnents that are in both bw slices
-            Set<Node> isect = new HashSet(par0bw); isect.retainAll(par1bw);
+            Set<Node> isect = new HashSet(par0bw);
+            isect.retainAll(par1bw);
+
 
             par0bw.removeAll(isect);
             par1bw.removeAll(isect);
@@ -92,19 +94,24 @@ public enum CnetworkManipulator {
             ConstraintNetwork cp1 = nextNetwork.clone();
             ConstraintNetwork cp2 = nextNetwork.clone();
 
-            Set<Node> cp1v = new HashSet(cp1.vertexSet());
-            Set<Node> cp2v = new HashSet(cp2.vertexSet());
+            cp1.removeVertex(par0);
+            cp2.removeVertex(par1);
 
-            // remove the nodes that are no longer required
-            cp1v.removeAll(par0bw);
-            cp2v.removeAll(par1bw);
 
-            ConstraintNetwork cp1r = cp1.subgraph(cp1v).clone();
-            ConstraintNetwork cp2r = cp2.subgraph(cp2v).clone();
+            worklist.add(cp1);
+            worklist.add(cp2);
 
-            worklist.add(cp1r);
-            worklist.add(cp2r);
         }
         return ret;
+    }
+
+    private void cleanup(ConstraintNetwork cn) {
+        Set<Node> toRm = new HashSet();
+        for(Node v : cn.vertexSet()) {
+            if(v.isOperand() && (cn.outDegreeOf(v) + cn.inDegreeOf(v) == 0)) {
+                toRm.add(v);
+            }
+        }
+        cn.removeAllVertices(toRm);
     }
 }

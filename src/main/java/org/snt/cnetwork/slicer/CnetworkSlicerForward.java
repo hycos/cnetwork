@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
  */
 public class CnetworkSlicerForward extends CnetworkSlicer {
 
-    public CnetworkSlicerForward() {}
 
     public CnetworkSlicerForward(ConstraintNetwork cn) {
         super(cn);

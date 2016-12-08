@@ -68,4 +68,9 @@ public class Operand extends Node {
     @Override
     public Operand clone() { return new Operand(this); }
 
+    @Override
+    public String getDotLabel() {
+        return label + "\\nn" + super.getDotLabel();
+    }
+
 }
