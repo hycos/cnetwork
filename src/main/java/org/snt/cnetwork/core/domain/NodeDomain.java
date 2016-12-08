@@ -27,6 +27,7 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
     private static DomainCheck SUBSUMPTION = (a, b) -> a.subsumes(b);
     private static DomainCheck EMPTY = (a, b) -> a.isEmpty();
     private static DomainCheck SINGLETON = (a, b) -> a.isSingleton();
+    private static DomainCheck EQUALS = (a, b) -> a.equals(b);
 
     private Map<String, DomainInterface> dom = new HashMap();
 
@@ -121,7 +122,7 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
 
     @Override
     public boolean isSingleton() {
-        return checkForAll(null, SINGLETON);
+        return checkForAll(this, SINGLETON);
     }
 
     @Override
@@ -156,5 +157,15 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
         return s.toString();
     }
 
+    @Override
+    public boolean equals(Object o){
+
+        if(!(o instanceof NodeDomain))
+            return false;
+
+        NodeDomain nd = (NodeDomain)o;
+
+        return checkForAll(this,EQUALS);
+    }
 
 }

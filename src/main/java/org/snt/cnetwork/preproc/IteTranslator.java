@@ -9,29 +9,35 @@ import org.snt.cnetwork.core.NodeKind;
 
 import java.util.List;
 
-public class ImplicationTranslator implements Converter {
+public class IteTranslator implements Converter {
 
     final static Logger LOGGER = LoggerFactory.getLogger(CnetworkPreprocessor.class);
 
-
     @Override
     public NodeKind getKind() {
-        return NodeKind.IMPLIES;
+        return NodeKind.ITE;
     }
 
     @Override
     public void translate(ConstraintNetwork cn, Node n) {
-        assert n.getKind() == NodeKind.IMPLIES;
+        assert n.getKind() == NodeKind.ITE;
+
         List<Node> pars = cn.getParametersFor(n);
-        assert pars.size() == 2;
+
+        assert pars.size() == 3;
+
         Node par0 = pars.get(0);
         Node par1 = pars.get(1);
+        Node par2 = pars.get(2);
+
+        Node impl0 = cn.addOperation(NodeKind.IMPLIES, par0, par1);
         Node npar0 = cn.addOperation(NodeKind.NOT, par0);
-        Node or = cn.addOperation(NodeKind.OR, npar0, par1);
+        Node impl1 = cn.addOperation(NodeKind.IMPLIES, npar0, par2);
+        Node or = cn.addOperation(NodeKind.OR, impl0, impl1);
         or.setDomain(n.getDomain().clone());
+
         for(Edge e : cn.outgoingEdgesOf(n)) {
-            Edge ne = new Edge(or, e.getDestNode(),e.getSequence());
-            cn.addConnection(ne);
+            cn.addEdge(e.getDestNode(),or);
         }
         cn.removeVertex(n);
     }

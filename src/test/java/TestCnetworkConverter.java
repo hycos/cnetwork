@@ -17,6 +17,8 @@ public class TestCnetworkConverter {
 
     private final static ConstraintNetwork cn0 = new ConstraintNetwork();
     private final static ConstraintNetwork cn1 = new ConstraintNetwork();
+    private final static ConstraintNetwork cn2 = new ConstraintNetwork();
+    private final static ConstraintNetwork cn3 = new ConstraintNetwork();
 
 
     @Before
@@ -27,7 +29,6 @@ public class TestCnetworkConverter {
         Operation containsHello = cn0.addOperation(NodeKind.CONTAINS,s0,hello);
         Operation containsWorld = cn0.addOperation(NodeKind.CONTAINS,s0,world);
         cn0.addConstraint(NodeKind.OR,containsHello,containsWorld);
-        LOGGER.debug(cn0.toDot());
 
 
         Operand s1 = new Operand("s1", NodeKind.STRVAR);
@@ -42,9 +43,39 @@ public class TestCnetworkConverter {
 
         cn1.addConstraint(NodeKind.OR,containsS1Foo,containsS1Bar);
         cn1.addConstraint(NodeKind.OR,containsS2Foo,containsS2Bar);
-        LOGGER.debug("-------------");
-        LOGGER.debug(cn1.toDot());
-        LOGGER.debug("-------------");
+
+
+
+        Operand s3 = new Operand("s3", NodeKind.STRVAR);
+        Operand s4 = new Operand("s4", NodeKind.STRVAR);
+        Operand simple = new Operand("simple", NodeKind.STRLIT);
+        Operand test = new Operand("test", NodeKind.STRLIT);
+
+        Operation containsS3Simple = cn1.addOperation(NodeKind.CONTAINS,s3,
+                simple);
+        Operation containsS4Test = cn1.addOperation(NodeKind.CONTAINS,s4,test);
+
+        cn2.addConstraint(NodeKind.IMPLIES, containsS3Simple, containsS4Test);
+
+
+
+        Operand n0 = new Operand("n0", NodeKind.NUMVAR);
+        Operand n1 = new Operand("n1", NodeKind.NUMVAR);
+        Operand s5 = new Operand("s5", NodeKind.STRVAR);
+        Operand s6 = new Operand("s6", NodeKind.STRVAR);
+        Operand xy = new Operand("xy", NodeKind.STRLIT);
+        Operand z = new Operand("z", NodeKind.STRLIT);
+
+        Operation cond = cn3.addOperation(NodeKind.GREATER, n0, n1);
+
+        Operation containsS6xy = cn3.addOperation(NodeKind.CONTAINS,s5,
+                xy);
+        Operation containsS6z = cn3.addOperation(NodeKind.CONTAINS,s6,z);
+
+        cn3.addConstraint(NodeKind.ITE, cond, containsS6xy, containsS6z);
+
+        LOGGER.debug(cn3.toDot());
+
     }
 
 
@@ -102,33 +133,37 @@ public class TestCnetworkConverter {
     }
 
     @Test
-    public void testCnSplit() {
-
-        //Assert.assertEquals(cn0.vertexSet().size(), 6);
-
-        Collection<ConstraintNetwork> ret = CnetworkPreprocessor.INSTANCE
-                .translate(cn0);
-
-        //Assert.assertEquals(ret.size(),2);
+    public void testDisjunctionTranslator() {
 
 
-        ret.forEach(c-> {
-            LOGGER.debug(c.toDot());
-            //Assert.assertEquals(c.vertexSet().size(), 3);
-            }
-        );
+        ConstraintNetwork ret = CnetworkPreprocessor.INSTANCE.translate(cn0);
+
+
+        LOGGER.debug(ret.toDot());
     }
 
     @Test
-    public void testMultipleSplits() {
-        Collection<ConstraintNetwork> ret = CnetworkPreprocessor.INSTANCE
+    public void testMultiDisjunctionTranslator() {
+        ConstraintNetwork ret = CnetworkPreprocessor.INSTANCE
                 .translate(cn1);
+        LOGGER.debug(ret.toDot());
 
-        LOGGER.debug("CN {}", ret.size());
-        ret.forEach(c-> {
-                    LOGGER.debug(c.toDot());
-                }
-        );
+    }
+
+    @Test
+    public void testImplicationTranslator() {
+        ConstraintNetwork ret = CnetworkPreprocessor.INSTANCE
+                .translate(cn2);
+        LOGGER.debug(ret.toDot());
+    }
+
+    @Test
+    public void testITETranslator() {
+
+        LOGGER.debug(cn3.toDot());
+        ConstraintNetwork ret = CnetworkPreprocessor.INSTANCE
+                .translate(cn3);
+        LOGGER.debug(ret.toDot());
     }
 
 }

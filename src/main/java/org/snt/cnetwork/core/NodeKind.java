@@ -237,7 +237,7 @@ public enum NodeKind {
                 OR || this == AND || this == XOR || this == IMPLIES || this
                 == NOT || this == CONTAINS || this == GREATEREQ || this ==
                 SMALLEREQ || this == SMALLER || this == GREATER || this ==
-                STARTSWITH || this == ENDSWITH;
+                STARTSWITH || this == ENDSWITH || this == ITE;
     }
 
     public boolean isOperation() {

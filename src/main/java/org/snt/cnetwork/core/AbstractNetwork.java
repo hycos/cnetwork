@@ -11,12 +11,17 @@ import org.jgrapht.DirectedGraph;
 import org.jgrapht.EdgeFactory;
 import org.jgrapht.graph.DirectedPseudograph;
 import org.jgrapht.graph.EdgeSetFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.preproc.CnetworkPreprocessor;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 public class AbstractNetwork implements DirectedGraph<Node, Edge>, Cloneable {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(CnetworkPreprocessor.class);
 
     private final DirectedPseudograph<Node, Edge> delegate;
 
@@ -115,6 +120,7 @@ public class AbstractNetwork implements DirectedGraph<Node, Edge>, Cloneable {
         try {
             ret = delegate.incomingEdgesOf(arg0);
         } catch (NullPointerException e) {
+            LOGGER.error("Could not find {}", arg0.getId());
             return ret;
         } finally {
             return ret;
@@ -135,7 +141,7 @@ public class AbstractNetwork implements DirectedGraph<Node, Edge>, Cloneable {
 
     public Set<Edge> outgoingEdgesOf(Node arg0) {
 
-        Set<Edge> ret = new HashSet<>();
+        Set<Edge> ret = new HashSet();
         try {
             ret = delegate.outgoingEdgesOf(arg0);
         } catch (NullPointerException e) {

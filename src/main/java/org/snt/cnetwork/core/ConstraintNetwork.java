@@ -136,7 +136,7 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
         List<Node> params = new LinkedList<>();
 
         if (n instanceof Operation) {
-            for (Edge paredge : this.getIncomingEdgesOfKind(n, EdgeKind.PAR_IN)) {
+            for (Edge paredge : this.incomingEdgesOf(n)) {
                 params.add(paredge.getSrcNode());
             }
         }
@@ -348,6 +348,7 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
             this.operands.remove(n);
 
         this.nodeLookup.remove(n);
+
 
         return super.removeVertex(n);
     }
