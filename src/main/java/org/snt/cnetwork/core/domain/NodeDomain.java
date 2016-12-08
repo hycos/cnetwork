@@ -1,5 +1,7 @@
 package org.snt.cnetwork.core.domain;
 
+import org.snt.cnetwork.utils.DomainUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -7,6 +9,8 @@ import java.util.stream.Collectors;
 
 public class NodeDomain implements DomainInterface<NodeDomain> {
 
+
+    protected DomainKind kind = DomainKind.UNKNOWN;
 
     private interface DomainAction {
         DomainInterface performOperation(DomainInterface a, DomainInterface b);
@@ -26,19 +30,22 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
 
     private Map<String, DomainInterface> dom = new HashMap();
 
-    public NodeDomain(NodeDomain other) {
+    public NodeDomain(DomainKind kind, NodeDomain other) {
+        this.kind = kind;
         other.dom.forEach((k,v) ->
             this.dom.put(k, (DomainInterface)v.clone())
         );
     }
 
-    public NodeDomain(DomainInterface ... ds) {
+    public NodeDomain(DomainKind kind, DomainInterface ... ds) {
+        this.kind = kind;
         for(DomainInterface d : ds) {
             dom.put(d.getDomainName(), d);
         }
     }
 
-    public NodeDomain(Set<DomainInterface> ds) {
+    public NodeDomain(DomainKind kind, Set<DomainInterface> ds) {
+        this.kind = kind;
         for(DomainInterface d : ds) {
             dom.put(d.getDomainName(), d);
         }
@@ -50,7 +57,7 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
             d.performOperation(e.getValue(),y.dom.get(e))).collect(Collectors
                 .toSet());
 
-        return new NodeDomain(isects);
+        return new NodeDomain(this.kind,isects);
     }
 
     private boolean checkForAll(NodeDomain y, DomainCheck d) {
@@ -61,6 +68,24 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
                 return false;
         }
         return true;
+    }
+
+    public NodeDomain negate() {
+
+        assert this.dom.containsKey("range");
+
+        DomainInterface r = this.dom.get("range");
+
+        assert r instanceof BooleanRange;
+
+        BooleanRange br = (BooleanRange)r;
+
+        BooleanRange n = br.negate();
+
+        Automaton a = DomainUtils.getAutomatonForRange(br);
+
+
+        return new NodeDomain(this.kind,a,n);
     }
 
     @Override
@@ -79,13 +104,14 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
     }
 
     @Override
-    public NodeDomain complement(NodeDomain y) {
-        return applyForAll(y, MINUS);
+    public NodeDomain complement() {
+        NodeDomain universe = NodeDomainFactory.INSTANCE.getDomain(this.kind);
+        return universe.minus(this);
     }
 
     @Override
     public NodeDomain clone() {
-        return new NodeDomain(this);
+        return new NodeDomain(this.kind, this);
     }
 
     @Override

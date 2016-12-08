@@ -87,22 +87,22 @@ public class BooleanRange extends AtomicNumRange {
 
     }
 
-    public void negate() {
+    public BooleanRange negate() {
 
-        if(this.min == BooleanValue.TRUE.id && this.max == BooleanValue.FALSE.id) {
+        BooleanRange cp = this.clone();
+        if(cp.min == BooleanValue.TRUE.id && cp.max == BooleanValue.FALSE.id) {
             ; // nothing to do
-            return;
+            return cp;
         }
-
-        assert(this.min == this.max);
-
-        if(this.min == BooleanValue.TRUE.id) {
-            this.max = BooleanValue.FALSE.id;
-            this.min = BooleanValue.FALSE.id;
+        assert cp.min == cp.max;
+        if(cp.min == BooleanValue.TRUE.id) {
+            cp.max = BooleanValue.FALSE.id;
+            cp.min = BooleanValue.FALSE.id;
         } else {
-            this.max = BooleanValue.TRUE.id;
-            this.min = BooleanValue.TRUE.id;
+            cp.max = BooleanValue.TRUE.id;
+            cp.min = BooleanValue.TRUE.id;
         }
+        return cp;
     }
 
     public boolean isAlwaysTrue() {

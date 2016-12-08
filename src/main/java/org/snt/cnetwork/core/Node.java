@@ -2,8 +2,7 @@ package org.snt.cnetwork.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.domain.NodeDomain;
-import org.snt.cnetwork.core.domain.NodeDomainFactory;
+import org.snt.cnetwork.core.domain.*;
 
 public abstract class Node implements Cloneable {
 
@@ -16,11 +15,9 @@ public abstract class Node implements Cloneable {
     protected String annotation = "";
     protected NodeDomain dom;
 
-
-
     private static int nid = 0;
 
-    protected final NodeKind kind;
+    protected NodeKind kind;
 
     public Node(String label, NodeKind kind) {
         this.id = nid++;
@@ -28,7 +25,7 @@ public abstract class Node implements Cloneable {
         this.label = label;
         LOGGER.debug(".. " + label + " " + kind.toString());
         // compute the appropriate domain automatically
-        this.dom = NodeDomainFactory.getInstance().getDomain(this);
+        this.dom = NodeDomainFactory.INSTANCE.getDomain(this);
     }
 
     public Node(Node other) {
@@ -70,6 +67,10 @@ public abstract class Node implements Cloneable {
 
     public NodeKind getKind() {
         return this.kind;
+    }
+
+    public void setKind(NodeKind kind) {
+        this.kind = kind;
     }
 
     public abstract boolean isOperation();
@@ -126,6 +127,31 @@ public abstract class Node implements Cloneable {
     public String getAnnotation() {
         return this.annotation;
     }
+
+    //@TODO:Julian just for convenience -- have to refactor this
+    public Range getRange() {
+        DomainInterface iface = this.dom.getDomain("range");
+        assert iface instanceof Range;
+        return (Range)iface;
+    }
+
+    //@TODO:Julian just for convenience -- have to refactor this
+    public Automaton getAutomaton() {
+        DomainInterface iface = this.dom.getDomain("automaton");
+        assert iface instanceof Automaton;
+        return (Automaton)iface;
+    }
+
+    //@TODO:Julian just for convenience -- have to refactor this
+    public void setRange(Range r) {
+        this.dom.setDomain(r);
+    }
+
+    //@TODO:Julian just for convenience -- have to refactor this
+    public void setAutomaton(Automaton a) {
+        this.dom.setDomain(a);
+    }
+
 
     @Override
     public abstract Node clone();

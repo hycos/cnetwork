@@ -34,15 +34,15 @@ public class Operation extends Node {
 
         switch(sig.getReturnType().toBCString()) {
             case "Ljava/lang/String;":
-                setDomain(NodeDomainFactory.getInstance().getDomain
+                setDomain(NodeDomainFactory.INSTANCE.getDomain
                         (NodeKind.STRVAR));
                 break;
             case "Z":
-                setDomain(NodeDomainFactory.getInstance().getDomain
+                setDomain(NodeDomainFactory.INSTANCE.getDomain
                         (NodeKind.BOOLVAR));
                 break;
             case "I":
-                setDomain(NodeDomainFactory.getInstance().getDomain
+                setDomain(NodeDomainFactory.INSTANCE.getDomain
                         (NodeKind.NUMVAR));
                 break;
             default:

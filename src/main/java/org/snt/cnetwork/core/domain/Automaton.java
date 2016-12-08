@@ -5,6 +5,7 @@ import dk.brics.automaton.State;
 import dk.brics.automaton.Transition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.autorex.Autorex;
 
 import java.util.*;
 
@@ -28,12 +29,17 @@ public class Automaton implements DomainInterface<Automaton> {
         this.a = new dk.brics.automaton.Automaton();
     }
 
-    private Automaton(dk.brics.automaton.Automaton a){
+    public Automaton(dk.brics.automaton.Automaton a){
         this.a = a;
     }
 
     public String getSingleton() {
         return this.a.getSingleton();
+    }
+
+
+    public String toDot() {
+        return this.a.toDot();
     }
 
     @Override
@@ -65,8 +71,8 @@ public class Automaton implements DomainInterface<Automaton> {
     }
 
     @Override
-    public Automaton complement(Automaton y) {
-        return new Automaton(this.a.minus(y.a));
+    public Automaton complement() {
+        return new Automaton(a.complement());
     }
 
     @Override
@@ -132,6 +138,10 @@ public class Automaton implements DomainInterface<Automaton> {
         return ptr.isAccept();
     }
 
+    public Automaton getAllAcceptingSubstringsAutomaton() {
+        return new Automaton(Autorex.getSubstringAutomaton(this.a));
+    }
+
     public Automaton getSubstringAutomaton() {
         Automaton pfx = ALL_ACCEPT.clone();
         Automaton sfx = ALL_ACCEPT.clone();
@@ -142,27 +152,32 @@ public class Automaton implements DomainInterface<Automaton> {
         return result;
     }
 
-    public static Automaton getPfxAutomaton(Automaton a) {
+    public Automaton getPfxAutomaton() {
         Automaton pfx = ALL_ACCEPT.clone();
-        Automaton result = a.concatenate(pfx);
+        Automaton result = this.clone().concatenate(pfx);
         result.a.minimize();
         return result;
     }
 
-    public static Automaton getSfxAutomaton(Automaton a) {
+    public Automaton getSfxAutomaton() {
         Automaton sfx = ALL_ACCEPT.clone();
-        Automaton result = sfx.concatenate(a);
+        Automaton result = sfx.concatenate(this.clone());
         result.a.minimize();
         return result;
     }
 
-    public static Automaton getWrappedInSpacesAutomaton(Automaton a) {
+    public Automaton getWrappedInSpacesAutomaton() {
         Automaton pfx = ALL_ACCEPT.clone();
         Automaton sfx = ALL_ACCEPT.clone();
-        Automaton result = pfx.concatenate(a).concatenate(sfx);
+        Automaton result = pfx.concatenate(this).concatenate(sfx);
         result.a.minimize();
         return result;
     }
+
+    public Automaton getCamelCaseAutomaton() {
+        return new Automaton(Autorex.getCamelCaseAutomaton(this.a));
+    }
+
 
 
     public int getLongestExample() {
@@ -285,5 +300,13 @@ public class Automaton implements DomainInterface<Automaton> {
 
     public dk.brics.automaton.Automaton getAutomaton() {
         return this.a;
+    }
+
+    public boolean isTotal() {
+        return this.a.isTotal();
+    }
+
+    public String getRegex() {
+        return Autorex.getRegexFromAutomaton(this.a);
     }
 }

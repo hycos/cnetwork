@@ -11,14 +11,14 @@ public class Constraint extends Operation {
     public Constraint(String name, NodeKind kind) {
         super(name,kind);
         assert kind.isComparative();
-        setDomain(NodeDomainFactory.getInstance().getDomain(NodeKind
+        setDomain(NodeDomainFactory.INSTANCE.getDomain(NodeKind
                 .BOOLLIT, "true"));
         assert(this.isBoolean());
     }
 
     public Constraint(Constraint c) {
         super(c);
-        setDomain(NodeDomainFactory.getInstance().getDomain(NodeKind
+        setDomain(NodeDomainFactory.INSTANCE.getDomain(NodeKind
                 .BOOLLIT, "true"));
         assert(this.isBoolean());
     }

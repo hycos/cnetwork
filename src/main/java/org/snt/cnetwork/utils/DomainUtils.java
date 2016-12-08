@@ -27,13 +27,23 @@ public class DomainUtils {
         return getAutomatonForRange(Math.max(0,r.getMin()), r.getMax());
     }
 
+    public static Automaton getAutomatonForRange(BooleanRange r) {
+        if(r.isAlwaysTrue()) {
+            return new Automaton("[Tt][Rr][Uu][Ee]");
+        } else if (r.isAlwaysFalse()) {
+            return new Automaton("[Ff][Aa][Ll][Ss][Ee]");
+        } else {
+            return new Automaton("([Tt][Rr][Uu][Ee]|[Ff][Aa][Ll][Ss][Ee])");
+        }
+    }
+
     public static Automaton getAutomatonForRange(Range r) {
         if(r instanceof NumRange) {
-            getAutomatonForRange((NumRange)r);
+            return getAutomatonForRange((NumRange)r);
         } else if (r instanceof BooleanRange) {
-            getAutomatonForRange((BooleanRange)r);
+            return getAutomatonForRange((BooleanRange)r);
         } else if (r instanceof AtomicNumRange) {
-            getAutomatonForRange((AtomicNumRange)r);
+            return getAutomatonForRange((AtomicNumRange)r);
         }
         // should never ever happen
         assert false;
@@ -49,11 +59,11 @@ public class DomainUtils {
         return a;
     }
 
-    private static Automaton getNumAutomatonForRange(AtomicNumRange r) {
+    public static Automaton getNumAutomatonForRange(Range r) {
         return getNumAutomatonForRange(r.getMin(), r.getMax());
     }
 
-    private static Automaton getBoolAutomatonForRange(BooleanRange r) {
+    public static Automaton getBoolAutomatonForRange(BooleanRange r) {
 
         String strue = BooleanRange.BooleanValue.TRUE.getValue();
         String sfalse = BooleanRange.BooleanValue.FALSE.getValue();

@@ -45,6 +45,11 @@ public class AtomicNumRange extends Range {
     }
 
     @Override
+    public Range complement() {
+        return Z.clone().minus(this);
+    }
+
+    @Override
     public int hashCode() {
         return (int)this.min;
     }
@@ -98,13 +103,6 @@ public class AtomicNumRange extends Range {
         }
 
         return null;
-    }
-
-    @Override
-    public NumRange complement(Range dother) {
-        assert dother instanceof AtomicNumRange;
-        AtomicNumRange o = (AtomicNumRange)dother;
-        return this.minus(o);
     }
 
 

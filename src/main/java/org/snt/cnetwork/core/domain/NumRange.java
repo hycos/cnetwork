@@ -10,6 +10,12 @@ public class NumRange extends Range {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(NumRange.class);
 
+
+    public static NumRange N = new NumRange(new AtomicNumRange(0, Integer
+            .MAX_VALUE));
+    public static NumRange Z = new NumRange(new AtomicNumRange(Integer
+            .MIN_VALUE, Integer.MAX_VALUE));
+
     private TreeMap<Long, AtomicNumRange> ran;
 
     public NumRange() {
@@ -36,8 +42,6 @@ public class NumRange extends Range {
         this.max = nr.max;
     }
 
-
-
     @Override
     public NumRange minus(Range dother) {
 
@@ -56,7 +60,11 @@ public class NumRange extends Range {
 
 
     @Override
-    public NumRange complement(Range dother) {
+    public NumRange complement() {
+        return Z.clone().complement(this);
+    }
+
+    private NumRange complement(NumRange dother) {
 
         assert dother instanceof NumRange;
 
@@ -116,6 +124,7 @@ public class NumRange extends Range {
     public boolean isEmpty() {
         return this.getRangeMap().isEmpty();
     }
+
 
     @Override
     public NumRange intersect(Range dother) {
@@ -453,7 +462,7 @@ public class NumRange extends Range {
 
 
     @Override
-    public Range clone() {
+    public NumRange clone() {
         return new NumRange(this);
     }
 
@@ -473,5 +482,9 @@ public class NumRange extends Range {
         NumRange isect = this.intersect(nr);
         this.ran.clear();
         this.ran.putAll(isect.ran);
+    }
+
+    public long getDiff() {
+        return this.max - this.min;
     }
 }

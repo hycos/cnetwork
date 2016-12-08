@@ -1,35 +1,51 @@
-package org.snt.cnetwork.utils;
-
+package org.snt.cnetwork.preproc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.ConstraintNetwork;
 import org.snt.cnetwork.core.Node;
 import org.snt.cnetwork.core.NodeKind;
-import org.snt.cnetwork.slicer.CnetworkSlicerBackward;
+import org.snt.cnetwork.core.domain.NodeDomain;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
-public enum CnetworkManipulator {
+public class DisjunctionTranslator implements Converter {
 
-    INSTANCE;
+    final static Logger LOGGER = LoggerFactory.getLogger(CnetworkPreprocessor.class);
 
-    final static Logger LOGGER = LoggerFactory.getLogger(CnetworkManipulator.class);
-
-
-    public Collection<ConstraintNetwork> removeDisjunctions(ConstraintNetwork
-                                                                    cn) {
-        return split(cn);
-    }
 
     /**
-     * A fixed point iteration that resolves one disjunction at time
-     *
-     * @param cn constraint network
+     * Translate disjunction into conjunction (De Morgan)
+     * @param cn
      * @return
      */
-    private Collection<ConstraintNetwork> split(ConstraintNetwork cn) {
+    @Override
+    public void translate(ConstraintNetwork cn, Node n) {
+        List<Node> pars = cn.getParametersFor(n);
+
+        assert pars.size() == 2;
+
+        Node par0 = pars.get(0);
+        Node par1 = pars.get(1);
+
+        NodeDomain p0d = par0.getDomain();
+        NodeDomain p1d = par1.getDomain();
+        NodeDomain dd = n.getDomain();
+
+        par0.setDomain(p0d.negate());
+        par1.setDomain(p1d.negate());
+        n.setDomain(dd.negate());
+        n.setKind(NodeKind.AND);
+    }
+
+    @Override
+    public boolean match(ConstraintNetwork cn, Node n) {
+        return n.getKind() == NodeKind.OR;
+    }
+
+
+    /**@Override
+    public Collection<ConstraintNetwork> translate(ConstraintNetwork cn) {
 
         Set<ConstraintNetwork> ret = new HashSet();
         LinkedList<ConstraintNetwork> worklist = new LinkedList<>();
@@ -38,7 +54,6 @@ public enum CnetworkManipulator {
         while (!worklist.isEmpty()) {
 
             ConstraintNetwork nextNetwork = worklist.poll();
-            cleanup(nextNetwork);
 
             assert !nextNetwork.vertexSet().isEmpty();
 
@@ -79,16 +94,6 @@ public enum CnetworkManipulator {
             CnetworkSlicerBackward bw = new CnetworkSlicerBackward
                     (nextNetwork);
 
-            Collection<Node> par0bw = bw.slice(par0);
-            Collection<Node> par1bw = bw.slice(par1);
-
-            // get the intersection to find elemnents that are in both bw slices
-            Set<Node> isect = new HashSet(par0bw);
-            isect.retainAll(par1bw);
-
-
-            par0bw.removeAll(isect);
-            par1bw.removeAll(isect);
 
             // @TODO: make this a bit more efficient
             ConstraintNetwork cp1 = nextNetwork.clone();
@@ -97,21 +102,11 @@ public enum CnetworkManipulator {
             cp1.removeVertex(par0);
             cp2.removeVertex(par1);
 
-
             worklist.add(cp1);
             worklist.add(cp2);
 
         }
         return ret;
-    }
+    }**/
 
-    private void cleanup(ConstraintNetwork cn) {
-        Set<Node> toRm = new HashSet();
-        for(Node v : cn.vertexSet()) {
-            if(v.isOperand() && (cn.outDegreeOf(v) + cn.inDegreeOf(v) == 0)) {
-                toRm.add(v);
-            }
-        }
-        cn.removeAllVertices(toRm);
-    }
 }
