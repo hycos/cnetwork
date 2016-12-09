@@ -98,7 +98,7 @@ public abstract class Node implements Cloneable {
     public String getDotLabel() {
         final StringBuilder s = new StringBuilder();
         s.append("{" + this.id + "}\\n");
-        s.append(isAnnotated() ? "\\n" + getAnnotation() : "");
+        s.append(isAnnotated() ? getAnnotation() + "\\n" : "");
         s.append("dom:" + dom.toString()+"\\n");
         return s.toString();
     }

@@ -9,7 +9,7 @@ public class EscapeUtils {
 
     private static Character[] sarray = new Character[]{'+', '{', '}', '(',
             ')', '[', ']', '&', '^', '-', '?', '*', '\"', '$', '<', '>', '.',
-            '|', '#' ,'~'};
+            '|', '#' ,'~', '\\'};
 
     private static Set<Character> special = new HashSet<Character>(Arrays.asList(sarray));
 

@@ -24,11 +24,6 @@ public class Constraint extends Operation {
     }
 
     @Override
-    public boolean isConstraint() {
-        return true;
-    }
-
-    @Override
     public Operation clone() { return new Constraint(this); }
 
 }

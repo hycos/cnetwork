@@ -7,6 +7,9 @@ import org.snt.cnetwork.core.NodeKind;
 import org.snt.cnetwork.utils.DomainUtils;
 import org.snt.cnetwork.utils.EscapeUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public enum NodeDomainFactory {
 
     INSTANCE;
@@ -62,6 +65,21 @@ public enum NodeDomainFactory {
     public static NodeDomain DSTRT = new NodeDomain(DomainKind.STRING_TRIMMED,new
             Automaton (STR_REXP_TRIMMED), N.clone());
 
+    public static Map<DomainKind, NodeDomain> dkindLookup = new HashMap();
+
+
+    static {
+        dkindLookup.put(DomainKind.NUMERIC_LZ, DZ);
+        dkindLookup.put(DomainKind.NUMERIC_Z, DZ);
+        dkindLookup.put(DomainKind.NUMERIC_N, DN);
+        dkindLookup.put(DomainKind.STRING, DSTR);
+        dkindLookup.put(DomainKind.BOOLEAN, DB);
+        dkindLookup.put(DomainKind.STRING_UPPER, DSTRU);
+        dkindLookup.put(DomainKind.STRING_LOWER, DSTRL);
+        dkindLookup.put(DomainKind.STRING_TRIMMED, DSTRT);
+
+    }
+
 
     public NodeDomain getDomain(Node n) {
         return getDomain(n.getKind(), n.getLabel());
@@ -98,6 +116,7 @@ public enum NodeDomainFactory {
         return getDomain(n,null);
     }
 
+
     public NodeDomain getDomain(NodeKind n, String lbl) {
 
         LOGGER.debug("getDomain " + n.getDomainKind() + " " + lbl);
@@ -108,20 +127,18 @@ public enum NodeDomainFactory {
                         Z.clone());
             case NUMERIC_Z:
             case NUMERIC_LZ:
-                return new NodeDomain(n.getDomainKind(),new Automaton(Z_REXP),
-                        Z.clone());
             case NUMERIC_N:
                 assert n.isNumeric();
                 if (n.isLiteral()) {
                     assert lbl != null & lbl.length() > 0;
                     assert lbl.matches(N_REXP);
                     int value = Integer.parseInt(lbl);
-                    return new NodeDomain(DomainKind.NUMERIC_N,
+                    return new NodeDomain(n.getDomainKind(),
                             new Automaton(lbl),
                             new NumRange (value));
                 } else {
                     assert n.isOperation() || n.isVariable() || n.isRegex();
-                    return DSTR.clone();
+                    return dkindLookup.get(n.getDomainKind());
                 }
             case STRING:
                 assert lbl != null;
