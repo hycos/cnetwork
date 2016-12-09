@@ -42,6 +42,18 @@ public abstract class Range implements DomainInterface<Range> {
 
     public abstract boolean contains( long value );
 
+    public long getDiff(){
+        return this.max - this.min;
+    }
+
+    public boolean isAlwaysGreaterThan(Range other){
+        return this.min > other.max;
+    }
+
+    public boolean isAlwaysSmallerThan(Range other){
+        return this.max < other.min;
+    }
+
     @Override
     public abstract Range clone();
 

@@ -13,7 +13,6 @@ import org.jgrapht.graph.DirectedPseudograph;
 import org.jgrapht.graph.EdgeSetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.preproc.CnetworkPreprocessor;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,7 +20,7 @@ import java.util.Set;
 
 public class AbstractNetwork implements DirectedGraph<Node, Edge>, Cloneable {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(CnetworkPreprocessor.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(AbstractNetwork.class);
 
     private final DirectedPseudograph<Node, Edge> delegate;
 

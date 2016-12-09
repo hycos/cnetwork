@@ -6,6 +6,7 @@ import org.snt.cnetwork.core.domain.*;
 
 import java.util.*;
 
+// @TODO make a signelton class out of this one
 public class DomainUtils {
 
     final static Logger LOGGER = LoggerFactory.getLogger(DomainUtils.class);
@@ -118,7 +119,6 @@ public class DomainUtils {
         }
 
         AtomicNumRange nr = new AtomicNumRange(minlen, a.getLongestExample());
-
 
         return nr;
     }

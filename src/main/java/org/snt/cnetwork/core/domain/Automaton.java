@@ -142,6 +142,10 @@ public class Automaton implements DomainInterface<Automaton> {
         return new Automaton(Autorex.getSubstringAutomaton(this.a));
     }
 
+    public Automaton getAllAcceptingSuffixAutomaton() {
+        return new Automaton(Autorex.getSuffixAutomaton(this.a));
+    }
+
     public Automaton getSubstringAutomaton() {
         Automaton pfx = ALL_ACCEPT.clone();
         Automaton sfx = ALL_ACCEPT.clone();
@@ -308,5 +312,13 @@ public class Automaton implements DomainInterface<Automaton> {
 
     public String getRegex() {
         return Autorex.getRegexFromAutomaton(this.a);
+    }
+
+    public boolean run(String s){
+        return this.a.run(s);
+    }
+
+    public Set<String> getStrings(int number){
+        return this.a.getStrings(number);
     }
 }
