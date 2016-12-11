@@ -100,18 +100,22 @@ public class TestBasicRange {
         assert(trange.or(frange).isAlwaysTrue());
         assert(frange.or(frange).isAlwaysFalse());
 
+        LOGGER.debug("" + frange.xor(trange));
+
         assert(frange.xor(trange).isAlwaysTrue());
 
-        trange.negate();
 
-        assert(trange.equals(frange));
+        BooleanRange ntrange = trange.negate();
 
-        trange.negate();
-        frange.negate();
+        assert(ntrange.equals(frange));
 
-        assert(trange.equals(frange));
+        trange = ntrange.negate();
 
-        frange.negate();
+        BooleanRange nfrange = frange.negate();
+
+        assert(trange.equals(nfrange));
+
+        BooleanRange frange = nfrange.negate();
 
         assert(vrange.and(trange).isCatState());
         assert(vrange.and(frange).isAlwaysFalse());

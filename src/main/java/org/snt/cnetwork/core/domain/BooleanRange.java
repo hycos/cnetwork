@@ -1,6 +1,11 @@
 package org.snt.cnetwork.core.domain;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class BooleanRange extends AtomicNumRange {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(BooleanRange.class);
 
     public enum BooleanValue {
 
@@ -75,21 +80,24 @@ public class BooleanRange extends AtomicNumRange {
 
     public BooleanRange xor(BooleanRange other) {
 
-        BooleanRange prange = new BooleanRange(this.min, this.max);
-        BooleanRange qrange = new BooleanRange(other);
+        BooleanRange pandq = this.and(other);
+        BooleanRange qorq = this.or(other);
 
-        BooleanRange pandq = prange.and(qrange);
-        BooleanRange qorq = prange.or(qrange);
+        LOGGER.debug("1" + pandq);
+        LOGGER.debug("2" + qorq);
 
-        pandq.negate();
+        BooleanRange neg = pandq.negate();
+        LOGGER.debug("+1" + pandq);
 
-        return qorq.and(pandq);
+        return qorq.and(neg);
 
     }
 
     public BooleanRange negate() {
 
         BooleanRange cp = this.clone();
+
+        LOGGER.debug("NEGATE {} {}", cp.min, cp.max);
         if(cp.min == BooleanValue.TRUE.id && cp.max == BooleanValue.FALSE.id) {
             ; // nothing to do
             return cp;
@@ -99,6 +107,7 @@ public class BooleanRange extends AtomicNumRange {
             cp.max = BooleanValue.FALSE.id;
             cp.min = BooleanValue.FALSE.id;
         } else {
+            LOGGER.debug("ELSE {} {}", cp.min, BooleanValue.TRUE.id);
             cp.max = BooleanValue.TRUE.id;
             cp.min = BooleanValue.TRUE.id;
         }
