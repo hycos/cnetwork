@@ -51,7 +51,7 @@ public enum NodeDomainFactory {
             new Automaton(N_REXP), N.clone());
 
     public static NodeDomain DZ = new NodeDomain(DomainKind.NUMERIC_Z,
-            new Automaton(Z_REXP), N.clone());
+            new Automaton(Z_REXP), Z.clone());
 
     public static NodeDomain DSTR = new NodeDomain(DomainKind.STRING,new Automaton
             (STR_REXP), N.clone());

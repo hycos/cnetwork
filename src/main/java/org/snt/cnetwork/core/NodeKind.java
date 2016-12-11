@@ -72,7 +72,7 @@ public enum NodeKind {
     VALUEOF("valueof", DomainKind.NUMERIC_Z),
     TOSTR("tostr", DomainKind.STRING),
 
-    ADD("add", DomainKind.NUMERIC_LZ),
+    ADD("add", DomainKind.NUMERIC_Z),
     SUB("sub", DomainKind.NUMERIC_Z),
 
     APACHE_ESCHTML("apache_eschtml", DomainKind.STRING),

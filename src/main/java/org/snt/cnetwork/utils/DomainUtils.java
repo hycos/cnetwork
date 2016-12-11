@@ -99,7 +99,7 @@ public class DomainUtils {
         return mina.intersect(maxa);
     }
 
-    public static AtomicNumRange getApproxLenRange(Automaton a) {
+    public static NumRange getApproxLenRange(Automaton a) {
         assert a != null;
 
         LOGGER.debug("get approx len range");
@@ -115,12 +115,11 @@ public class DomainUtils {
 
         if (!a.isFinite()) {
         //    LOGGER.info("SHORTEST " + a.getShortestExample(true));
-            return new AtomicNumRange(minlen, Integer.MAX_VALUE);
+            return new NumRange(new AtomicNumRange(minlen, Integer.MAX_VALUE));
         }
 
-        AtomicNumRange nr = new AtomicNumRange(minlen, a.getLongestExample());
+        return new NumRange(new AtomicNumRange(minlen, a.getLongestExample()));
 
-        return nr;
     }
 
     public static NumRange getExactLenRange(Automaton a) {

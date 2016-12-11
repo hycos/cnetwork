@@ -469,6 +469,10 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
                     color = "green";
                 }
 
+                if(n.getAnnotation().equals("unsat")) {
+                    color = "red";
+                }
+
             } else {
                 shape = "ellipse";
                 label = "label";

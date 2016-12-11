@@ -1,8 +1,8 @@
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.domain.AtomicNumRange;
 import org.snt.cnetwork.core.domain.Automaton;
+import org.snt.cnetwork.core.domain.NumRange;
 import org.snt.cnetwork.utils.DomainUtils;
 
 import java.util.Set;
@@ -49,7 +49,7 @@ public class TestDomainUtils {
    @Test
     public void testGetRangeForAutomaton() {
 
-        AtomicNumRange range = DomainUtils.getApproxLenRange(new Automaton
+        NumRange range = DomainUtils.getApproxLenRange(new Automaton
                 ("aa+"));
         assert(range.isBetween(2,Integer.MAX_VALUE));
         range = DomainUtils.getApproxLenRange(new Automaton("[0-9]&[4-7]+"));

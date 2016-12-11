@@ -64,10 +64,6 @@ public class AtomicNumRange extends Range {
         return value >= this.min && value <= this.max;
     }
 
-    public boolean isBetween(int min, int max) {
-        return this.min >= min && this.max <= max;
-    }
-
     @Override
     public boolean subsumes(Range dother) {
 

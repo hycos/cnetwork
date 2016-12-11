@@ -54,6 +54,10 @@ public abstract class Range implements DomainInterface<Range> {
         return this.max < other.min;
     }
 
+    public boolean isBetween(int min, int max) {
+        return this.min >= min && this.max <= max;
+    }
+
     @Override
     public abstract Range clone();
 
