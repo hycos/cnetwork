@@ -150,9 +150,8 @@ public class Automaton implements DomainInterface<Automaton> {
         Automaton pfx = ALL_ACCEPT.clone();
         Automaton sfx = ALL_ACCEPT.clone();
 
-        Automaton result = pfx.concatenate(sfx);
+        Automaton result = pfx.concatenate(this).concatenate(sfx);
         result.a.minimize();
-
         return result;
     }
 

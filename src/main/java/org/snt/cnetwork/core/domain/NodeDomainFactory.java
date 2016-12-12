@@ -89,7 +89,7 @@ public enum NodeDomainFactory {
     public NodeDomain getDomain(DomainKind kind) {
         switch (kind) {
             case UNKNOWN:
-                break;
+                return DSTR.clone();
             case NUMERIC_Z:
                 return DZ.clone();
             case NUMERIC_N:
@@ -122,9 +122,6 @@ public enum NodeDomainFactory {
         LOGGER.debug("getDomain " + n.getDomainKind() + " " + lbl);
 
         switch (n.getDomainKind()) {
-            case UNKNOWN:
-                return new NodeDomain(n.getDomainKind(),new Automaton(STR_REXP),
-                        Z.clone());
             case NUMERIC_Z:
             case NUMERIC_LZ:
             case NUMERIC_N:
@@ -138,7 +135,7 @@ public enum NodeDomainFactory {
                             new NumRange (value));
                 } else {
                     assert n.isOperation() || n.isVariable() || n.isRegex();
-                    return dkindLookup.get(n.getDomainKind());
+                    return getDomain(n.getDomainKind());
                 }
             case STRING:
                 assert lbl != null;
@@ -154,20 +151,13 @@ public enum NodeDomainFactory {
                             DomainUtils.getApproxLenRange(a));
                 } else {
                     assert n.isOperation() || n.isVariable() || n.isRegex();
-                    return new NodeDomain(n.getDomainKind(),new Automaton
-                            (STR_REXP),
-                            N.clone());
+                    return getDomain(n.getDomainKind());
                 }
+            case UNKNOWN:
             case STRING_UPPER:
-                return new NodeDomain(n.getDomainKind(),new Automaton
-                        (STR_REXP_UPPER), N.clone());
             case STRING_LOWER:
-                return new NodeDomain(n.getDomainKind(),new Automaton
-                        (STR_REXP_LOWER), N.clone());
             case STRING_TRIMMED:
-                return new NodeDomain(n.getDomainKind(),new Automaton
-                        (STR_REXP_TRIMMED), N
-                        .clone());
+                return getDomain(n.getDomainKind());
             case BOOLEAN:
                 if (n.isLiteral()) {
                     LOGGER.debug("__" + lbl);
@@ -181,7 +171,7 @@ public enum NodeDomainFactory {
                             BooleanRange(bv));
                 } else {
                     assert n.isOperation() || n.isVariable() || n.isRegex();
-                    return DB.clone();
+                    return getDomain(n.getDomainKind());
                 }
         }
 
