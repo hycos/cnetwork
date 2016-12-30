@@ -100,6 +100,7 @@ public abstract class Node implements Cloneable {
         s.append("{" + this.id + "}\\n");
         s.append(isAnnotated() ? getAnnotation() + "\\n" : "");
         s.append("dom:" + dom.toString()+"\\n");
+        s.append("kind:" + getKind().getDesc() +"\\n");
         return s.toString();
     }
 

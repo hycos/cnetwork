@@ -479,7 +479,8 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
                 color = "black";
             }
 
-            sb.append("\tn" + n.getId() + " [color=" + color + ",shape=\"" + shape + "\"," + label + "=\"" +
+            sb.append("\tn" + n.getId() + " [color=" + color + ",shape=\"" +
+                    shape + "\"," + label + "=\"" +
                     kind + "\\n" + n.getDotLabel() + "\"];\n");
         }
 

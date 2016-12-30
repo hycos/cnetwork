@@ -1,7 +1,5 @@
 package org.snt.cnetwork.core.domain;
 
-import dk.brics.automaton.Automaton;
-import dk.brics.automaton.RegExp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,8 +160,9 @@ public class AtomicNumRange extends Range {
         if(other.min > this.max || other.max < this.min)
             return null;
 
-        AtomicNumRange overlap = new AtomicNumRange(Math.max(this.min, other.min),Math.min(this.max, other.max));
-        //LOGGER.info("Overlap is "+ overlap);
+        AtomicNumRange overlap = new AtomicNumRange(Math.max(this.min, other.min),
+                Math.min(this.max, other.max));
+        LOGGER.info("Overlap is "+ overlap);
 
         assert(overlap.max >= overlap.min);
 
@@ -214,13 +213,18 @@ public class AtomicNumRange extends Range {
 
 
         if(isect == null) {
-            return new RegExp(".{0}").toAutomaton();
+            return new Automaton(".{0}");
         }
 
-        if(isect.getMax() == N.getMax()) {
-            return new RegExp(".*").toAutomaton();
+        //@TODO:Julian this is a heuristic -- building a len automaton
+        //is quite expensive
+        if(isect.getMax() == N.getMax() || isect.getDiff() > Integer
+                .MAX_VALUE/2) {
+            return new Automaton(".*");
         } else {
-            return new RegExp(".{" + this.getMin() + "," + this.getMax() + "}").toAutomaton();
+            LOGGER.debug("return bnd");
+            return new Automaton(".{"  + isect.getMin()  + "," + isect.getMax() +
+                    "}");
         }
     }
 

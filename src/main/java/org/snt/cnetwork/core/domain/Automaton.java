@@ -302,7 +302,7 @@ public class Automaton implements DomainInterface<Automaton> {
     }
 
     public dk.brics.automaton.Automaton getAutomaton() {
-        return this.a;
+        return this.a.clone();
     }
 
     public boolean isTotal() {

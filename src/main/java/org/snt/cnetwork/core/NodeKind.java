@@ -218,6 +218,16 @@ public enum NodeKind {
         }
     }
 
+    public String getDesc() {
+        if(this == EQUALS)
+            return "eq";
+        else if (this == STR_EQUALS)
+            return "seq";
+        else if (this == BOOL_EQUALS)
+            return "beq";
+        else return this.getValue();
+    }
+
 
     public boolean isSanitizer() {
         return this == APACHE_ESCHTML || this == APACHE_UESCHTML ||

@@ -21,7 +21,7 @@ public enum NodeDomainFactory {
     public static final String STR_REXP = ".*";
     public static final String STR_REXP_LOWER = "[^A-Z]*";
     public static final String STR_REXP_UPPER = "[^a-z]*";
-    public static final String STR_REXP_TRIMMED = "[^ ]*.*[^ ]*";
+    public static final String STR_REXP_TRIMMED = "[^ ].*[^ ]*";
     public static final String BOOL_TRUE = "[Tt][Rr][Uu][Ee]";
     public static final String BOOL_FALSE = "[Ff][Aa][Ll][Ss][Ee]";
     public static final String BOOL_REXP = "(" + BOOL_TRUE + "|" + BOOL_FALSE
@@ -82,7 +82,12 @@ public enum NodeDomainFactory {
 
 
     public NodeDomain getDomain(Node n) {
-        return getDomain(n.getKind(), n.getLabel());
+        NodeDomain nd = getDomain(n.getKind(), n.getLabel());
+
+        //@TODO: Julian this is damn ugly
+        if(n.isLiteral() && n.isString())
+            n.setLabel("\"" + n.getLabel() + "\"");
+        return nd;
     }
 
 
@@ -128,7 +133,7 @@ public enum NodeDomainFactory {
                 assert n.isNumeric();
                 if (n.isLiteral()) {
                     assert lbl != null & lbl.length() > 0;
-                    assert lbl.matches(N_REXP);
+                    assert lbl.matches(Z_REXP);
                     int value = Integer.parseInt(lbl);
                     return new NodeDomain(n.getDomainKind(),
                             new Automaton(lbl),

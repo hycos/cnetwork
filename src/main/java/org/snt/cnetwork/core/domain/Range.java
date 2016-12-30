@@ -66,4 +66,7 @@ public abstract class Range implements DomainInterface<Range> {
         return "range";
     }
 
+    @Override
+    public abstract boolean equals(Object o);
+
 }

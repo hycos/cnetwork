@@ -1,6 +1,5 @@
 package org.snt.cnetwork.core.domain;
 
-import dk.brics.automaton.Automaton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -400,7 +399,7 @@ public class NumRange extends Range {
         return this.ran;
     }
 
-    public Automaton getLenAutomaton() {
+    public Automaton toAutomaton() {
         Automaton automaton = null;
         for(Map.Entry<Long, AtomicNumRange> e : this.ran.entrySet()) {
             if(automaton == null) {
@@ -412,6 +411,12 @@ public class NumRange extends Range {
         return automaton;
     }
 
+    public Automaton toApproxAutomaton() {
+        LOGGER.debug("get approximate automaton");
+        Automaton a =  new AtomicNumRange(this.min, this.max).getLenAutomaton();
+        LOGGER.debug("return approx automaotn");
+        return a;
+    }
 
     public NumRange numadd(NumRange nr) {
         NumRange ret = new NumRange();

@@ -81,7 +81,7 @@ public class Operation extends Node {
 
     @Override
     public boolean isConstraint() {
-        return this.kind.isBoolean() && this.dom.isSingleton();
+        return this instanceof Constraint;
     }
 
     @Override

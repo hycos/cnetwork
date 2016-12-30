@@ -1,6 +1,8 @@
 package org.snt.cnetwork.core;
 
 
+import org.snt.cnetwork.utils.EscapeUtils;
+
 public class Operand extends Node {
 
     public Operand(Operand o) {
@@ -70,7 +72,8 @@ public class Operand extends Node {
 
     @Override
     public String getDotLabel() {
-        return label + "\\nn" + super.getDotLabel();
+        return EscapeUtils.escapeSpecialCharacters(label) + "\\nn" + super
+                .getDotLabel();
     }
 
 }

@@ -168,4 +168,23 @@ public class BooleanRange extends AtomicNumRange {
         return new BooleanRange(this);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if(!(o instanceof BooleanRange))
+            return false;
+
+        BooleanRange ro = (BooleanRange)o;
+
+        if(isAlwaysTrue() && ro.isAlwaysTrue())
+            return true;
+
+        if(isAlwaysFalse() && ro.isAlwaysFalse())
+            return true;
+
+        if(isCatState() && ro.isCatState())
+            return true;
+
+        return false;
+    }
+
 }

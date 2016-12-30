@@ -3,9 +3,9 @@ package org.snt.cnetwork.core.domain;
 import org.snt.cnetwork.utils.DomainUtils;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class NodeDomain implements DomainInterface<NodeDomain> {
 
@@ -16,18 +16,23 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
         DomainInterface performOperation(DomainInterface a, DomainInterface b);
     }
 
-    private interface DomainCheck {
+    private interface DomainCheckBinary {
         boolean check(DomainInterface a, DomainInterface b);
     }
+
+    private interface DomainCheckUnary {
+        boolean check(DomainInterface a);
+    }
+
 
     private static DomainAction ISECT = (a, b) -> (DomainInterface)a.intersect(b);
     private static DomainAction UNION = (a, b) -> (DomainInterface)a.union(b);
     private static DomainAction MINUS = (a, b) -> (DomainInterface)a.union(b);
 
-    private static DomainCheck SUBSUMPTION = (a, b) -> a.subsumes(b);
-    private static DomainCheck EMPTY = (a, b) -> a.isEmpty();
-    private static DomainCheck SINGLETON = (a, b) -> a.isSingleton();
-    private static DomainCheck EQUALS = (a, b) -> a.equals(b);
+    private static DomainCheckBinary SUBSUMPTION = (a, b) -> a.subsumes(b);
+    private static DomainCheckUnary EMPTY = a -> a.isEmpty();
+    private static DomainCheckBinary SINGLETON = (a, b) -> a.isSingleton();
+    private static DomainCheckBinary EQUALS = (a, b) -> a.equals(b);
 
     private Map<String, DomainInterface> dom = new HashMap();
 
@@ -41,31 +46,43 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
     public NodeDomain(DomainKind kind, DomainInterface ... ds) {
         this.kind = kind;
         for(DomainInterface d : ds) {
-            dom.put(d.getDomainName(), d);
+            dom.put(d.getDomainName(), (DomainInterface)d.clone());
         }
     }
 
     public NodeDomain(DomainKind kind, Set<DomainInterface> ds) {
         this.kind = kind;
         for(DomainInterface d : ds) {
-            dom.put(d.getDomainName(), d);
+            dom.put(d.getDomainName(), (DomainInterface)d.clone());
         }
     }
 
     private NodeDomain applyForAll(NodeDomain y, DomainAction d) {
         assert y.dom.size() == dom.size();
-        Set<DomainInterface> isects = dom.entrySet().stream().map(e ->
-            d.performOperation(e.getValue(),y.dom.get(e))).collect(Collectors
-                .toSet());
 
+        Set<DomainInterface> isects = new HashSet();
+        for(DomainInterface di : dom.values()){
+            DomainInterface ydom = y.getDomain(di.getDomainName());
+            isects.add(d.performOperation(di,ydom));
+        }
+
+        assert isects.size() == dom.size();
         return new NodeDomain(this.kind,isects);
     }
 
-    private boolean checkForAll(NodeDomain y, DomainCheck d) {
+    private boolean checkForAllBinary(NodeDomain y, DomainCheckBinary d) {
         assert y.dom.size() == this.dom.size();
         for(DomainInterface i : dom.values()) {
             DomainInterface yi = y.dom.get(i.getDomainName());
             if(!d.check(i, yi))
+                return false;
+        }
+        return true;
+    }
+
+    private boolean checkForAllUnary(DomainCheckUnary d) {
+        for(DomainInterface i : dom.values()) {
+            if(!d.check(i))
                 return false;
         }
         return true;
@@ -117,17 +134,17 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
 
     @Override
     public boolean subsumes(NodeDomain y) {
-        return checkForAll(y, SUBSUMPTION);
+        return checkForAllBinary(y, SUBSUMPTION);
     }
 
     @Override
     public boolean isSingleton() {
-        return checkForAll(this, SINGLETON);
+        return checkForAllBinary(this, SINGLETON);
     }
 
     @Override
     public boolean isEmpty() {
-        return checkForAll(null, EMPTY);
+        return checkForAllUnary(EMPTY);
     }
 
 
@@ -150,7 +167,9 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
         final StringBuilder s = new StringBuilder();
         s.append("{");
         dom.forEach((v,k) -> {
-            if(s.length() > 1) s.append(",");
+            if(s.length() > 1)
+                s.append(",");
+
             s.append(k.toString());
         });
         s.append("}");
@@ -165,7 +184,11 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
 
         NodeDomain nd = (NodeDomain)o;
 
-        return checkForAll(this,EQUALS);
+        return checkForAllBinary(nd,EQUALS);
+    }
+
+    public DomainKind getDomainKind() {
+        return kind;
     }
 
 }
