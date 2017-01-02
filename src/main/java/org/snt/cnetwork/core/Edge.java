@@ -1,9 +1,10 @@
 package org.snt.cnetwork.core;
 
+import org.jgrapht.graph.DefaultEdge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Edge implements Comparable<Edge>, Cloneable {
+public class Edge extends DefaultEdge implements Comparable<Edge>, Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(Edge.class);
 
@@ -61,7 +62,7 @@ public class Edge implements Comparable<Edge>, Cloneable {
         this.kind = kind;
     }
 
-    public int getSequence() {
+    public int  getSequence() {
         return this.sequence;
     }
 
@@ -99,6 +100,16 @@ public class Edge implements Comparable<Edge>, Cloneable {
 
     public void setDestNode(Node destNode) {
         this.destNode = destNode;
+    }
+
+    @Override
+    public Node getSource() {
+        return this.srcNode;
+    }
+
+    @Override
+    public Node getTarget() {
+        return this.destNode;
     }
 
     @Override

@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class AbstractNetwork implements DirectedGraph<Node, Edge>, Cloneable {
 
@@ -25,7 +26,7 @@ public class AbstractNetwork implements DirectedGraph<Node, Edge>, Cloneable {
     private final DirectedPseudograph<Node, Edge> delegate;
 
     public AbstractNetwork() {
-        this.delegate = new DirectedPseudograph(new SimpleEdgeFactory());
+        this.delegate = new DirectedPseudograph(Edge.class);
     }
 
     public boolean addEdge(Node arg0, Node arg1, Edge arg2) {
@@ -115,9 +116,9 @@ public class AbstractNetwork implements DirectedGraph<Node, Edge>, Cloneable {
     }
 
     public Set<Edge> incomingEdgesOf(Node arg0) {
-        Set<Edge> ret = new HashSet<>();
+        Set<Edge> ret = new TreeSet<>();
         try {
-            ret = delegate.incomingEdgesOf(arg0);
+            ret.addAll(delegate.incomingEdgesOf(arg0));
         } catch (NullPointerException e) {
             LOGGER.error("Could not find {}", arg0.getId());
             return ret;
@@ -142,8 +143,9 @@ public class AbstractNetwork implements DirectedGraph<Node, Edge>, Cloneable {
 
         Set<Edge> ret = new HashSet();
         try {
-            ret = delegate.outgoingEdgesOf(arg0);
+            ret.addAll(delegate.outgoingEdgesOf(arg0));
         } catch (NullPointerException e) {
+            LOGGER.error(e.getMessage());
             return ret;
         } finally {
             return ret;

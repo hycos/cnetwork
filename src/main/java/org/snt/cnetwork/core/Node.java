@@ -13,6 +13,16 @@ public abstract class Node implements Cloneable {
     protected String instance = "";
     protected String label = "";
     protected String annotation = "";
+    protected String note = "";
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
     protected NodeDomain dom;
 
     private static int nid = 0;
@@ -101,6 +111,8 @@ public abstract class Node implements Cloneable {
         s.append(isAnnotated() ? getAnnotation() + "\\n" : "");
         s.append("dom:" + dom.toString()+"\\n");
         s.append("kind:" + getKind().getDesc() +"\\n");
+        if(!note.isEmpty())
+            s.append("note:" + note + "\\n");
         return s.toString();
     }
 
