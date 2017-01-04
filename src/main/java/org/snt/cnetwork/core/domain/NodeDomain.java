@@ -1,6 +1,7 @@
 package org.snt.cnetwork.core.domain;
 
 import org.snt.cnetwork.utils.DomainUtils;
+import org.snt.cnetwork.utils.EscapeUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -160,6 +161,19 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
 
     public void setDomain(DomainInterface iface) {
         dom.put(iface.getDomainName(), iface);
+    }
+
+    public String getDotLabel(){
+        final StringBuilder s = new StringBuilder();
+        s.append("{");
+        dom.forEach((v,k) -> {
+            if(s.length() > 1)
+                s.append(",");
+
+            s.append(EscapeUtils.escapeSpecialCharacters(k.toString()));
+        });
+        s.append("}");
+        return s.toString();
     }
 
     @Override

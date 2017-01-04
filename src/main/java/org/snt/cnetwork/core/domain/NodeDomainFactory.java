@@ -27,9 +27,11 @@ public enum NodeDomainFactory {
     public static final String BOOL_REXP = "(" + BOOL_TRUE + "|" + BOOL_FALSE
             + ")";
 
+    public static final String STR_EMPTY = ".{0}";
 
     public static NumRange N = new NumRange(AtomicNumRange.N);
     public static NumRange Z = new NumRange(AtomicNumRange.Z);
+    public static NumRange E = new NumRange(AtomicNumRange.E);
 
     public static BooleanRange FALSE = new BooleanRange(BooleanRange.BooleanValue.FALSE);
     public static BooleanRange TRUE = new BooleanRange(BooleanRange.BooleanValue.TRUE);
@@ -60,10 +62,14 @@ public enum NodeDomainFactory {
             Automaton (STR_REXP_UPPER), N.clone());
 
     public static NodeDomain DSTRL = new NodeDomain(DomainKind.STRING_LOWER,new
-            Automaton (STR_REXP_UPPER), N.clone());
+            Automaton (STR_REXP_LOWER), N.clone());
 
     public static NodeDomain DSTRT = new NodeDomain(DomainKind.STRING_TRIMMED,new
             Automaton (STR_REXP_TRIMMED), N.clone());
+
+    public static NodeDomain DSTRE = new NodeDomain(DomainKind
+            .STRING,new
+            Automaton (STR_EMPTY), E.clone());
 
     public static Map<DomainKind, NodeDomain> dkindLookup = new HashMap();
 

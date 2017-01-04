@@ -10,6 +10,7 @@ public class AtomicNumRange extends Range {
 
     public static AtomicNumRange N = new AtomicNumRange(0, Integer.MAX_VALUE);
     public static AtomicNumRange Z = new AtomicNumRange(Integer.MIN_VALUE, Integer.MAX_VALUE);
+    public static AtomicNumRange E = new AtomicNumRange(0, 0);
 
 
     public AtomicNumRange(long min, long max) {
@@ -170,7 +171,7 @@ public class AtomicNumRange extends Range {
     }
 
 
-    public boolean equals(int min, int max) {
+    public boolean equals(long min, long max) {
         return this.equals(new AtomicNumRange(min,max));
     }
 
@@ -209,12 +210,12 @@ public class AtomicNumRange extends Range {
 
         AtomicNumRange isect = intersect(N.clone());
 
-        LOGGER.info("getlenauto" + isect.toString());
-
-
         if(isect == null) {
             return new Automaton(".{0}");
         }
+
+
+        LOGGER.info("getlenauto" + isect.toString());
 
         //@TODO:Julian this is a heuristic -- building a len automaton
         //is quite expensive

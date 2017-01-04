@@ -231,8 +231,8 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
 
     public Set<Node> getConnectedInNodes(Node n) {
         Set<Node> ret = new HashSet<Node>();
-        Set<Edge> incoming = null;
-        if((incoming = this.incomingEdgesOf(n)) != null && !incoming.isEmpty()) {
+        Set<Edge> incoming;
+        if((incoming = incomingEdgesOf(n)) != null) {
             for(Edge e : incoming) {
                 ret.add(e.getSrcNode());
             }
@@ -242,8 +242,8 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
 
     public Set<Node> getConnectedOutNodes(Node n) {
         Set<Node> ret = new HashSet<Node>();
-        Set<Edge> outgoing = null;
-        if((outgoing = this.outgoingEdgesOf(n)) != null && !outgoing.isEmpty()) {
+        Set<Edge> outgoing;
+        if((outgoing = outgoingEdgesOf(n)) != null) {
             for(Edge e : outgoing) {
                 ret.add(e.getDestNode());
             }
@@ -468,9 +468,9 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
         for (Node n : this.vertexSet()) {
             String kind = "";
             if (n instanceof Operand) {
-                kind = ((Operand) n).getKind().toString();
+                kind = n.getKind().toString();
             } else {
-                kind = ((Operation) n).getKind().toString();
+                kind = n.getKind().toString();
             }
 
             if (n.isOperation()) {

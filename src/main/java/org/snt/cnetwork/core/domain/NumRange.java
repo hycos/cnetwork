@@ -116,7 +116,7 @@ public class NumRange extends Range {
     @Override
     public boolean isSingleton() {
         return this.getRangeMap().size() == 1 &&
-                this.getRangeMap().get(0).isSingleton();
+                this.getRangeMap().firstEntry().getValue().isSingleton();
     }
 
     @Override
