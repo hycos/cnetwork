@@ -18,6 +18,7 @@ public enum NodeDomainFactory {
 
     public static final String Z_REXP = "-?([0-9]|[1-9][0-9]{0,7})";
     public static final String N_REXP = "[0-9]|([1-9][0-9]{0,7})";
+    public static final String NM1_REXP = N_REXP + "|-1";
     public static final String STR_REXP = ".*";
     public static final String STR_REXP_LOWER = "[^A-Z]*";
     public static final String STR_REXP_UPPER = "[^a-z]*";
@@ -32,6 +33,8 @@ public enum NodeDomainFactory {
     public static NumRange N = new NumRange(AtomicNumRange.N.clone());
     public static NumRange Z = new NumRange(AtomicNumRange.Z.clone());
     public static NumRange E = new NumRange(AtomicNumRange.E.clone());
+    public static NumRange NM1 = new NumRange(new AtomicNumRange(new NumCut
+            (-1), new AboveAll()));
 
     public static BooleanRange FALSE = new BooleanRange(BoolCut.FALSE.clone());
     public static BooleanRange TRUE = new BooleanRange(BoolCut.TRUE.clone());
@@ -51,6 +54,9 @@ public enum NodeDomainFactory {
 
     public static NodeDomain DN = new NodeDomain(DomainKind.NUMERIC_N,
             new Automaton(N_REXP), N.clone());
+
+    public static NodeDomain DNM1 = new NodeDomain(DomainKind.NUMERIC_NM1,
+            new Automaton(NM1_REXP), NM1.clone());
 
     public static NodeDomain DZ = new NodeDomain(DomainKind.NUMERIC_Z,
             new Automaton(Z_REXP), Z.clone());
@@ -75,7 +81,7 @@ public enum NodeDomainFactory {
 
 
     static {
-        dkindLookup.put(DomainKind.NUMERIC_LZ, DZ);
+        dkindLookup.put(DomainKind.NUMERIC_NM1, DNM1);
         dkindLookup.put(DomainKind.NUMERIC_Z, DZ);
         dkindLookup.put(DomainKind.NUMERIC_N, DN);
         dkindLookup.put(DomainKind.STRING, DSTR);
@@ -83,7 +89,6 @@ public enum NodeDomainFactory {
         dkindLookup.put(DomainKind.STRING_UPPER, DSTRU);
         dkindLookup.put(DomainKind.STRING_LOWER, DSTRL);
         dkindLookup.put(DomainKind.STRING_TRIMMED, DSTRT);
-
     }
 
 
@@ -105,8 +110,8 @@ public enum NodeDomainFactory {
                 return DZ.clone();
             case NUMERIC_N:
                 return DN.clone();
-            case NUMERIC_LZ:
-                return DN.clone();
+            case NUMERIC_NM1:
+                return DNM1.clone();
             case STRING:
                 return DSTR.clone();
             case STRING_UPPER:
@@ -134,8 +139,8 @@ public enum NodeDomainFactory {
 
         switch (n.getDomainKind()) {
             case NUMERIC_Z:
-            case NUMERIC_LZ:
             case NUMERIC_N:
+            case NUMERIC_NM1:
                 assert n.isNumeric();
                 if (n.isLiteral()) {
                     assert lbl != null & lbl.length() > 0;

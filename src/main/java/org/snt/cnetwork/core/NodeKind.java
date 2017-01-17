@@ -59,7 +59,7 @@ public enum NodeKind {
     IMPLIES("implies", DomainKind.BOOLEAN),
 
     SUBSTR("substr", DomainKind.STRING),
-    INDEXOF("indexof", DomainKind.NUMERIC_N),
+    INDEXOF("indexof", DomainKind.NUMERIC_NM1),
     TOLOWER("tolower", DomainKind.STRING_LOWER),
     TOUPPER("toupper", DomainKind.STRING_UPPER),
     CONCAT("concat", DomainKind.STRING),

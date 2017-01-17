@@ -66,7 +66,7 @@ public class Operation extends Node {
     @Override
     public boolean isNumeric() {
         return kind.getDomainKind() == DomainKind.NUMERIC_N || kind
-                .getDomainKind() == DomainKind.NUMERIC_LZ || kind
+                .getDomainKind() == DomainKind.NUMERIC_NM1 || kind
                 .getDomainKind() == DomainKind.NUMERIC_Z;
     }
     @Override

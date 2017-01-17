@@ -26,16 +26,18 @@ public class BooleanRange extends AtomicNumRange {
     public BooleanRange or(BooleanRange other) {
 
         NumCut newmin = (other.getMin().add(getMin())).div(2L);
-        NumCut newmax = (other.getMax().add(getMax())).diff(2L) ;
+        NumCut newmax = (other.getMax().add(getMax())).div(2L);
 
         return new BooleanRange(newmin, newmax);
     }
 
     public BooleanRange and(BooleanRange other) {
 
-        NumCut newmin = (other.getMin().add(getMin()).isGreaterThan(0L)) ?
+        NumCut newmin = (other.getMin().add(getMin()).isGreaterThan(new
+                NumCut(0L))) ?
                 BoolCut.FALSE.clone() : BoolCut.TRUE.clone();
-        NumCut newmax = (other.getMax().add(getMax()).isGreaterThan(0L)) ?
+        NumCut newmax = (other.getMax().add(getMax()).isGreaterThan(new
+                NumCut(0L))) ?
                 BoolCut.FALSE.clone() : BoolCut.TRUE.clone();
 
         return new BooleanRange(newmin, newmax);
@@ -76,11 +78,11 @@ public class BooleanRange extends AtomicNumRange {
     }
 
     public boolean isAlwaysTrue() {
-        return (getMax().equals(BoolCut.TRUE) && getMin() == getMax());
+        return (getMax().equals(BoolCut.TRUE) && getMin().equals(getMax()));
     }
 
     public boolean isAlwaysFalse() {
-        return (getMax().equals(BoolCut.FALSE) && getMin() == getMax());
+        return (getMax().equals(BoolCut.FALSE) && getMin().equals(getMax()));
     }
 
     public boolean isCatState() {

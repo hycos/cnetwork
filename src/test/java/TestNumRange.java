@@ -81,8 +81,7 @@ public class TestNumRange {
 
     @Test
     public void testUnion0() {
-        NumRange rs = new NumRange();
-        rs.add(new AtomicNumRange(170,200));
+        NumRange rs = new NumRange(new AtomicNumRange(170,200));
         rs.add(new AtomicNumRange(210,220));
         rs.add(new AtomicNumRange(180,210));
         LOGGER.debug("rs: {}", rs);
@@ -92,8 +91,7 @@ public class TestNumRange {
     @Test
     public void testUnion1() {
 
-        NumRange rs = new NumRange();
-        rs.add(new AtomicNumRange(5, 100));
+        NumRange rs = new NumRange(new AtomicNumRange(5, 100));
         rs.add(new AtomicNumRange(160, 180));
         assertion(rs, 2, 5L, 100L, 160L, 180L);
         rs.add(new AtomicNumRange(200, 225));
@@ -115,8 +113,7 @@ public class TestNumRange {
 
     @Test
     public void testUnion2() {
-        NumRange rs = new NumRange();
-        rs.add(new AtomicNumRange(-100, 100));
+        NumRange rs = new NumRange(new AtomicNumRange(-100, 100));
         rs.add(new AtomicNumRange(-101, 102));
         rs.add(new AtomicNumRange(-103, 102));
         assertion(rs, 1, -103L, 102L, -103L, 102L);
@@ -134,8 +131,7 @@ public class TestNumRange {
 
     @Test
     public void testUnion3() {
-        NumRange rs = new NumRange();
-        rs.add(new AtomicNumRange(1, 1));
+        NumRange rs = new NumRange(new AtomicNumRange(1, 1));
         rs.add(new AtomicNumRange(2, 2));
         rs.add(new AtomicNumRange(3, 3));
         rs.add(new AtomicNumRange(4, 4));
@@ -146,8 +142,7 @@ public class TestNumRange {
 
     @Test
     public void testUnion4() {
-        NumRange rs = new NumRange();
-        rs.add(new AtomicNumRange(1, 1));
+        NumRange rs = new NumRange(new AtomicNumRange(1, 1));
         rs.add(new AtomicNumRange(3, 3));
         rs.add(new AtomicNumRange(5, 5));
         rs.add(new AtomicNumRange(7, 7));
@@ -183,8 +178,7 @@ public class TestNumRange {
 
     @Test
     public void testUnion5() {
-        NumRange rs = new NumRange();
-        rs.add(new AtomicNumRange(10, 20));
+        NumRange rs = new NumRange(new AtomicNumRange(10, 20));
         rs.add(new AtomicNumRange(40, 50));
         rs.add(new AtomicNumRange(70, 80));
         rs.add(new AtomicNumRange(100, 110));
@@ -202,8 +196,7 @@ public class TestNumRange {
 
     @Test
     public void testUnion6() {
-        NumRange rs = new NumRange();
-        rs.add(new AtomicNumRange(1, 1));
+        NumRange rs = new NumRange(new AtomicNumRange(1, 1));
         rs.add(new AtomicNumRange(3, 3));
         rs.add(new AtomicNumRange(5, 5));
         rs.add(new AtomicNumRange(7, 7));
@@ -226,12 +219,10 @@ public class TestNumRange {
         NumRange rs = new NumRange(NodeDomainFactory.Z);
 
         LOGGER.debug(rs.toString());
-        NumRange rs0 = new NumRange();
-        rs0.add(new AtomicNumRange(0, 100));
+        NumRange rs0 = new NumRange(new AtomicNumRange(0, 100));
         LOGGER.debug("++********* 0" + rs0.toString());
 
-        NumRange rs1 = new NumRange();
-        rs1.add(new AtomicNumRange(10, 20));
+        NumRange rs1 = new NumRange(new AtomicNumRange(10, 20));
         rs1.add(new AtomicNumRange(25, 70));
         rs1.add(new AtomicNumRange(90, 140));
         LOGGER.debug("++********* 1" + rs1.toString());
@@ -244,15 +235,13 @@ public class TestNumRange {
 
     @Test
     public void testUnion8() {
-        NumRange n0 = new NumRange();
-        n0.add(new AtomicNumRange(1, 1));
+        NumRange n0 = new NumRange(new AtomicNumRange(1, 1));
         n0.add(new AtomicNumRange(3, 3));
         n0.add(new AtomicNumRange(5, 5));
         n0.add(new AtomicNumRange(7, 7));
         n0.add(new AtomicNumRange(9, 9));
 
-        NumRange n1 = new NumRange();
-        n1.add(new AtomicNumRange(-1, -1));
+        NumRange n1 = new NumRange(new AtomicNumRange(-1, -1));
         n1.add(new AtomicNumRange(3, 5));
 
 
@@ -267,17 +256,14 @@ public class TestNumRange {
 
     @Test
     public void testIntersection0() {
-        NumRange rs0 = new NumRange();
+        NumRange rs0 = new NumRange(new AtomicNumRange(1, 1));
 
-        rs0.add(new AtomicNumRange(1, 1));
         rs0.add(new AtomicNumRange(3, 3));
         rs0.add(new AtomicNumRange(5, 5));
         rs0.add(new AtomicNumRange(7, 7));
         rs0.add(new AtomicNumRange(9, 9));
 
-        NumRange rs1 = new NumRange();
-
-        rs1.add(new AtomicNumRange(1, 3));
+        NumRange rs1 = new NumRange(new AtomicNumRange(1, 3));
 
         NumRange isect = rs0.intersect(rs1);
 
@@ -286,8 +272,7 @@ public class TestNumRange {
 
     @Test
     public void testIntersection1() {
-        NumRange rs0 = new NumRange();
-        rs0.add(new AtomicNumRange(1, 1));
+        NumRange rs0 = new NumRange(new AtomicNumRange(1, 1));
         rs0.add(new AtomicNumRange(3, 3));
         rs0.add(new AtomicNumRange(5, 5));
         rs0.add(new AtomicNumRange(7, 7));
@@ -299,8 +284,7 @@ public class TestNumRange {
         rs0.add(new AtomicNumRange(19, 19));
         rs0.add(new AtomicNumRange(21, 21));
 
-        NumRange rs1 = new NumRange();
-        rs1.add(new AtomicNumRange(1, 1));
+        NumRange rs1 = new NumRange(new AtomicNumRange(1, 1));
         rs1.add(new AtomicNumRange(3, 3));
         rs1.add(new AtomicNumRange(5, 5));
         rs1.add(new AtomicNumRange(7, 7));
@@ -314,10 +298,9 @@ public class TestNumRange {
 
         NumRange isect = rs0.intersect(rs1);
 
-        assert (rs1.equals(isect));
+        Assert.assertEquals(rs1,isect);
 
-        NumRange rs2 = new NumRange();
-        rs2.add(new AtomicNumRange(1, 1));
+        NumRange rs2 = new NumRange(new AtomicNumRange(1, 1));
         rs2.add(new AtomicNumRange(3, 3));
         rs2.add(new AtomicNumRange(5, 5));
         rs2.add(new AtomicNumRange(7, 7));
@@ -327,20 +310,18 @@ public class TestNumRange {
         rs2.add(new AtomicNumRange(19, 19));
         rs2.add(new AtomicNumRange(21, 21));
 
-        assert (rs2.intersect(rs1).equals(rs2));
+        Assert.assertEquals(rs2.intersect(rs1),rs2);
 
     }
 
     @Test
     public void testIntersection2() {
-        NumRange rs0 = new NumRange();
-        rs0.add(new AtomicNumRange(1, 100));
+        NumRange rs0 = new NumRange(new AtomicNumRange(1, 100));
         rs0.add(new AtomicNumRange(300, 350));
         rs0.add(new AtomicNumRange(500, 5000));
 
 
-        NumRange rs1 = new NumRange();
-        rs1.add(new AtomicNumRange(-199, 10));
+        NumRange rs1 = new NumRange(new AtomicNumRange(-199, 10));
         rs1.add(new AtomicNumRange(100, 176));
         rs1.add(new AtomicNumRange(460, 10000));
 
@@ -352,14 +333,12 @@ public class TestNumRange {
 
     @Test
     public void testSetMin() {
-        NumRange rs0 = new NumRange();
-        rs0.add(new AtomicNumRange(1, 100));
+        NumRange rs0 = new NumRange(new AtomicNumRange(1, 100));
         rs0.add(new AtomicNumRange(300, 350));
         rs0.add(new AtomicNumRange(500, 5000));
 
 
-        NumRange rs1 = new NumRange();
-        rs1.add(new AtomicNumRange(-199, 10));
+        NumRange rs1 = new NumRange(new AtomicNumRange(-199, 10));
         rs1.add(new AtomicNumRange(100, 176));
         rs1.add(new AtomicNumRange(460, 10000));
 
@@ -374,13 +353,11 @@ public class TestNumRange {
 
     @Test
     public void testIsect() {
-        NumRange rs0 = new NumRange();
-        rs0.add(new AtomicNumRange(0, 100));
+        NumRange rs0 = new NumRange(new AtomicNumRange(0, 100));
 
 
         LOGGER.debug("RS 0" + rs0.toString());
-        NumRange rs1 = new NumRange();
-        rs1.add(new AtomicNumRange(0, 50));
+        NumRange rs1 = new NumRange(new AtomicNumRange(0, 50));
         rs1.add(new AtomicNumRange(52, 100));
         LOGGER.debug("RS 1 " + rs1.toString());
 
@@ -392,11 +369,9 @@ public class TestNumRange {
 
     @Test
     public void testEqualIsect() {
-        NumRange rs0 = new NumRange();
-        rs0.add(new AtomicNumRange(36, 36));
+        NumRange rs0 = new NumRange(new AtomicNumRange(36, 36));
 
-        NumRange rs1 = new NumRange();
-        rs1.add(new AtomicNumRange(36, 36));
+        NumRange rs1 = new NumRange(new AtomicNumRange(36, 36));
 
         LOGGER.debug("RS 1 " + rs1.toString());
 
@@ -409,9 +384,7 @@ public class TestNumRange {
 
     @Test
     public void testAutomaton() {
-        NumRange rs0 = new NumRange();
-        rs0.add(new AtomicNumRange(100, 100));
-
+        NumRange rs0 = new NumRange(new AtomicNumRange(100, 100));
 
         Automaton a = rs0.toAutomaton();
 

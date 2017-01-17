@@ -2,10 +2,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.domain.AtomicNumRange;
-import org.snt.cnetwork.core.domain.BoolCut;
-import org.snt.cnetwork.core.domain.BooleanRange;
-import org.snt.cnetwork.core.domain.NumRange;
+import org.snt.cnetwork.core.domain.*;
 import org.snt.cnetwork.utils.RexpUtils;
 
 import java.util.Set;
@@ -26,6 +23,33 @@ public class TestBasicRange {
         }
     }
 
+
+    @Test
+    public void testPlus() {
+
+        AtomicNumRange a1 = new AtomicNumRange();
+        AtomicNumRange a2 = new AtomicNumRange(4,4);
+        AtomicNumRange sum = a1.numadd(a2);
+
+        Assert.assertEquals(sum.getMin(), new BelowAll(4L));
+        Assert.assertEquals(sum.getMax(), new AboveAll(4L));
+
+        AtomicNumRange diff = a1.numsub(a2);
+
+        Assert.assertEquals(diff.getMin(), new BelowAll(-4L));
+        Assert.assertEquals(diff.getMax(), new AboveAll(-4L));
+
+        AtomicNumRange a3 = new AtomicNumRange(10,150);
+        AtomicNumRange a4 = new AtomicNumRange(-100,50);
+
+        sum = a3.numadd(a4);
+        diff = a3.numsub(a4);
+
+        Assert.assertTrue(sum.isBetween(-90,200));
+        Assert.assertTrue(diff.isBetween(-40,250));
+
+    }
+
     @Test
     public void testMinus() {
 
@@ -33,6 +57,8 @@ public class TestBasicRange {
         AtomicNumRange nr1 = new AtomicNumRange(50,99);
 
         NumRange nset0 = nr0.minus(nr1);
+
+        LOGGER.debug("{}", nset0);
 
         assert(nset0.size() == 2);
 
@@ -53,11 +79,11 @@ public class TestBasicRange {
         assert(nset2.size() == 1);
 
 
-        Assert.assertEquals(nset1.getMin(), 150);
-        Assert.assertEquals(nset1.getMax(), 189);
+        Assert.assertEquals(nset1.getMin(), new NumCut(150L));
+        Assert.assertEquals(nset1.getMax(), new NumCut(189L));
 
-        Assert.assertEquals(nset2.getMin(), 191);
-        Assert.assertEquals(nset2.getMax(), 200);
+        Assert.assertEquals(nset2.getMin(), new NumCut(191L));
+        Assert.assertEquals(nset2.getMax(), new NumCut(200L));
 
 
 
@@ -78,51 +104,43 @@ public class TestBasicRange {
     @Test
     public void testBooleanRange() {
 
-        AtomicNumRange r1 = new AtomicNumRange(2014, 3050);
-        AtomicNumRange r2 = new AtomicNumRange(1000, 3050);
+        Assert.assertTrue(trange.isAlwaysTrue());
+        Assert.assertTrue(frange.isAlwaysFalse());
+        Assert.assertTrue(!trange.isCatState());
+        Assert.assertTrue(!frange.isCatState());
 
-        AtomicNumRange isect = r1.intersect(r2);
+        Assert.assertTrue(trange.and(trange).isAlwaysTrue());
+        Assert.assertTrue(!trange.and(frange).isAlwaysTrue());
+        Assert.assertTrue(trange.and(frange).isAlwaysFalse());
+        Assert.assertTrue(frange.and(frange).isAlwaysFalse());
 
-        assert(r1.intersect(r2) != null);
-        assert(r1.getMin().equals(2014) && r1.getMax().equals(3050));
-
-        assert(trange.isAlwaysTrue());
-        assert(frange.isAlwaysFalse());
-        assert(!trange.isCatState());
-        assert(!frange.isCatState());
-
-        assert(trange.and(trange).isAlwaysTrue());
-        assert(!trange.and(frange).isAlwaysTrue());
-        assert(trange.and(frange).isAlwaysFalse());
-        assert(frange.and(frange).isAlwaysFalse());
-
-        assert(trange.or(trange).isAlwaysTrue());
-        assert(trange.or(frange).isAlwaysTrue());
-        assert(trange.or(frange).isAlwaysTrue());
-        assert(frange.or(frange).isAlwaysFalse());
+        Assert.assertTrue(trange.or(trange).isAlwaysTrue());
+        Assert.assertTrue(trange.or(frange).isAlwaysTrue());
+        Assert.assertTrue(trange.or(frange).isAlwaysTrue());
+        Assert.assertTrue(frange.or(frange).isAlwaysFalse());
 
         LOGGER.debug("" + frange.xor(trange));
 
-        assert(frange.xor(trange).isAlwaysTrue());
+        Assert.assertTrue(frange.xor(trange).isAlwaysTrue());
 
 
         BooleanRange ntrange = trange.negate();
 
-        assert(ntrange.equals(frange));
+        Assert.assertTrue(ntrange.equals(frange));
 
         trange = ntrange.negate();
 
         BooleanRange nfrange = frange.negate();
 
-        assert(trange.equals(nfrange));
+        Assert.assertTrue(trange.equals(nfrange));
 
         BooleanRange frange = nfrange.negate();
 
-        assert(vrange.and(trange).isCatState());
-        assert(vrange.and(frange).isAlwaysFalse());
+        Assert.assertTrue(vrange.and(trange).isCatState());
+        Assert.assertTrue(vrange.and(frange).isAlwaysFalse());
 
-        assert(vrange.or(trange).isAlwaysTrue());
-        assert(vrange.or(frange).isCatState());
+        Assert.assertTrue(vrange.or(trange).isAlwaysTrue());
+        Assert.assertTrue(vrange.or(frange).isCatState());
 
     }
 

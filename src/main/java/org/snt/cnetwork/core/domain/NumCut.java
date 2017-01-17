@@ -7,7 +7,26 @@ public class NumCut extends Cut<Long> implements Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(NumCut.class);
 
-    public static NumCut max(NumCut a, NumCut b) {
+
+    public static NumCut max(NumCut ... e) {
+        assert e.length > 0;
+        NumCut ptr = e[0];
+        for(int i = 1; i < e.length; i++){
+            ptr = max(ptr, e[i]);
+        }
+        return ptr;
+    }
+
+    public static NumCut min(NumCut ... e) {
+        assert e.length > 0;
+        NumCut ptr = e[0];
+        for(int i = 1; i < e.length; i++){
+            ptr = min(ptr, e[i]);
+        }
+        return ptr;
+    }
+
+    private static NumCut max(NumCut a, NumCut b) {
         LOGGER.debug("NumCut max {} -- {}", a, b);
         if(a.isGreaterThan(b)) {
             LOGGER.debug("1");
@@ -18,7 +37,7 @@ public class NumCut extends Cut<Long> implements Cloneable {
         }
     }
 
-    public static NumCut min(NumCut a, NumCut b) {
+    private static NumCut min(NumCut a, NumCut b) {
         LOGGER.debug("NumCut min {} -- {}", a, b);
         if(a.isSmallerThan(b)) {
             LOGGER.debug("1");
@@ -39,6 +58,10 @@ public class NumCut extends Cut<Long> implements Cloneable {
 
     public NumCut(Long c) {
         super(c);
+    }
+
+    public NumCut(Integer c) {
+        super(c.longValue());
     }
 
     public NumCut(Cut<Long> sub) {
@@ -112,12 +135,22 @@ public class NumCut extends Cut<Long> implements Cloneable {
 
     @Override
     public NumCut sub(Cut<Long> val) {
-        return sub(val.endpoint);
+        if(val instanceof AboveAll) {
+            return ((AboveAll) val).add(-endpoint);
+        } else if (val instanceof BelowAll) {
+            return ((BelowAll) val).add(-endpoint);
+        } else
+            return sub(val.endpoint);
     }
 
     @Override
     public NumCut add(Cut<Long> val) {
-        return add(val.endpoint);
+        if(val instanceof AboveAll) {
+            return ((AboveAll) val).add(this);
+        } else if (val instanceof BelowAll) {
+            return ((BelowAll) val).add(this);
+        } else
+            return add(val.endpoint);
     }
 
     @Override
@@ -178,7 +211,7 @@ public class NumCut extends Cut<Long> implements Cloneable {
     public boolean equals(Object o) {
         if((o instanceof NumCut)) {
             NumCut a = (NumCut)o;
-            return this.endpoint.equals(a.endpoint);
+            return endpoint.equals(a.endpoint);
         }
         return false;
     }

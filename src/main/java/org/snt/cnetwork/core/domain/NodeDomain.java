@@ -1,5 +1,7 @@
 package org.snt.cnetwork.core.domain;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.utils.DomainUtils;
 import org.snt.cnetwork.utils.EscapeUtils;
 
@@ -10,6 +12,8 @@ import java.util.Set;
 
 public class NodeDomain implements DomainInterface<NodeDomain> {
 
+
+    final static Logger LOGGER = LoggerFactory.getLogger(NodeDomain.class);
 
     protected DomainKind kind = DomainKind.UNKNOWN;
 
@@ -47,6 +51,7 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
     public NodeDomain(DomainKind kind, DomainInterface ... ds) {
         this.kind = kind;
         for(DomainInterface d : ds) {
+            LOGGER.debug("put domain {}", d.getDomainName());
             dom.put(d.getDomainName(), (DomainInterface)d.clone());
         }
     }

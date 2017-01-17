@@ -16,7 +16,8 @@ public class NumRange extends Range {
 
     private TreeMap<NumCut, AtomicNumRange> ran = new TreeMap<>();
 
-    public NumRange() {
+    protected NumRange() {
+
     }
 
 
@@ -26,6 +27,11 @@ public class NumRange extends Range {
 
     public NumRange(AtomicNumRange ar) {
         add(ar);
+    }
+
+    public NumRange(Collection<AtomicNumRange> ar) {
+        assert !ar.isEmpty();
+        addAll(ar);
     }
 
     public NumRange(NumRange nr) {
@@ -429,18 +435,20 @@ public class NumRange extends Range {
     }
 
     public Automaton toAutomaton() {
-        Automaton automaton = null;
+
+        LOGGER.debug("-- {}", this);
+        Automaton automaton = new Automaton(".*");
         for(Map.Entry<NumCut, AtomicNumRange> e : this.ran.entrySet()) {
             if(automaton == null) {
                 automaton = e.getValue().getLenAutomaton();
             } else {
-                automaton = automaton.union(e.getValue().getLenAutomaton());
+                automaton = automaton.union(e.getValue().getAutomaton());
             }
         }
         return automaton;
     }
 
-    public Automaton toApproxAutomaton() {
+    public Automaton toApproxLenAutomaton() {
         LOGGER.debug("get approximate automaton");
         Automaton a =  new AtomicNumRange(getMin(), getMax()).getLenAutomaton();
         LOGGER.debug("return approx automaotn");

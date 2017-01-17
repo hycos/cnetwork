@@ -2,6 +2,7 @@ package org.snt.cnetwork.core.domain;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.utils.DomainUtils;
 
 
 public class AtomicNumRange extends Range {
@@ -38,7 +39,8 @@ public class AtomicNumRange extends Range {
 
     @Override
     public boolean isEmpty() {
-        return ub.diff(lb).equals(0);
+        return lb.equals(new NumCut(0L)) && ub.equals
+                (new NumCut(0L));
     }
 
     @Override
@@ -201,17 +203,28 @@ public class AtomicNumRange extends Range {
                 .getMax());
     }
 
+    private AtomicNumRange createRange(NumCut [] el) {
+        NumCut min = NumCut.min(el);
+        NumCut max = NumCut.max(el);
+        return new AtomicNumRange(min, max);
+    }
 
     public AtomicNumRange numadd(AtomicNumRange other) {
-        return new AtomicNumRange(NumCut.min(other.getMin().add(getMin()), other.getMax().add(this.getMax())),
-                NumCut.max(other.getMin().add(getMin()), other.getMax().add(getMax())));
+        NumCut [] el = new NumCut[4];
+        el[0] = lb.add(other.lb);
+        el[1] = lb.add(other.ub);
+        el[2] = ub.add(other.lb);
+        el[3] = ub.add(other.ub);
+        return createRange(el);
     }
 
     public AtomicNumRange numsub(AtomicNumRange other) {
-        return new AtomicNumRange(NumCut.min(getMin().sub(other.getMin()),
-                getMax().sub(other.getMax())),
-                NumCut.max(getMin().sub(other.getMin()),getMax().sub(other
-                        .getMax())));
+        NumCut [] el = new NumCut[4];
+        el[0] = lb.sub(other.lb);
+        el[1] = lb.sub(other.ub);
+        el[2] = ub.sub(other.lb);
+        el[3] = ub.sub(other.ub);
+        return createRange(el);
     }
 
     public AtomicNumRange getPosSubRange(){
@@ -224,26 +237,31 @@ public class AtomicNumRange extends Range {
         return intersect(zran);
     }
 
+    public Automaton getAutomaton() {
+        return DomainUtils.getAutomatonForRange(this);
+    }
+
     public Automaton getLenAutomaton() {
 
         AtomicNumRange isect = intersect(N.clone());
+        LOGGER.debug("isect {}", isect);
 
-        if(isect == null) {
+        if(isect == null || isect.isEmpty()) {
             return new Automaton(".{0}");
         }
-
 
         LOGGER.info("getlenauto" + isect.toString());
 
         //@TODO:Julian this is a heuristic -- building a len automaton
         //is quite expensive
-        if(isect.getMax().isBelowAll() && isect.getMax().isAboveAll()) {
+        if(isect.getMax().isAboveAll()) {
             return new Automaton(".*");
         } else {
-            LOGGER.debug("return bnd");
-            return new Automaton(".{"  + isect.getMin().endpoint  + "," + isect
+            String rexp = ".{"  + isect.getMin().endpoint  + "," + isect
                     .getMax().endpoint +
-                    "}");
+                    "}";
+            LOGGER.debug("return rexp {}", rexp);
+            return new Automaton(rexp);
         }
     }
 

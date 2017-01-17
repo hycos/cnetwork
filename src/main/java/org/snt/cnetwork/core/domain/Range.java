@@ -76,6 +76,11 @@ public abstract class Range implements DomainInterface<Range> {
                 ub.isSmallerEqualsThan(max);
     }
 
+    public boolean isBetween(NumCut min, NumCut max) {
+        return lb.isGreaterEqualsThan(min) &&
+                ub.isSmallerEqualsThan(max);
+    }
+
     @Override
     public abstract Range clone();
 

@@ -18,22 +18,24 @@ public class DomainUtils {
     private static Set<Character> special = new HashSet<Character>(Arrays.asList(sarray));
 
 
-    public static Automaton getAutomatonForRange(NumCut min, NumCut max) {
+    public static Automaton getLenAutomaton(NumCut min, NumCut max) {
 
         if(max.isFixed()) {
-            return new Automaton(".{" + NumCut.max(new NumCut(0L), min) + "," +
-                    max +
+            return new Automaton(".{" + NumCut.max(new NumCut(0L), min).getEndpoint() +
+                    "," +
+                    max.getEndpoint() +
                     "}");
         } else {
-            return new Automaton(".{" + NumCut.max(new NumCut(0L), min) + "," + "}");
+            return new Automaton(".{" + NumCut.max(new NumCut(0L), min).getEndpoint() +
+                    "," + "}");
         }
     }
 
     public static Automaton getAutomatonForRange(AtomicNumRange r) {
-        return getAutomatonForRange(r.getMin(), r.getMax());
+        return getLenAutomaton(r.getMin(), r.getMax());
     }
 
-    public static Automaton getAutomatonForRange(BooleanRange r) {
+    public static Automaton getBoolAutomaton(BooleanRange r) {
         if(r.isAlwaysTrue()) {
             return new Automaton("[Tt][Rr][Uu][Ee]");
         } else if (r.isAlwaysFalse()) {
@@ -118,21 +120,21 @@ public class DomainUtils {
 
         LOGGER.debug("get approx len range");
         LOGGER.debug("shortes " + a.getShortestExample());
+        LOGGER.debug("finite " + a.isFinite());
 
-        int minlen = 0;
+        NumCut minlen = new NumCut(0L);
+        NumCut maxlen = new AboveAll();
 
-        if (a.isEmpty() || a.isEmptyString()) {
-            minlen = 0;
-        } else {
-            minlen = a.getShortestExample().length();
+        if (!(a.isEmpty() || a.isEmptyString())) {
+            minlen = new NumCut(a.getShortestExample().length());
         }
 
-        if (!a.isFinite()) {
+        if (a.isFinite()) {
         //    LOGGER.info("SHORTEST " + a.getShortestExample(true));
-            return new NumRange(new AtomicNumRange(minlen, Integer.MAX_VALUE));
+            maxlen = new NumCut(a.getLongestExample());
         }
 
-        return new NumRange(new AtomicNumRange(minlen, a.getLongestExample()));
+        return new NumRange(new AtomicNumRange(minlen, maxlen));
 
     }
 
@@ -141,13 +143,12 @@ public class DomainUtils {
 
         Set<String> result = a.getFiniteStrings();
 
-        NumRange nr = new NumRange();
-
+        List<AtomicNumRange> ar = new Vector();
         for(String s : result) {
-            nr.add(s.length());
+            ar.add(new AtomicNumRange(s.length()));
         }
 
-        return nr;
+        return new NumRange(ar);
     }
 
     public static NumRange getNumRangeForAutomaton(Automaton a) {
@@ -161,16 +162,14 @@ public class DomainUtils {
 
         LOGGER.info(a.toString());
 
-
         Set<String> result = a.getFiniteStrings();
 
-        NumRange nr = new NumRange();
-
+        Collection<AtomicNumRange> ar = new Vector<>();
         for(String s : result) {
-            nr.add(Integer.parseInt(s));
+            ar.add(new AtomicNumRange(Integer.parseInt(s)));
         }
 
-        return nr;
+        return new NumRange(ar);
     }
 
 

@@ -1,7 +1,9 @@
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.domain.AboveAll;
 import org.snt.cnetwork.core.domain.Automaton;
+import org.snt.cnetwork.core.domain.NumCut;
 import org.snt.cnetwork.core.domain.NumRange;
 import org.snt.cnetwork.utils.DomainUtils;
 
@@ -51,16 +53,16 @@ public class TestDomainUtils {
 
         NumRange range = DomainUtils.getApproxLenRange(new Automaton
                 ("aa+"));
-        assert(range.isBetween(2,Integer.MAX_VALUE));
+        assert(range.isBetween(new NumCut(2),new AboveAll()));
         range = DomainUtils.getApproxLenRange(new Automaton("[0-9]&[4-7]+"));
         assert(range.isBetween(1,1));
         range = DomainUtils.getApproxLenRange(new Automaton("(gnt)*"));
-        assert(range.isBetween(0,Integer.MAX_VALUE));
+        assert(range.isBetween(new NumCut(0),new AboveAll()));
         range = DomainUtils.getApproxLenRange(new Automaton("(ab){0,10}cd"));
         LOGGER.info("RANGE " + range.toString());
         assert(range.isBetween(2,22));
         range = DomainUtils.getApproxLenRange(new Automaton("(ab){0,10}c+d"));
-        assert(range.isBetween(2,Integer.MAX_VALUE));
+        assert(range.isBetween(new NumCut(2),new AboveAll()));
         range = DomainUtils.getApproxLenRange(new Automaton("(a|b){0,10}cd"));
         assert(range.isBetween(2,12));
     }

@@ -41,4 +41,5 @@ public class BoolCut extends NumCut {
     public String getValue() {
         return this.sval;
     }
+
 }

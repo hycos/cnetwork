@@ -138,7 +138,7 @@ public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
         return op;
     }
 
-    public Operand addOperand(NodeKind kind, String label, int min, int max) {
+    public Operand addOperand(NodeKind kind, String label) {
         Node n = this.getNodeByLabel(label);
         if (n == null) {
             n = new Operand(label, kind);

@@ -6,7 +6,7 @@ public enum DomainKind {
     UNKNOWN(0,"unknown"),
     NUMERIC_Z(1,"numeric_z"),
     NUMERIC_N(2,"numeric_n"),
-    NUMERIC_LZ(3,"numeric_lz"),
+    NUMERIC_NM1(3,"numeric_nm1"),
     STRING(4,"string"),
     STRING_UPPER(5, "string_upper"),
     STRING_LOWER(6, "string_lower"),
@@ -34,7 +34,7 @@ public enum DomainKind {
             case "unknown": return UNKNOWN;
             case "numeric_z": return NUMERIC_Z;
             case "numeric_n": return NUMERIC_N;
-            case "numeric_zn": return NUMERIC_LZ;
+            case "numeric_nm1": return NUMERIC_NM1;
             case "string": return STRING;
             case "string_lower": return STRING_LOWER;
             case "string_upper": return STRING_UPPER;
@@ -47,7 +47,7 @@ public enum DomainKind {
     }
 
     public boolean isNumeric() {
-        return this == NUMERIC_Z || this == NUMERIC_LZ || this == NUMERIC_N;
+        return this == NUMERIC_Z || this == NUMERIC_NM1 || this == NUMERIC_N;
     }
 
     public boolean isBoolean() {
