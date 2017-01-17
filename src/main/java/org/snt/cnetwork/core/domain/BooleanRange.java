@@ -7,73 +7,36 @@ public class BooleanRange extends AtomicNumRange {
 
     final static Logger LOGGER = LoggerFactory.getLogger(BooleanRange.class);
 
-    public enum BooleanValue {
-
-        TRUE(0L,"true"),
-        FALSE(1L,"false");
-
-        private final String sval;
-        private final long id;
-
-        BooleanValue(long ival, String sval) {
-            this.sval = sval;
-            this.id = ival;
-        }
-
-        public long getId() {
-            return this.id;
-        }
-
-        public String toString() {
-            return this.sval;
-        }
-
-        public static BooleanValue KindFromString(String kind) {
-            switch(kind) {
-                case "true" : return TRUE;
-                case "false" : return FALSE;
-                case "0": return TRUE;
-                case "1": return FALSE;
-            }
-            assert(false);
-            return null;
-
-        }
-
-        public String getValue() {
-            return this.sval;
-        }
-    }
-
-
     public BooleanRange() {
-        super(BooleanValue.TRUE.id, BooleanValue.FALSE.id);
+        super(BoolCut.TRUE, BoolCut.FALSE);
     }
 
-    public BooleanRange(long min, long max) {
+    public BooleanRange(NumCut min, NumCut max) {
         super(min,max);
     }
 
     public BooleanRange(BooleanRange br) {
-        super(br.min,br.max);
+        super(br.getMin(),br.getMax());
     }
 
-    public BooleanRange(BooleanValue val) {
-        super(val.id,val.id);
+    public BooleanRange(BoolCut val) {
+        super(val,val);
     }
 
     public BooleanRange or(BooleanRange other) {
 
-        long newmin = (other.min + this.min) / 2;
-        long newmax = (other.max + this.max) / 2;
+        NumCut newmin = (other.getMin().add(getMin())).div(2L);
+        NumCut newmax = (other.getMax().add(getMax())).diff(2L) ;
 
         return new BooleanRange(newmin, newmax);
     }
 
     public BooleanRange and(BooleanRange other) {
 
-        long newmin = (other.min + this.min) > 0 ? 1 : 0;
-        long newmax = (other.max + this.max) > 0 ? 1 : 0;
+        NumCut newmin = (other.getMin().add(getMin()).isGreaterThan(0L)) ?
+                BoolCut.FALSE.clone() : BoolCut.TRUE.clone();
+        NumCut newmax = (other.getMax().add(getMax()).isGreaterThan(0L)) ?
+                BoolCut.FALSE.clone() : BoolCut.TRUE.clone();
 
         return new BooleanRange(newmin, newmax);
     }
@@ -97,33 +60,32 @@ public class BooleanRange extends AtomicNumRange {
 
         BooleanRange cp = this.clone();
 
-        LOGGER.debug("NEGATE {} {}", cp.min, cp.max);
-        if(cp.min == BooleanValue.TRUE.id && cp.max == BooleanValue.FALSE.id) {
-            ; // nothing to do
+        LOGGER.debug("NEGATE {} {}", cp.getMin(), cp.getMax());
+        if(cp.isCatState()) {
             return cp;
         }
-        assert cp.min == cp.max;
-        if(cp.min == BooleanValue.TRUE.id) {
-            cp.max = BooleanValue.FALSE.id;
-            cp.min = BooleanValue.FALSE.id;
+
+        if(cp.isAlwaysTrue()) {
+            cp.setMax(BoolCut.FALSE.clone());
+            cp.setMin(BoolCut.FALSE.clone());
         } else {
-            LOGGER.debug("ELSE {} {}", cp.min, BooleanValue.TRUE.id);
-            cp.max = BooleanValue.TRUE.id;
-            cp.min = BooleanValue.TRUE.id;
+            cp.setMax(BoolCut.TRUE.clone());
+            cp.setMin(BoolCut.TRUE.clone());
         }
         return cp;
     }
 
     public boolean isAlwaysTrue() {
-        return (this.max == BooleanValue.TRUE.id && this.min == this.max);
+        return (getMax().equals(BoolCut.TRUE) && getMin() == getMax());
     }
 
     public boolean isAlwaysFalse() {
-        return (this.max == BooleanValue.FALSE.id && this.min == this.max);
+        return (getMax().equals(BoolCut.FALSE) && getMin() == getMax());
     }
 
     public boolean isCatState() {
-        return (this.min == BooleanValue.TRUE.id && this.max == BooleanValue.FALSE.id);
+        return (getMin().equals(BoolCut.TRUE) && getMax().equals(BoolCut
+                .FALSE));
     }
 
     @Override
@@ -147,11 +109,11 @@ public class BooleanRange extends AtomicNumRange {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
 
-        if(this.min == BooleanValue.TRUE.id) {
+        if(getMin().equals(BoolCut.TRUE)) {
             sb.append("T");
         }
 
-        if(this.max == BooleanValue.FALSE.id) {
+        if(getMax().equals(BoolCut.FALSE)) {
 
             if(sb.length() > 1) {
                 sb.append("|");

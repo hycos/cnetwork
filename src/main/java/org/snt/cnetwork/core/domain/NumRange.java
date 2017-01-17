@@ -9,36 +9,31 @@ public class NumRange extends Range {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(NumRange.class);
 
+    public static NumRange N = new NumRange(new AtomicNumRange(new NumCut(0L),
+            new AboveAll()));
 
-    public static NumRange N = new NumRange(new AtomicNumRange(0, Integer
-            .MAX_VALUE));
-    public static NumRange Z = new NumRange(new AtomicNumRange(Integer
-            .MIN_VALUE, Integer.MAX_VALUE));
+    public static NumRange Z = new NumRange(new AtomicNumRange());
 
-    private TreeMap<Long, AtomicNumRange> ran;
+    private TreeMap<NumCut, AtomicNumRange> ran = new TreeMap<>();
 
     public NumRange() {
-        this.ran = new TreeMap();
     }
 
 
     public NumRange(long c) {
-        this();
-        this.add(c);
+        add(c);
     }
 
     public NumRange(AtomicNumRange ar) {
-        this.ran = new TreeMap();
         add(ar);
     }
 
     public NumRange(NumRange nr) {
-        this();
-        for(Map.Entry<Long, AtomicNumRange> e : nr.ran.entrySet()) {
-            this.ran.put(e.getKey(), e.getValue().clone());
+        for(Map.Entry<NumCut, AtomicNumRange> e : nr.ran.entrySet()) {
+            this.ran.put(e.getKey().clone(), e.getValue().clone());
         }
-        this.min = nr.min;
-        this.max = nr.max;
+        this.lb = nr.getMin().clone();
+        this.ub = nr.getMax().clone();
     }
 
     @Override
@@ -71,25 +66,26 @@ public class NumRange extends Range {
 
         NumRange ret = null;
 
-        Map.Entry<Long, AtomicNumRange> next = null;
+        Map.Entry<NumCut, AtomicNumRange> next = null;
 
-        for(Map.Entry<Long, AtomicNumRange> e : this.ran.entrySet()) {
+        for(Map.Entry<NumCut, AtomicNumRange> e : this.ran.entrySet()) {
             next = this.ran.higherEntry(e.getKey());
 
            if(next != null) {
                //LOGGER.info("NEXT " + next.toString());
                if(ret == null) ret = new NumRange();
-               ret.add(new AtomicNumRange(e.getValue().getMax() + 1, next.getValue().getMin()-1));
+               ret.add(new AtomicNumRange(e.getValue().getMax().add(1L), next
+                       .getValue().getMin().sub(1L)));
             }
         }
 
-        if(other.min < this.min) {
+        if(other.getMin().isSmallerThan(this.getMin())) {
             if(ret == null) ret = new NumRange();
-            ret.add(new AtomicNumRange(other.min, this.min - 1));
+            ret.add(new AtomicNumRange(other.getMin(), getMin().sub(1L)));
         }
-        if(other.max > this.max) {
+        if(other.getMax().isGreaterThan(this.getMax())) {
             if(ret == null) ret = new NumRange();
-            ret.add(new AtomicNumRange(this.max + 1, other.max));
+            ret.add(new AtomicNumRange(getMax().add(1L), other.getMax()));
         }
 
         return ret;
@@ -132,15 +128,20 @@ public class NumRange extends Range {
 
         NumRange other = (NumRange)dother;
 
-        //LOGGER.info("Get intersection: " + this.toString() + " " + nr.toString());
+        LOGGER.debug("Get intersection: " + this.toString() + " " + dother.toString
+                ());
 
         NumRange rs = null;
 
         // entries to consider
-        Map.Entry <Long, AtomicNumRange> thisfrom = (this.ran.floorEntry(other.min) == null ?
-                this.ran.ceilingEntry(other.min) : this.ran.floorEntry(other.min));
-        Map.Entry <Long, AtomicNumRange> thisto = (this.ran.ceilingEntry(other.max) == null ?
-                this.ran.floorEntry(other.max) : this.ran.ceilingEntry(other.max));
+        Map.Entry <NumCut, AtomicNumRange> thisfrom = (this.ran.floorEntry
+                (other.getMin()) == null ?
+                this.ran.ceilingEntry(other.getMin()) : this.ran.floorEntry(other
+                .getMin()));
+        Map.Entry <NumCut, AtomicNumRange> thisto = (this.ran.ceilingEntry
+                (other.getMax()) == null ?
+                this.ran.floorEntry(other.getMax()) : this.ran.ceilingEntry(other
+                .getMax()));
 
 
         assert(thisfrom != null);
@@ -149,28 +150,28 @@ public class NumRange extends Range {
         if(thisfrom == null || thisto == null)
             return rs;
 
-        for(Map.Entry <Long, AtomicNumRange> thisptr = thisfrom;
+        for(Map.Entry <NumCut, AtomicNumRange> thisptr = thisfrom;
             thisptr != null;
             thisptr = this.ran.higherEntry(thisptr.getValue().getMin())) {
 
-            //LOGGER.info(">> " + thisptr.getValue().toString());
-            long thismin = thisptr.getValue().getMin();
-            long thismax = thisptr.getValue().getMax();
+            LOGGER.info(">> " + thisptr.getValue().toString());
+            NumCut thismin = thisptr.getValue().getMin();
+            NumCut thismax = thisptr.getValue().getMax();
 
-            Map.Entry <Long, AtomicNumRange> sfrom = (other.ran.floorEntry(thismin) == null ?
+            Map.Entry <NumCut, AtomicNumRange> sfrom = (other.ran.floorEntry(thismin) == null ?
                     other.ran.ceilingEntry(thismin) : other.ran.floorEntry(thismin));
-            Map.Entry <Long, AtomicNumRange> sto = (other.ran.ceilingEntry(thismax) == null ?
+            Map.Entry <NumCut, AtomicNumRange> sto = (other.ran.ceilingEntry(thismax) == null ?
                     other.ran.floorEntry(thismax) : other.ran.ceilingEntry(thismax));
 
 
-            //LOGGER.info("SFROM " + sfrom.getValue().toString());
-            //LOGGER.info("STO " + sto.getValue().toString());
+            LOGGER.info("SFROM " + sfrom.getValue().toString());
+            LOGGER.info("STO " + sto.getValue().toString());
 
             if(sfrom == null || sto == null)
                 continue;
 
 
-            for(Map.Entry <Long, AtomicNumRange> sptr = sfrom;
+            for(Map.Entry <NumCut, AtomicNumRange> sptr = sfrom;
                 sptr != null;
                 sptr = other.ran.higherEntry(sptr.getKey())) {
                 //LOGGER.info("++==");
@@ -231,41 +232,51 @@ public class NumRange extends Range {
 
     public void add(AtomicNumRange e) {
 
-        //LOGGER.info("ADD NR " + e);
+        LOGGER.debug("ADD {} to {}", e, this);
 
-        if(ran.isEmpty()){
-            ran.put(e.getMin(), e);
-            min = e.getMin();
-            max = e.getMax();
+        if(ran.size() == 0){
+            AtomicNumRange cp = e;
+            ran.put(cp.getMin(), cp);
+            lb = cp.getMin();
+            ub = cp.getMax();
+            //setMin(e.getMin());
+            //setMax(e.getMax());
+
+            LOGGER.debug("added {}", cp);
             return;
         }
 
+        LOGGER.debug("floor max for {}", e.getMax());
         // e.max >= e.min ==> florMax => ceilMin
-        Map.Entry <Long, AtomicNumRange> floorMax = ran.floorEntry(e.getMax());
+        Map.Entry <NumCut, AtomicNumRange> floorMax = ran.floorEntry(e.getMax());
+
+
+        LOGGER.debug("ceil min for {}", e.getMin());
         // e or e's direct successor
-        Map.Entry <Long, AtomicNumRange> ceilMin = ran.ceilingEntry(e.getMin());
+        Map.Entry <NumCut, AtomicNumRange> ceilMin = ran.ceilingEntry(e.getMin());
 
         AtomicNumRange fMax = null;
         AtomicNumRange cMin = null;
 
         if(floorMax != null) {
             fMax = floorMax.getValue();
-            //LOGGER.info("FMAX : " + fMax.toString());
+            LOGGER.debug("FMAX : " + fMax.toString());
         }
 
         if(ceilMin != null) {
             cMin = ceilMin.getValue();
-            //LOGGER.info("CMIN : " + cMin.toString());
+            LOGGER.debug("CMIN : " + cMin.toString());
         }
 
         if(cMin != null) {
             //LOGGER.info("here");
             AtomicNumRange overlap = cMin.intersect(e);
             if(overlap != null) {
-                long min = Math.min(cMin.getMin(), e.getMin());
-                long max = (fMax != null ? Math.max(fMax.getMax(),e.getMax()) : e.getMax());
+                NumCut min = NumCut.min(cMin.getMin(), e.getMin());
+                NumCut max = (fMax != null ? NumCut.max(fMax.getMax(),e.getMax()) : e.getMax());
                 AtomicNumRange newfmin = new AtomicNumRange(min,max);
                 cleanupDescending(newfmin);
+                LOGGER.debug("REMOVE {}", cMin);
                 this.ran.remove(cMin.getMin());
                 join(newfmin);
                 return;
@@ -276,9 +287,9 @@ public class NumRange extends Range {
             //LOGGER.info("there");
             AtomicNumRange overlap = fMax.intersect(e);
             if (overlap != null) {
-                long min = (ceilMin != null ? Math.min(ceilMin.getValue().getMin(), e.getMin()) : e.getMin());
-                long max = Math.max(fMax.getMax(), e.getMax());
-                //LOGGER.info("MIN " + min + " " + fMax.getMax());
+                NumCut min = (ceilMin != null ? NumCut.min(ceilMin.getValue().getMin(), e.getMin()) : e.getMin());
+                NumCut max = NumCut.max(fMax.getMax(), e.getMax());
+                LOGGER.debug("MIN " + min + " " + fMax.getMax());
                 AtomicNumRange newfmax = new AtomicNumRange(min, max);
                 cleanupAscending(newfmax);
                 //this.remove(fMax.getMin());
@@ -293,9 +304,11 @@ public class NumRange extends Range {
 
     private void join(AtomicNumRange e) {
 
+        LOGGER.debug("JOIN {}", e);
+
         // We assume (in the general case) that we have the following order rfloor:e:rceil
-        Map.Entry<Long, AtomicNumRange> ceil = ran.ceilingEntry(e.getMax());
-        Map.Entry<Long, AtomicNumRange> floor = ran.floorEntry(e.getMin());
+        Map.Entry<NumCut, AtomicNumRange> ceil = ran.ceilingEntry(e.getMax());
+        Map.Entry<NumCut, AtomicNumRange> floor = ran.floorEntry(e.getMin());
 
         AtomicNumRange rceil = null;
         AtomicNumRange rfloor = null;
@@ -307,8 +320,10 @@ public class NumRange extends Range {
 
         if(floor != null) {
             rfloor = floor.getValue();
-            //LOGGER.info("RFLOOR " + rfloor);
-            if(e.intersect(rfloor) != null || e.getMin() - 1 == rfloor.getMax()) {
+            LOGGER.debug("RFLOOR {} : e {}", rfloor, e);
+            if(e.intersect(rfloor) != null || e.getMin().sub(1L).equals(rfloor
+                    .getMax())) {
+                LOGGER.debug("gmin");
                 nr.setMin(rfloor.getMin());
                 removeFloor = true;
             }
@@ -316,24 +331,35 @@ public class NumRange extends Range {
 
         if(ceil != null) {
             rceil = ceil.getValue();
-            //LOGGER.info("RCEIL " + rceil);
-            if(e.intersect(rceil) != null || e.getMax() + 1 == rceil.getMin()) {
+            LOGGER.debug("RCEIL {} : e {} : e2 {}", rceil, e, e.getMax().add
+                    (1L));
+            if(e.intersect(rceil) != null || e.getMax().add(1L).equals(rceil.getMin
+                    ())) {
+                LOGGER.debug("gmax");
                 nr.setMax(rceil.getMax());
                 removeCeil = true;
             }
         }
 
-        if(removeFloor)
+        LOGGER.debug("nr {}", nr);
+
+        if(removeFloor) {
+            LOGGER.debug("RM floor {}", rfloor);
             ran.remove(rfloor.getMin());
+        }
 
-        if(removeCeil)
+        if(removeCeil) {
+            LOGGER.debug("RM ceil {}", rceil);
             ran.remove(rceil.getMin());
+        }
 
-        if(nr.getMin() < min)
-            min = nr.getMin();
+        if(nr.getMin().isSmallerThan(getMin())) {
+            lb = nr.getMin();
+        }
 
-        if(nr.getMax() > max)
-            max = nr.getMax();
+        if(nr.getMax().isGreaterThan(getMax())) {
+            ub = nr.getMax();
+        }
 
         ran.put(nr.getMin(), nr);
 
@@ -341,11 +367,12 @@ public class NumRange extends Range {
 
     private void cleanupDescending(AtomicNumRange from) {
         LOGGER.info("cleanup desc " + from) ;
-        Map.Entry<Long, AtomicNumRange> todel = ran.higherEntry(from.getMin());
+        Map.Entry<NumCut, AtomicNumRange> todel = ran.higherEntry(from.getMin
+                ());
 
         while (todel != null &&
                 from.subsumes(todel.getValue())&&
-                todel.getValue() != from) {
+                !todel.getValue().equals(from)) {
 
             ran.remove(todel.getKey());
             todel = ran.higherEntry(todel.getValue().getMin());
@@ -354,11 +381,11 @@ public class NumRange extends Range {
 
     private void cleanupAscending(AtomicNumRange from) {
         LOGGER.info("cleanup asc " + from);
-        Map.Entry<Long, AtomicNumRange> todel = ran.lowerEntry(from.getMax());
+        Map.Entry<NumCut, AtomicNumRange> todel = ran.lowerEntry(from.getMax());
 
         while (todel != null &&
                 from.subsumes(todel.getValue())&&
-                todel.getValue() != from) {
+                !todel.getValue().equals(from)) {
 
             ran.remove(todel.getKey());
             todel = ran.lowerEntry(todel.getValue().getMax());
@@ -381,10 +408,12 @@ public class NumRange extends Range {
         if(ran.size() != rs.ran.size())
             return false;
 
-        if(min != rs.min || max != rs.max)
+
+        if(!getMin().equals(rs.getMin()) || !getMax().equals(rs.getMax()))
             return false;
 
-        for(Map.Entry<Long, AtomicNumRange> e : ran.entrySet()) {
+
+        for(Map.Entry<NumCut, AtomicNumRange> e : ran.entrySet()) {
 
             AtomicNumRange other = rs.ran.get(e.getKey());
 
@@ -395,13 +424,13 @@ public class NumRange extends Range {
         return true;
     }
 
-    public TreeMap<Long, AtomicNumRange> getRangeMap() {
+    public TreeMap<NumCut, AtomicNumRange> getRangeMap() {
         return this.ran;
     }
 
     public Automaton toAutomaton() {
         Automaton automaton = null;
-        for(Map.Entry<Long, AtomicNumRange> e : this.ran.entrySet()) {
+        for(Map.Entry<NumCut, AtomicNumRange> e : this.ran.entrySet()) {
             if(automaton == null) {
                 automaton = e.getValue().getLenAutomaton();
             } else {
@@ -413,15 +442,15 @@ public class NumRange extends Range {
 
     public Automaton toApproxAutomaton() {
         LOGGER.debug("get approximate automaton");
-        Automaton a =  new AtomicNumRange(this.min, this.max).getLenAutomaton();
+        Automaton a =  new AtomicNumRange(getMin(), getMax()).getLenAutomaton();
         LOGGER.debug("return approx automaotn");
         return a;
     }
 
     public NumRange numadd(NumRange nr) {
         NumRange ret = new NumRange();
-        for(Map.Entry<Long, AtomicNumRange> eout : this.ran.entrySet()) {
-            for(Map.Entry<Long, AtomicNumRange> ein : nr.ran.entrySet()) {
+        for(Map.Entry<NumCut, AtomicNumRange> eout : this.ran.entrySet()) {
+            for(Map.Entry<NumCut, AtomicNumRange> ein : nr.ran.entrySet()) {
 
                 AtomicNumRange sum = eout.getValue().numadd(ein.getValue());
 
@@ -434,8 +463,8 @@ public class NumRange extends Range {
 
     public NumRange numsub(NumRange nr) {
         NumRange ret = new NumRange();
-        for(Map.Entry<Long, AtomicNumRange> eout : this.ran.entrySet()) {
-            for(Map.Entry<Long, AtomicNumRange> ein : nr.ran.entrySet()) {
+        for(Map.Entry<NumCut, AtomicNumRange> eout : this.ran.entrySet()) {
+            for(Map.Entry<NumCut, AtomicNumRange> ein : nr.ran.entrySet()) {
 
                 AtomicNumRange sum = eout.getValue().numsub(ein.getValue());
 
@@ -455,13 +484,13 @@ public class NumRange extends Range {
         int k = 0;
 
         sb.append("[");
-        for(Map.Entry<Long, AtomicNumRange> e : this.ran.entrySet()) {
+        for(Map.Entry<NumCut, AtomicNumRange> e : this.ran.entrySet()) {
             if(k++ > 0) {
                 sb.append(",");
             }
             sb.append(e.getValue().toString());
         }
-        sb.append("]{" + this.min + "," + this.max + "}" );
+        sb.append("]{" + getMin() + "," + getMax() + "}" );
         return sb.toString();
     }
 
@@ -471,25 +500,24 @@ public class NumRange extends Range {
         return new NumRange(this);
     }
 
-    @Override
-    public void setMin(long min) {
-        assert(min <= this.max);
-        NumRange nr = new NumRange(new AtomicNumRange(min, this.max));
+    public void setMin(NumCut min) {
+
+        assert min.isSmallerEqualsThan(getMax());
+        NumRange nr = new NumRange(new AtomicNumRange(min, getMax()));
         NumRange isect = this.intersect(nr);
         this.ran.clear();
         this.ran.putAll(isect.ran);
     }
 
-    @Override
-    public void setMax(long max) {
-        assert(min <= this.max);
-        NumRange nr = new NumRange(new AtomicNumRange(this.min, max));
+    public void setMax(NumCut max) {
+        assert getMin().isSmallerEqualsThan(getMax());
+        NumRange nr = new NumRange(new AtomicNumRange(getMin(), max));
         NumRange isect = this.intersect(nr);
         this.ran.clear();
         this.ran.putAll(isect.ran);
     }
 
-    public long getDiff() {
-        return this.max - this.min;
+    public NumCut getDiff() {
+        return new NumCut(getMax().sub(getMin()).getEndpoint());
     }
 }

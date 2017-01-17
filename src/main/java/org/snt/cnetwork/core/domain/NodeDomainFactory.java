@@ -29,12 +29,12 @@ public enum NodeDomainFactory {
 
     public static final String STR_EMPTY = ".{0}";
 
-    public static NumRange N = new NumRange(AtomicNumRange.N);
-    public static NumRange Z = new NumRange(AtomicNumRange.Z);
-    public static NumRange E = new NumRange(AtomicNumRange.E);
+    public static NumRange N = new NumRange(AtomicNumRange.N.clone());
+    public static NumRange Z = new NumRange(AtomicNumRange.Z.clone());
+    public static NumRange E = new NumRange(AtomicNumRange.E.clone());
 
-    public static BooleanRange FALSE = new BooleanRange(BooleanRange.BooleanValue.FALSE);
-    public static BooleanRange TRUE = new BooleanRange(BooleanRange.BooleanValue.TRUE);
+    public static BooleanRange FALSE = new BooleanRange(BoolCut.FALSE.clone());
+    public static BooleanRange TRUE = new BooleanRange(BoolCut.TRUE.clone());
 
 
     public static NodeDomain DB = new NodeDomain(DomainKind.BOOLEAN,
@@ -174,8 +174,7 @@ public enum NodeDomainFactory {
                     LOGGER.debug("__" + lbl);
 
                     assert lbl != null && lbl.matches("(true|false)");
-                    BooleanRange.BooleanValue bv = BooleanRange.BooleanValue
-                            .KindFromString(lbl);
+                    BoolCut bv = BoolCut.KindFromString(lbl);
 
                     return new NodeDomain(n.getDomainKind(),new Automaton(bv
                             .getValue()), new

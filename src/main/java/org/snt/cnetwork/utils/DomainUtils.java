@@ -18,14 +18,19 @@ public class DomainUtils {
     private static Set<Character> special = new HashSet<Character>(Arrays.asList(sarray));
 
 
-    public static Automaton getAutomatonForRange(long min, long max) {
-        return new Automaton(".{" + Math.max(0,min) + "," +
-                max +
-                "}");
+    public static Automaton getAutomatonForRange(NumCut min, NumCut max) {
+
+        if(max.isFixed()) {
+            return new Automaton(".{" + NumCut.max(new NumCut(0L), min) + "," +
+                    max +
+                    "}");
+        } else {
+            return new Automaton(".{" + NumCut.max(new NumCut(0L), min) + "," + "}");
+        }
     }
 
     public static Automaton getAutomatonForRange(AtomicNumRange r) {
-        return getAutomatonForRange(Math.max(0,r.getMin()), r.getMax());
+        return getAutomatonForRange(r.getMin(), r.getMax());
     }
 
     public static Automaton getAutomatonForRange(BooleanRange r) {
@@ -66,8 +71,8 @@ public class DomainUtils {
 
     public static Automaton getBoolAutomatonForRange(BooleanRange r) {
 
-        String strue = BooleanRange.BooleanValue.TRUE.getValue();
-        String sfalse = BooleanRange.BooleanValue.FALSE.getValue();
+        String strue = BoolCut.TRUE.getValue();
+        String sfalse = BoolCut.FALSE.getValue();
 
         if(r.isAlwaysTrue()) {
             return new Automaton(strue);
@@ -78,18 +83,27 @@ public class DomainUtils {
         return new Automaton(strue + "|" + sfalse);
     }
 
-
     public static Automaton getNumAutomatonForRange(long min, long max) {
+        return getNumAutomatonForRange(new NumCut(min), new NumCut(max));
+    }
 
-        assert (max >= min);
 
-        if (max == min) {
-            return new Automaton(String.valueOf(min));
+    public static Automaton getNumAutomatonForRange(NumCut min, NumCut max) {
+
+        assert max.isGreaterEqualsThan(min);
+
+        if (max.equals(min)) {
+            if(max.isFixed() && (max instanceof AboveAll))
+                return new Automaton(min.toString());
         }
+        String mins = "";
+        String maxs = "";
 
-        String mins = RexpUtils.getRexpForMin(min);
+        if(min.isFixed())
+            mins = RexpUtils.getRexpForMin(min.getEndpoint());
         //LOGGER.info("MINS " + mins);
-        String maxs = RexpUtils.getRexpForMax(max);
+        if(max.isFixed())
+            maxs = RexpUtils.getRexpForMax(max.getEndpoint());
         //LOGGER.info("MAXS " + maxs);
 
         Automaton mina = new Automaton(mins);
@@ -138,8 +152,7 @@ public class DomainUtils {
 
     public static NumRange getNumRangeForAutomaton(Automaton a) {
 
-        String r = RexpUtils.getRexpForRange(NodeDomainFactory.Z.getMin(), NodeDomainFactory.Z
-                .getMax());
+        String r = NodeDomainFactory.Z_REXP;
 
         Automaton ra =  new Automaton(r);
 

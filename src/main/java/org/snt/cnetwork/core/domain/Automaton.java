@@ -181,8 +181,6 @@ public class Automaton implements DomainInterface<Automaton> {
         return new Automaton(Autorex.getCamelCaseAutomaton(this.a));
     }
 
-
-
     public int getLongestExample() {
 
         LinkedList<LinkedList<Transition>> paths = new LinkedList<LinkedList<Transition>>();

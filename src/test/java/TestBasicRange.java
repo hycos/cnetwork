@@ -3,6 +3,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.AtomicNumRange;
+import org.snt.cnetwork.core.domain.BoolCut;
 import org.snt.cnetwork.core.domain.BooleanRange;
 import org.snt.cnetwork.core.domain.NumRange;
 import org.snt.cnetwork.utils.RexpUtils;
@@ -14,8 +15,8 @@ public class TestBasicRange {
 
     final static Logger LOGGER = LoggerFactory.getLogger(TestBasicRange.class);
 
-    public static BooleanRange trange = new BooleanRange(BooleanRange.BooleanValue.TRUE);
-    public static BooleanRange frange = new BooleanRange(BooleanRange.BooleanValue.FALSE);
+    public static BooleanRange trange = new BooleanRange(BoolCut.TRUE.clone());
+    public static BooleanRange frange = new BooleanRange(BoolCut.FALSE.clone());
     public static BooleanRange vrange = new BooleanRange();
 
 
@@ -83,7 +84,7 @@ public class TestBasicRange {
         AtomicNumRange isect = r1.intersect(r2);
 
         assert(r1.intersect(r2) != null);
-        assert(r1.getMin() == 2014 && r1.getMax() == 3050);
+        assert(r1.getMin().equals(2014) && r1.getMax().equals(3050));
 
         assert(trange.isAlwaysTrue());
         assert(frange.isAlwaysFalse());

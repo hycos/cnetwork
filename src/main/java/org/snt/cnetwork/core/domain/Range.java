@@ -1,6 +1,5 @@
 package org.snt.cnetwork.core.domain;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,54 +7,73 @@ public abstract class Range implements DomainInterface<Range> {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(Range.class);
 
-    protected long min = 0;
-    protected long max = -1;
+    protected NumCut lb;
+    protected NumCut ub;
 
-    public Range(long min, long max) {
-        assert max >= min;
-        this.min = min;
-        this.max = max;
+    public Range(NumCut min, NumCut max) {
+
+        LOGGER.debug("new ran min:{} max:{}", min, max);
+        assert min.isSmallerEqualsThan(max);
+        this.lb = min;
+        this.ub = max;
     }
 
     public Range() {
-        min = 0;
-        max = 0;
+        lb = new BelowAll();
+        ub = new AboveAll();
     }
 
-    public long getMin() {
-        return min;
+    public NumCut getMin() {
+        return lb;
     }
+
+    public void setMin(NumCut min) {
+        lb = min;
+    }
+
+    public void setMax(NumCut max) {
+        ub = max;
+    }
+
 
     public void setMin(long min) {
-        assert(min <= this.max);
-        this.min = min;
+        lb = new NumCut(min);
     }
 
-    public long getMax() {
-        return max;
+    public NumCut getMax() {
+        return ub;
     }
 
     public void setMax(long max) {
-        assert(max >= this.min);
-        this.max = max;
+        this.lb.isSmallerEqualsThan(max);
+        this.ub = new NumCut(max);
     }
 
     public abstract boolean contains( long value );
 
-    public long getDiff(){
-        return this.max - this.min;
+    public NumCut getDiff(){
+
+        if(ub.isFixed() && lb.isFixed())
+            new NumCut(ub.sub(lb));
+
+        if(!ub.isFixed() || !lb.isFixed())
+            return new AboveAll();
+
+        assert false;
+        return null;
     }
 
     public boolean isAlwaysGreaterThan(Range other){
-        return this.min > other.max;
+        return lb.isGreaterThan(other.ub.getEndpoint());
     }
 
     public boolean isAlwaysSmallerThan(Range other){
-        return this.max < other.min;
+        return ub.isSmallerThan(other.lb.getEndpoint());
     }
 
-    public boolean isBetween(int min, int max) {
-        return this.min >= min && this.max <= max;
+    public boolean isBetween(long min, long max) {
+        return lb.isGreaterEqualsThan(min) &&
+                ub.isSmallerEqualsThan(max);
     }
 
     @Override
