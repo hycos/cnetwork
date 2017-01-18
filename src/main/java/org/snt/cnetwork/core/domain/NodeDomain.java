@@ -51,7 +51,7 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
     public NodeDomain(DomainKind kind, DomainInterface ... ds) {
         this.kind = kind;
         for(DomainInterface d : ds) {
-            LOGGER.debug("put domain {}", d.getDomainName());
+            //LOGGER.debug("put domain {}", d.getDomainName());
             dom.put(d.getDomainName(), (DomainInterface)d.clone());
         }
     }
@@ -106,7 +106,7 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
 
         BooleanRange n = br.negate();
 
-        Automaton a = DomainUtils.getAutomatonForRange(br);
+        Automaton a = DomainUtils.getNumAutomatonForRange(br);
 
 
         return new NodeDomain(this.kind,a,n);

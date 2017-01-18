@@ -67,6 +67,11 @@ public class BelowAll extends NumCut {
     }
 
     @Override
+    public AboveAll negate() {
+        return new AboveAll(-endpoint);
+    }
+
+    @Override
     public NumCut sub(Long val) {
         return new BelowAll(endpoint - val);
     }

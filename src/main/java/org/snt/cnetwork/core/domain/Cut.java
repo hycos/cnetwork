@@ -46,6 +46,7 @@ abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>,
     public abstract Cut<C> div(Cut<C> val);
     public abstract Cut<C> mul(Cut<C> val);
     public abstract Cut<C> diff(Cut<C> val);
+    public abstract Cut<C> negate();
 
     @Override
     public int hashCode() {

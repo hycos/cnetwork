@@ -34,6 +34,15 @@ public class BoolCut extends NumCut {
     }
 
     @Override
+    public BoolCut negate() {
+        if(isTrue()){
+            return FALSE.clone();
+        }
+        return TRUE.clone();
+    }
+
+
+    @Override
     public BoolCut clone() {
         return new BoolCut(this.endpoint, this.sval);
     }
@@ -41,5 +50,14 @@ public class BoolCut extends NumCut {
     public String getValue() {
         return this.sval;
     }
+
+    public boolean isTrue(){
+        return this.endpoint.equals(0L);
+    }
+
+    public boolean isFalse(){
+        return !isTrue();
+    }
+
 
 }

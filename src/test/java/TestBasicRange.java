@@ -25,7 +25,7 @@ public class TestBasicRange {
 
 
     @Test
-    public void testPlus() {
+    public void testArithmetic() {
 
         AtomicNumRange a1 = new AtomicNumRange();
         AtomicNumRange a2 = new AtomicNumRange(4,4);
@@ -47,6 +47,17 @@ public class TestBasicRange {
 
         Assert.assertTrue(sum.isBetween(-90,200));
         Assert.assertTrue(diff.isBetween(-40,250));
+
+
+        AtomicNumRange a5 = new AtomicNumRange(new NumCut(1L), new AboveAll());
+        AtomicNumRange a6 = new AtomicNumRange(new NumCut(0L), new AboveAll
+                (-1L));
+
+        sum = a5.numsub(a6);
+
+        Assert.assertTrue(sum.isBetween(new BelowAll(-1L), new AboveAll()));
+
+        LOGGER.debug("sum {}", sum);
 
     }
 

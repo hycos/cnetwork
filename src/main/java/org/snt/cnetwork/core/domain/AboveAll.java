@@ -97,6 +97,10 @@ public class AboveAll extends NumCut {
         }
     }
 
+    @Override
+    public BelowAll negate() {
+        return new BelowAll(-endpoint);
+    }
 
     @Override
     public String toString() {

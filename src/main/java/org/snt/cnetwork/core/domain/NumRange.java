@@ -150,8 +150,8 @@ public class NumRange extends Range {
                 .getMax()));
 
 
-        assert(thisfrom != null);
-        assert(thisto != null);
+        //assert(thisfrom != null);
+        //assert(thisto != null);
 
         if(thisfrom == null || thisto == null)
             return rs;
@@ -440,7 +440,7 @@ public class NumRange extends Range {
         Automaton automaton = new Automaton(".*");
         for(Map.Entry<NumCut, AtomicNumRange> e : this.ran.entrySet()) {
             if(automaton == null) {
-                automaton = e.getValue().getLenAutomaton();
+                automaton = e.getValue().getAutomaton();
             } else {
                 automaton = automaton.union(e.getValue().getAutomaton());
             }

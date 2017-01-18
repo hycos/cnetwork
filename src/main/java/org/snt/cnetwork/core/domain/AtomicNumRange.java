@@ -80,7 +80,7 @@ public class AtomicNumRange extends Range {
     public boolean isSingleton(){
 
         LOGGER.debug("DIFF {}", getDiff());
-        return getDiff().equals(new NumCut(1L));
+        return getDiff().equals(new NumCut(0L));
     }
 
     @Override
@@ -238,7 +238,7 @@ public class AtomicNumRange extends Range {
     }
 
     public Automaton getAutomaton() {
-        return DomainUtils.getAutomatonForRange(this);
+        return DomainUtils.getNumAutomatonForRange(this);
     }
 
     public Automaton getLenAutomaton() {

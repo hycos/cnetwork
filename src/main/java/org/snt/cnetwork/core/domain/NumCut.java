@@ -136,9 +136,9 @@ public class NumCut extends Cut<Long> implements Cloneable {
     @Override
     public NumCut sub(Cut<Long> val) {
         if(val instanceof AboveAll) {
-            return ((AboveAll) val).add(-endpoint);
+            return ((AboveAll)val).negate().add(this);
         } else if (val instanceof BelowAll) {
-            return ((BelowAll) val).add(-endpoint);
+            return ((BelowAll)val).negate().add(this);
         } else
             return sub(val.endpoint);
     }
@@ -166,6 +166,11 @@ public class NumCut extends Cut<Long> implements Cloneable {
     @Override
     public NumCut diff(Cut<Long> val) {
         return diff(val.endpoint);
+    }
+
+    @Override
+    public Cut<Long> negate() {
+        return new NumCut(-endpoint);
     }
 
 

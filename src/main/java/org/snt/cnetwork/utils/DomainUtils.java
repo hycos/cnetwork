@@ -20,22 +20,24 @@ public class DomainUtils {
 
     public static Automaton getLenAutomaton(NumCut min, NumCut max) {
 
+        String rexp = "";
         if(max.isFixed()) {
-            return new Automaton(".{" + NumCut.max(new NumCut(0L), min).getEndpoint() +
+            rexp = ".{" + NumCut.max(new NumCut(0L), min).getEndpoint() +
                     "," +
                     max.getEndpoint() +
-                    "}");
+                    "}";
         } else {
-            return new Automaton(".{" + NumCut.max(new NumCut(0L), min).getEndpoint() +
-                    "," + "}");
+            rexp = ".{" + NumCut.max(new NumCut(0L), min).getEndpoint() +
+                    "," + "}";
         }
+
+        LOGGER.debug("rexp {}", rexp);
+
+        return new Automaton(rexp);
     }
 
-    public static Automaton getAutomatonForRange(AtomicNumRange r) {
-        return getLenAutomaton(r.getMin(), r.getMax());
-    }
 
-    public static Automaton getBoolAutomaton(BooleanRange r) {
+    public static Automaton getBoolAutomatonForBoolRange(BooleanRange r) {
         if(r.isAlwaysTrue()) {
             return new Automaton("[Tt][Rr][Uu][Ee]");
         } else if (r.isAlwaysFalse()) {
@@ -45,30 +47,26 @@ public class DomainUtils {
         }
     }
 
-    public static Automaton getAutomatonForRange(Range r) {
-        if(r instanceof NumRange) {
-            return getAutomatonForRange((NumRange)r);
-        } else if (r instanceof BooleanRange) {
-            return getAutomatonForRange((BooleanRange)r);
-        } else if (r instanceof AtomicNumRange) {
-            return getAutomatonForRange((AtomicNumRange)r);
-        }
-        // should never ever happen
-        assert false;
-
-        return null;
-    }
-
-    private static Automaton getAutomatonForRange(NumRange r) {
+    private static Automaton getNumAutomatonForNumRange(NumRange r) {
         Automaton a = new Automaton();
         r.getRangeMap().values().forEach(
-                v -> a.union(getAutomatonForRange(v))
+                v -> a.union(getNumAutomatonForRange(v))
         );
         return a;
     }
 
+
     public static Automaton getNumAutomatonForRange(Range r) {
-        return getNumAutomatonForRange(r.getMin(), r.getMax());
+
+        if(r instanceof AtomicNumRange) {
+            return getNumAutomatonForRange(r.getMin(), r.getMax());
+        } else if (r instanceof BooleanRange) {
+            return getBoolAutomatonForBoolRange((BooleanRange)r);
+        } else if (r instanceof NumRange) {
+            return getNumAutomatonForNumRange((NumRange)r);
+        }
+        assert false;
+        return null;
     }
 
     public static Automaton getBoolAutomatonForRange(BooleanRange r) {
