@@ -1,4 +1,4 @@
-package org.snt.cnetwork.slicer;
+package org.snt.cnetwork.tools.slicer;
 
 import org.snt.cnetwork.core.ConstraintNetwork;
 import org.snt.cnetwork.core.Node;

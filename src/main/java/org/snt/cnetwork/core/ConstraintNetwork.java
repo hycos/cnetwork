@@ -6,7 +6,7 @@ import org.snt.cnetwork.sig.JavaMethodSignature;
 
 import java.util.*;
 
-public class ConstraintNetwork extends AbstractNetwork implements Cloneable {
+public class ConstraintNetwork extends AbstractGraph implements Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(ConstraintNetwork.class);
 

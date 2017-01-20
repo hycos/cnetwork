@@ -19,13 +19,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class AbstractNetwork implements DirectedGraph<Node, Edge>, Cloneable {
+public class AbstractGraph implements DirectedGraph<Node, Edge>, Cloneable {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(AbstractNetwork.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(AbstractGraph.class);
 
     private final DirectedPseudograph<Node, Edge> delegate;
 
-    public AbstractNetwork() {
+    public AbstractGraph() {
         this.delegate = new DirectedPseudograph(Edge.class);
     }
 
@@ -73,10 +73,10 @@ public class AbstractNetwork implements DirectedGraph<Node, Edge>, Cloneable {
             return true;
         } else if (obj == null) {
             return false;
-        } else if (!(obj instanceof AbstractNetwork)) {
+        } else if (!(obj instanceof AbstractGraph)) {
             return false;
         } else {
-            AbstractNetwork other = (AbstractNetwork) obj;
+            AbstractGraph other = (AbstractGraph) obj;
             DirectedPseudograph<Node, Edge> otherDelegate = (DirectedPseudograph<Node, Edge>) other.delegate;
             return delegate.equals(otherDelegate);
         }
@@ -193,8 +193,8 @@ public class AbstractNetwork implements DirectedGraph<Node, Edge>, Cloneable {
     }
 
     @Override
-    public AbstractNetwork clone(){
-        AbstractNetwork an = new AbstractNetwork();
+    public AbstractGraph clone(){
+        AbstractGraph an = new AbstractGraph();
         for(Edge e : this.edgeSet()) {
             Node src = e.getSrcNode().clone();
             Node dest = e.getDestNode().clone();
