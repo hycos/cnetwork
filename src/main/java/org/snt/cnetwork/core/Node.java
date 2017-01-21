@@ -142,6 +142,7 @@ public abstract class Node implements Cloneable {
     }
 
     //@TODO:Julian just for convenience -- have to refactor this
+    //access domain instead of range/automaton exlicitly
     public Range getRange() {
         DomainInterface iface = this.dom.getDomain("range");
         assert iface instanceof Range;

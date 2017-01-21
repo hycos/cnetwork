@@ -17,17 +17,16 @@
 * limitations under the Licence.
 */
 
-package org.snt.cnetwork.tools.mtree;
+package org.snt.cnetwork.core.mergelattice;
 
 
 import org.jgrapht.EdgeFactory;
 
-public class EdgeFact<T extends Element> implements EdgeFactory<EquiClass<T>,
-        EquiEdge> {
+public class EdgeFact implements EdgeFactory<EquiClass,EquiEdge> {
 
     @Override
-    public EquiEdge createEdge(EquiClass<T> sourceVertex,
-                                             EquiClass<T> targetVertex) {
+    public EquiEdge createEdge(EquiClass sourceVertex,
+                                             EquiClass targetVertex) {
         return new EquiEdge(sourceVertex, targetVertex, EquiEdge.Kind.EQUI,-1);
     }
 }

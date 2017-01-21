@@ -1,12 +1,16 @@
-package org.snt.cnetwork.tools.mtree;
+package org.snt.cnetwork.core.mergelattice;
 
 import org.jgrapht.graph.DefaultEdge;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class EquiEdge<T extends Element> extends DefaultEdge implements
+public class EquiEdge extends DefaultEdge implements
         Cloneable {
 
-    private EquiClass<T> src;
-    private EquiClass<T> dst;
+    final static Logger LOGGER = LoggerFactory.getLogger(EquiEdge.class);
+
+    private EquiClass src;
+    private EquiClass dst;
     private Kind kind;
     private int sequence = -1;
 
@@ -14,12 +18,15 @@ public class EquiEdge<T extends Element> extends DefaultEdge implements
         kind = Kind.EQUI;
     }
 
-    public EquiEdge(EquiClass<T> src, EquiClass<T> dst) {
+    public EquiEdge(EquiClass src, EquiClass dst) {
         this(src,dst,Kind.EQUI, -1);
     }
 
-    public EquiEdge(EquiClass<T> src, EquiClass<T> dst, Kind kind,
+    public EquiEdge(EquiClass src, EquiClass dst, Kind kind,
                     int sequence) {
+
+        LOGGER.debug("trying to add {} {}", src, dst);
+        assert !src.equals(dst);
         this.dst = dst;
         this.src = src;
         this.kind = kind;
@@ -61,12 +68,12 @@ public class EquiEdge<T extends Element> extends DefaultEdge implements
     }
 
     @Override
-    public EquiClass<T> getSource() {
+    public EquiClass getSource() {
         return src;
     }
 
     @Override
-    public EquiClass<T> getTarget() {
+    public EquiClass getTarget() {
         return dst;
     }
 
@@ -76,5 +83,10 @@ public class EquiEdge<T extends Element> extends DefaultEdge implements
 
     public int getSequence() {
         return this.sequence;
+    }
+
+    @Override
+    public String toString() {
+        return src.toString() + "->" + dst.toString();
     }
 }
