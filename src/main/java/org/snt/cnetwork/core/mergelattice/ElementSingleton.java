@@ -9,7 +9,7 @@ public class ElementSingleton extends Element {
 
     @Override
     public Element[] split() {
-        Element [] e = new Element[0];
+        Element [] e = new Element[1];
         e[0] = this;
         return e;
     }
@@ -19,6 +19,11 @@ public class ElementSingleton extends Element {
         return lbl;
     }
 
+    @Override
+    public Element clone() {
+        return new ElementSingleton(lbl);
+    }
+
     public boolean isTuple() {
         return false;
     }
@@ -26,24 +31,5 @@ public class ElementSingleton extends Element {
     public boolean isSingleton() {
         return true;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if(!(o instanceof ElementSingleton))
-            return false;
-
-        Element e = (Element)o;
-
-        return e.getLabel().equals(this.getLabel());
-    }
-
-    @Override
-    public int compareTo(Object o) {
-        if(!(o instanceof ElementSingleton))
-            return -1;
-
-        return getLabel().compareTo(((ElementSingleton)o).getLabel());
-    }
-
 
 }

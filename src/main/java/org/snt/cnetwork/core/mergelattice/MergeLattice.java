@@ -56,7 +56,6 @@ public class MergeLattice<T> extends
 
     private void split(EquiClass n) {
 
-
         LinkedList<EquiClass> worklist = new LinkedList<>();
 
         worklist.add(n);
@@ -65,22 +64,30 @@ public class MergeLattice<T> extends
 
             EquiClass parent = worklist.removeFirst();
 
+            LOGGER.debug("*** split {}",parent);
 
-            LOGGER.debug("parent {}", parent);
             int idx = 0;
+
             for(EquiClass s : parent.split()) {
-                if(parent.isSingleton()) {
+
+                LOGGER.debug("child:{}, parent:{}", s, parent);
+
+                if(parent.isSingletonTuple() && s.isAtomic()) {
                     addParEdge(parent, s, ++idx);
                 } else {
                     LOGGER.debug("parent {} no single", parent);
                     addSubEdge(parent, s);
                 }
 
-                if(!nlookup.containsKey(s))
+                //if(!nlookup.containsKey(s)) {
+                //    LOGGER.debug("add to worklist");
+                if(!s.isAtomic())
                     worklist.addLast(s);
+                //}
             }
         }
     }
+
 
     private void removeTopLinks(EquiClass n) {
 
@@ -97,34 +104,45 @@ public class MergeLattice<T> extends
         super.removeAllEdges(topcon);
     }
 
-    public void addEquiClasses(T []... toadd) {
-        addEquiClasses(elementFact.create(toadd));
+    public void addEquiClass(T []... toadd) {
+        addEquiClass(elementFact.create(toadd));
     }
 
-    public void addEquiClasses(EquiClass [] toadd) {
-        addEquiClasses(Arrays.asList(toadd));
-    }
+    //public void addEquiClasses(EquiClass [] toadd) {
+    //    addEquiClasses(Arrays.asList(toadd));
+    //}
 
-    public void addEquiClasses(Collection<EquiClass> toadd) {
+    public void addEquiClass(Collection<EquiClass> toadd) {
         toadd.forEach(e->addEquiClass(e));
     }
 
     public void addEquiClass(EquiClass n) {
-        LOGGER.debug("add equivalence class {}", n);
 
-        if(nlookup.containsKey(n) || n.isEmpty())
+        LOGGER.debug("add equi class {}", n);
+
+        if(nlookup.containsKey(n) || n.isEmpty()) {
+            LOGGER.debug("already there");
+            return;
+        }
+
+        EquiClass par = findParent(n);
+
+        LOGGER.debug("par {} c {}", par, n);
+
+        // equiclass to be added is already contained
+        if(!par.equals(top) && par.subsumes(n))
             return;
 
-        addSubEdge(findParent(n), n);
+        addSubEdge(par, n);
 
         // split the equiclass and
         split(n);
-        //merge();
+        merge();
 
-        //if(edgeSet().contains(init)) {
-        //    removeEdge(init);
-        //    LOGGER.debug("rm init edge {}", init);
-        //}
+        if(edgeSet().contains(init)) {
+            removeEdge(init);
+            LOGGER.debug("rm init edge {}", init);
+        }
     }
 
 
@@ -186,7 +204,7 @@ public class MergeLattice<T> extends
 
         linkToTop(dst);
 
-        if(dst.isSingleton())
+        if(dst.isSingleton() && dst.isAtomic())
             linkToBottom(dst);
     }
 
@@ -199,7 +217,7 @@ public class MergeLattice<T> extends
         removeTopLinks(dst);
         addEdge(src,dst, EquiEdge.Kind.SUB, -1);
 
-        if(dst.isSingleton())
+        if(dst.isSingleton() && dst.isAtomic())
             linkToBottom(dst);
     }
 
@@ -237,7 +255,7 @@ public class MergeLattice<T> extends
     }
 
 
-    private Set<EquiClass> getFoosToMerge(){
+    private Set<EquiClass> getTuplesToMerge(){
         Set<EquiClass> foosToMerge = new HashSet<>();
         try {
             // get functions first
@@ -310,24 +328,28 @@ public class MergeLattice<T> extends
         }
     }
 
-    /**private void mergeFoos() {
+    private void mergeTuples() {
         LOGGER.debug("merge parameters");
 
         Set<EquiClass> toAdd = new HashSet<EquiClass>();
-        for(EquiClass foo : getFoosToMerge()){
-            LOGGER.debug("handle foo {}" , foo);
-            toAdd.add(handleFoo(foo));
+        for(EquiClass foo : getTuplesToMerge()){
+            toAdd.add(handleTuple(foo));
         }
 
-        toAdd.forEach(e -> split(e));
-    }**/
+        for(EquiClass toadd : toAdd) {
+            addEquiClass(toadd);
+        }
+
+    }
 
     private Set<EquiClass> getParamsFor(EquiClass foo) {
         return outgoingEdgesOfKind(foo, EquiEdge.Kind.PAR).stream().map
                 (EquiEdge::getTarget).collect(Collectors.toSet());
     }
 
-    /**private EquiClass handleFoo(EquiClass foo) {
+    private EquiClass handleTuple(EquiClass foo) {
+
+        LOGGER.debug("handle Tuple {} ========== ", foo);
 
         EquiClass fequi = new EquiClass();
 
@@ -343,38 +365,56 @@ public class MergeLattice<T> extends
 
             assert foo.getCardinality() == 1;
 
-            Element ele = foo.getElements().iterator().next();
+            // take element which has to be a tuple
+            Element felem = foo.getElements().iterator().next();
+            assert felem instanceof ElementTuple;
 
-            // split the function into pieces
-            Collection<? extends Element> split = ele.split(0);
-
-            Element [] segments = split.toArray(new Element[split.size()]);
+            // parameter split
+            Element [] split = felem.split();
 
             int pidx = pedge.getSequence();
 
-            assert pidx < segments.length && pidx >= 1;
 
-            for (Element alias : psup.getElements()) {
-                segments[pidx] = alias;
+            for(Element repl : psup.getElements()) {
+
+                assert repl instanceof ElementSingleton;
+
+                String [] newTuple = new String[split.length + 1];
+                newTuple[0] = felem.getAnnotation();
+
+                LOGGER.debug("ANNOTATION {}", newTuple[0]);
+
+                for (int i = 0; i < split.length; i++) {
+                    if (i+1 == pidx)
+                        newTuple[i+1] = repl.getLabel();
+                    else
+                        newTuple[i+1] = split[i].getLabel();
+                }
+
+                LOGGER.debug("new signature {}",elementFact.computeLabel
+                        (newTuple));
+
+
+                ElementTuple et = new ElementTuple(elementFact.computeLabel
+                        (newTuple), Arrays.copyOfRange(newTuple,1,
+                        newTuple.length));
+
+                et.setAnnotation(newTuple[0]);
+
+                fequi.add(et);
+                LOGGER.debug("add foo equi class {}", fequi);
             }
 
-            LOGGER.debug("add foo equi class {}", fequi);
-            System.exit(-1);
-
-            Element nele  = elementFact.join(segments);
-
-            fequi.add(nele);
-            LOGGER.debug("add foo equi class {}", fequi);
 
         }
 
         return fequi;
-    }**/
+    }
 
 
     private void merge() {
         mergeSub();
-        //mergeFoos();
+        mergeTuples();
     }
 
     private void replace(Set<EquiClass> toReplace, EquiClass replacement) {

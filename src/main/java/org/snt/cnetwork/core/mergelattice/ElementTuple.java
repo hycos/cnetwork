@@ -12,7 +12,7 @@ public class ElementTuple extends Element {
        tuple = new Element[pars.length];
 
        for(int i = 0; i < pars.length; i++) {
-           tuple[0] = new ElementSingleton(pars[0]);
+           tuple[i] = new ElementSingleton(pars[i]);
        }
     }
 
@@ -21,15 +21,16 @@ public class ElementTuple extends Element {
         return true;
     }
 
+    @Override
+    public Element clone() {
+        ElementTuple et = new ElementTuple(lbl);
+        et.tuple = Arrays.copyOf(this.tuple, this.tuple.length);
+        return et;
+    }
+
     public boolean isSingleton() {
         return false;
     }
-
-    @Override
-    public String getLabel() {
-        return lbl;
-    }
-
 
 
     @Override
@@ -37,23 +38,7 @@ public class ElementTuple extends Element {
         return Arrays.copyOf(tuple, tuple.length);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if(!(o instanceof ElementTuple))
-            return false;
 
-        Element e = (Element)o;
-
-        return e.getLabel().equals(this.getLabel());
-    }
-
-    @Override
-    public int compareTo(Object o) {
-        if(!(o instanceof ElementTuple))
-            return -1;
-
-        return getLabel().compareTo(((ElementTuple)o).getLabel());
-    }
 
 
 }

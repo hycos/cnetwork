@@ -1,11 +1,16 @@
 package org.snt.cnetwork.core.mergelattice;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.utils.EscapeUtils;
 
 import java.util.*;
 
 public class EquiClass {
-    Set<Element> set = new TreeSet<>();
+
+    final static Logger LOGGER = LoggerFactory.getLogger(EquiClass.class);
+
+    protected Set<Element> set = new TreeSet<>();
 
     public static class Top extends EquiClass {
         @Override
@@ -73,6 +78,8 @@ public class EquiClass {
 
     public EquiClass(Element nod) {
         this();
+        assert nod != null;
+        assert set != null;
         set.add(nod);
     }
 
@@ -87,6 +94,9 @@ public class EquiClass {
 
     public void add(Element ele) {
         set.add(ele);
+    }
+    public void addAll(Collection<Element> ele) {
+        set.addAll(ele);
     }
 
     public String getDotLabel() {
@@ -155,8 +165,7 @@ public class EquiClass {
     }
 
     public EquiClass intersection(EquiClass other) {
-        Set<Element> isect = new HashSet<>();
-        isect.addAll(set);
+        Set<Element> isect = new HashSet<>(set);
         isect.retainAll(other.set);
         return new EquiClass(isect);
     }
@@ -166,31 +175,56 @@ public class EquiClass {
         return intersection(other).equals(other);
     }
 
+    public boolean isAtomic() {
+        return isSingleton() && !set.iterator().next().isTuple();
+    }
+
+    public boolean isSingletonTuple() {
+        return isSingleton() && set.iterator().next().isTuple();
+    }
+
     public int getCardinality() {
         return this.set.size();
     }
 
 
-    public Collection<EquiClass> split () {
-        Set ret = new LinkedHashSet<EquiClass>();
+    private Collection<EquiClass> singletonSplit() {
 
-        if(set.size() > 1) {
-            for (Element s : set) {
-                //if (s.isSplittable()) {
-                //    ret.add(new EquiClass(s.split()));
-                //} else {
-                    ret.add(new EquiClass(s));
-                //}
+        assert isSingleton();
+
+        Set<EquiClass>ret = new LinkedHashSet<>();
+
+        for(Element e : set) {
+            LOGGER.debug("split {}", e);
+            for(Element split : e.split()) {
+                assert split != null;
+                ret.add(new EquiClass(split));
             }
-        } else if (set.size() == 1) {
-                Element fst = this.set.iterator().next();
-                if(fst.isTuple()) {
-                    for(Element e : fst.split()) {
-                        ret.add(new EquiClass(e));
-                    }
-                }
+        }
+
+        return ret;
+
+    }
+
+    private Collection<EquiClass> multiSplit() {
+
+        assert !isSingleton();
+
+        Set<EquiClass>ret = new LinkedHashSet<>();
+
+        for(Element e : set) {
+            ret.add(new EquiClass(e));
         }
         return ret;
+    }
+
+
+    public Collection<EquiClass> split() {
+
+        if(isSingleton())
+            return singletonSplit();
+
+        return multiSplit();
     }
 
 }

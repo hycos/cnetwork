@@ -3,11 +3,12 @@ package org.snt.cnetwork.core.mergelattice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class Element implements Comparable {
+public abstract class Element implements Comparable, Cloneable{
 
     final static Logger LOGGER = LoggerFactory.getLogger(Element.class);
 
-    protected String lbl;
+    protected String lbl = "";
+    protected String annotation = "";
 
     public Element(String lbl) {
         this.lbl = lbl;
@@ -17,7 +18,15 @@ public abstract class Element implements Comparable {
 
     public abstract boolean isTuple();
 
-    public abstract String getLabel();
+    public String getLabel() {
+        return lbl;
+    }
+
+    public String getAnnotation() { return annotation ;}
+
+    public void setAnnotation(String annotation) {
+        this.annotation = annotation;
+    }
 
 
     @Override
@@ -29,6 +38,27 @@ public abstract class Element implements Comparable {
     public String toString() {
         return getLabel();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if(!(o instanceof Element))
+            return false;
+
+        Element e = (Element)o;
+
+        return e.getLabel().equals(this.getLabel());
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        if(!(o instanceof Element))
+            return -1;
+
+        return getLabel().compareTo(((Element)o).getLabel());
+    }
+
+    @Override
+    public abstract Element clone();
 
 
 }
