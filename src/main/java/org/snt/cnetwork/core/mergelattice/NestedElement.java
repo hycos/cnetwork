@@ -3,19 +3,24 @@ package org.snt.cnetwork.core.mergelattice;
 
 import java.util.*;
 
-public class ElementTuple extends Element {
+public class NestedElement extends Element {
 
     protected Element [] tuple = null;
 
-    public ElementTuple(String label, String ... pars) {
+    public NestedElement(String label, Element ... pars) {
        super(label);
        tuple = new Element[pars.length];
 
        for(int i = 0; i < pars.length; i++) {
-           tuple[i] = new ElementSingleton(pars[i]);
+
+           assert pars[i] != null;
+           tuple[i] = pars[i];
        }
     }
 
+    public Element [] getTuples() {
+        return tuple;
+    }
 
     public boolean isTuple() {
         return true;
@@ -23,7 +28,7 @@ public class ElementTuple extends Element {
 
     @Override
     public Element clone() {
-        ElementTuple et = new ElementTuple(lbl);
+        NestedElement et = new NestedElement(lbl);
         et.tuple = Arrays.copyOf(this.tuple, this.tuple.length);
         return et;
     }
@@ -35,6 +40,13 @@ public class ElementTuple extends Element {
 
     @Override
     public Element [] split() {
+
+        LOGGER.debug("split");
+
+        for(Element e : tuple) {
+            LOGGER.debug(e.getLabel());
+        }
+        assert tuple != null;
         return Arrays.copyOf(tuple, tuple.length);
     }
 

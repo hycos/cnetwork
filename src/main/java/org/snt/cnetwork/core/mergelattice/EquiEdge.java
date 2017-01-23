@@ -14,13 +14,6 @@ public class EquiEdge extends DefaultEdge implements
     private Kind kind;
     private int sequence = -1;
 
-    public EquiEdge() {
-        kind = Kind.EQUI;
-    }
-
-    public EquiEdge(EquiClass src, EquiClass dst) {
-        this(src,dst,Kind.EQUI, -1);
-    }
 
     public EquiEdge(EquiClass src, EquiClass dst, Kind kind,
                     int sequence) {
@@ -35,7 +28,7 @@ public class EquiEdge extends DefaultEdge implements
 
     public enum Kind {
         EQUI(0,"equi"),
-        PAR(1,"par"),
+        SPLIT(1,"split"),
         SUB(2, "sub");
 
         private final String value;
@@ -49,7 +42,7 @@ public class EquiEdge extends DefaultEdge implements
 
             switch (kind) {
                 case "par":
-                    return PAR;
+                    return SPLIT;
                 case "equi":
                     return EQUI;
                 case "sub":
@@ -86,7 +79,24 @@ public class EquiEdge extends DefaultEdge implements
     }
 
     @Override
+    public boolean equals(Object o) {
+        if(!(o instanceof EquiEdge))
+            return false;
+
+        EquiEdge ee = (EquiEdge)o;
+
+        return src.equals(ee.src) && dst.equals(ee.dst) && sequence == ee
+                .sequence;
+    }
+
+    @Override
     public String toString() {
-        return src.toString() + "->" + dst.toString();
+        return src.toString() + "-(" + sequence + ")->" + dst
+                .toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
     }
 }

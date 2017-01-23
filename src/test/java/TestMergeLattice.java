@@ -33,22 +33,27 @@ public class TestMergeLattice {
 
     //@Test
     public void testOperation() {
-        MergeLattice<Node> mt = new MergeLattice<>(new NodeElemFact());
 
         ConstraintNetwork cn = new ConstraintNetwork();
+        MergeLattice<Node> mt = new MergeLattice<>(new NodeElemFact(cn));
+
 
         Operand a = cn.addOperand(NodeKind.STRLIT, "a");
         Operand b = cn.addOperand(NodeKind.STRVAR, "b");
         Operand e = cn.addOperand(NodeKind.STRVAR, "e");
+        Operand k = cn.addOperand(NodeKind.STRVAR, "k");
 
         Operation concat1 = cn.addOperation(NodeKind.CONCAT, a, b);
-        Operation concat2 = cn.addOperation(NodeKind.CONCAT, b, e);
+        Operation concat2 = cn.addOperation(NodeKind.CONCAT, a, e);
+        Operation concat3 = cn.addOperation(NodeKind.CONCAT, concat1, concat2);
+        Operation concat4 = cn.addOperation(NodeKind.CONCAT, k, k);
 
-
-        mt.addEquiClass(new Node []{concat1,a,b});
-        mt.addEquiClass(new Node []{a,e});
-
-        //mt.addEquiClass(new NodeTuple(b), new NodeTuple(c));
+        mt.addEquiClass(concat3);
+        mt.addEquiClass(b,k);
+        //mt.addEquiClass(concat4,k);
+        //mt.addEquiClass(k,a);
+        //mt.addEquiClass(e,k);
+        //mt.addEquiClass(new Node []{k});
         //mt.addEquiClass(new NodeBag(a), new NodeBag(e));
         //mt.addEquiClass(new NodeBag(e), new NodeBag(g));
         //mt.addEquiClass(new NodeBag(d));

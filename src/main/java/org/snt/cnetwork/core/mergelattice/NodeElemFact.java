@@ -2,26 +2,112 @@ package org.snt.cnetwork.core.mergelattice;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.ConstraintNetwork;
 import org.snt.cnetwork.core.Node;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 public class NodeElemFact implements EquiClassFact<Node> {
 
     final static Logger LOGGER = LoggerFactory.getLogger(NodeElemFact.class);
 
-    @Override
-    public EquiClass create(Node []... pars) {
-        LOGGER.debug("he");
 
-        EquiClass eq = new EquiClass();
-        for(int i = 0; i < pars.length; i++) {
-            eq.addAll(create(pars[i]));
+    private ConstraintNetwork cn;
 
+    public NodeElemFact(ConstraintNetwork cn) {
+        this.cn = cn;
+    }
+
+    private void handleNode(Node n, Map<Node,EquiClass> es) {
+
+        if (n.isOperand()) {
+            es.put(n,new EquiClass(new SingletonElement(n.getLabel())));
+        } else {
+            assert n.isOperation();
+            createNestedElement(n, es);
         }
-        return eq;
+    }
+
+
+    private void createNestedElement(Node n, Map<Node,EquiClass> es) {
+        LOGGER.debug("create nested element {} params {}",n, cn
+                .getParametersFor(n).size());
+        assert n.isOperation();
+
+        List<Element> elems = new Vector<>();
+        for (Node p : cn.getParametersFor(n)) {
+            handleNode(p,es);
+            Set<Element> ess = es.get(p).getElements();
+            assert ess.size() == 1;
+            Element e = ess.iterator().next();
+            assert e != null;
+            elems.add(e);
+        }
+
+        LOGGER.debug("elements");
+        NestedElement nested = new NestedElement(n.getLabel(),elems.toArray
+                (new Element[elems.size()]));
+        nested.setAnnotation(n.getKind().toString());
+
+        es.put(n,new EquiClass(nested));
+    }
+
+
+    @Override
+    public Collection<EquiClass> createEquiClasses(Node... nods) {
+
+        Map<Node,EquiClass> s = new HashMap<>();
+
+        Set<EquiClass> ret = new HashSet<>();
+
+        List<Element> ele = new Vector<Element>();
+
+        for(int k = 0; k < nods.length; k++) {
+
+            Node nod = nods[k];
+
+            handleNode(nod,s);
+
+            assert s.containsKey(nod);
+
+            Collection<Element> cele = s.get(nod).getElements();
+            assert cele.size() == 1;
+
+            Element nodele = cele.iterator().next();
+
+            LOGGER.debug("nele {}", nodele);
+
+            ele.add(nodele);
+        }
+
+        EquiClass top = new EquiClass(ele);
+        LOGGER.debug("additional equi class {}", top);
+
+        ret.add(top);
+        ret.addAll(s.values());
+
+
+        return ret;
+    }
+
+    @Override
+    public String computeLabel(Element... s) {
+
+        StringBuffer sb = new StringBuffer();
+
+        if(s.length == 1) {
+            sb.append(s[0].getLabel());
+        } else {
+            sb.append(s[0].getAnnotation());
+            sb.append("(");
+            for(int i = 1; i < s.length; i ++) {
+                sb.append(s[i].getLabel());
+                if(i < s.length-1)
+                    sb.append(",");
+            }
+            sb.append(")");
+        }
+        return sb.toString();
     }
 
     @Override
@@ -44,49 +130,6 @@ public class NodeElemFact implements EquiClassFact<Node> {
         return sb.toString();
     }
 
-
-    private Set<Element> create(Node [] nods) {
-
-        assert nods.length > 0;
-
-        Node p0 = nods[0];
-
-        Set<Element> eset = new LinkedHashSet<>();
-
-        if(p0.isOperand()) {
-            String [] spars = new String [nods.length];
-            for(int i = 0; i < nods.length; i ++ ) {
-                spars[i] = nods[i].getLabel();
-                eset.add(new ElementSingleton(nods[i].getLabel()));
-            }
-        } else {
-            assert p0.isOperation();
-
-            LOGGER.debug("N {}", nods.length);
-
-            String [] pp = new String [nods.length];
-
-            for(int i = 0; i < nods.length; i ++ ) {
-                LOGGER.debug("I {}", i);
-                if(i == 0) {
-                    pp[i] = nods[i].getKind().toString();
-                } else {
-                    pp[i] = nods[i].getLabel();
-                }
-            }
-
-            String lbl = computeLabel(pp);
-
-            LOGGER.debug("lbl {}", lbl);
-
-            ElementTuple et = new ElementTuple(lbl, Arrays.copyOfRange(pp,1,
-                    pp.length));
-            et.setAnnotation(p0.getKind().toString());
-            eset.add(et);
-        }
-
-        return eset;
-    }
 
 
 }

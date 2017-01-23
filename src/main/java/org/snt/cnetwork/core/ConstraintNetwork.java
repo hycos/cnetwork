@@ -207,7 +207,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
             assert (par != null);
             //LOGGER.info("Par " + par.getKind());
             //LOGGER.info("Par" + par.getId());
-            //LOGGER.info("+PAR " + par.getLabel());
+            //LOGGER.info("+SPLIT " + par.getLabel());
             String plbl = par.getLabel();
             if (par instanceof Operand && par.isLiteral() && par.isString()) {
                 plbl = par.getLabel();

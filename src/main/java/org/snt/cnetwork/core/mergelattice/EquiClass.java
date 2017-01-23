@@ -37,6 +37,11 @@ public class EquiClass {
         public int getCardinality() {
             return 1;
         }
+
+        @Override
+        public boolean isAtomic() {
+            return true;
+        }
     }
 
     public static class Bottom extends EquiClass {
@@ -62,6 +67,10 @@ public class EquiClass {
         @Override
         public int getCardinality() {
             return 1;
+        }
+
+        public boolean isAtomic() {
+            return true;
         }
     }
 
@@ -140,6 +149,11 @@ public class EquiClass {
         return this.set.isEmpty();
     }
 
+    public boolean isNested() {
+        return this.set.size() == 1 && set.iterator().next() instanceof
+                NestedElement;
+    }
+
     @Override
     public int hashCode() {
         return getDotLabel().hashCode();
@@ -170,6 +184,12 @@ public class EquiClass {
         return new EquiClass(isect);
     }
 
+    public EquiClass union(EquiClass other) {
+        Set<Element> union = new HashSet<>(set);
+        union.addAll(other.set);
+        return new EquiClass(union);
+    }
+
 
     public boolean subsumes(EquiClass other) {
         return intersection(other).equals(other);
@@ -192,10 +212,10 @@ public class EquiClass {
 
         assert isSingleton();
 
-        Set<EquiClass>ret = new LinkedHashSet<>();
+        List<EquiClass>ret = new Vector<>();
 
         for(Element e : set) {
-            LOGGER.debug("split {}", e);
+            LOGGER.debug("split {} {}", e, e.getClass().toGenericString());
             for(Element split : e.split()) {
                 assert split != null;
                 ret.add(new EquiClass(split));
@@ -210,7 +230,7 @@ public class EquiClass {
 
         assert !isSingleton();
 
-        Set<EquiClass>ret = new LinkedHashSet<>();
+        List<EquiClass>ret = new Vector<>();
 
         for(Element e : set) {
             ret.add(new EquiClass(e));

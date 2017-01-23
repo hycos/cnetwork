@@ -1,9 +1,9 @@
 package org.snt.cnetwork.core.mergelattice;
 
 
-public class ElementSingleton extends Element {
+public class SingletonElement extends Element {
 
-    public ElementSingleton(String label) {
+    public SingletonElement(String label) {
         super(label);
     }
 
@@ -21,7 +21,7 @@ public class ElementSingleton extends Element {
 
     @Override
     public Element clone() {
-        return new ElementSingleton(lbl);
+        return new SingletonElement(lbl);
     }
 
     public boolean isTuple() {
