@@ -33,6 +33,11 @@ public class NestedElement extends Element {
         return et;
     }
 
+    @Override
+    public boolean isNested() {
+        return true;
+    }
+
     public boolean isSingleton() {
         return false;
     }

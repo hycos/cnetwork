@@ -24,7 +24,14 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     private String variablePfx = "_v";
     private int vidx = 0;
 
+    private boolean EUFEnable = false;
+
     public ConstraintNetwork() {
+        this(true);
+    }
+
+    public ConstraintNetwork(boolean EUFEnable) {
+        this.EUFEnable = EUFEnable;
     }
 
     public ConstraintNetwork(ConstraintNetwork other) {

@@ -60,5 +60,7 @@ public abstract class Element implements Comparable, Cloneable{
     @Override
     public abstract Element clone();
 
+    public abstract boolean isNested();
+
 
 }

@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.utils.EscapeUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class EquiClass {
 
@@ -245,6 +246,62 @@ public class EquiClass {
             return singletonSplit();
 
         return multiSplit();
+    }
+
+    /**
+     * Infer additional facts from the given ones
+     * @return
+     */
+    public Set<EquiClass> infer() {
+
+        LOGGER.debug("Infer additional facts for {} with set size {}", this,
+                set.size());
+
+        Set<EquiClass> ret = new HashSet<>();
+
+        Map<String,List<Element>> m = new HashMap<>();
+
+
+        for(Element e : set) {
+            if(e.getAnnotation() != null) {
+                String anno = e.getAnnotation();
+                if(!m.containsKey(anno)) {
+                    m.put(e.getAnnotation(), new Vector<>());
+                }
+                m.get(e.getAnnotation()).add(e);
+            }
+        }
+
+        Set<List<Element>> tolink = m.values().stream().filter(v -> v.size()
+                > 1)
+                .collect(Collectors.toSet());
+
+        if(tolink.isEmpty())
+            return ret;
+
+        List<Element> feset = tolink.iterator().next();
+
+        int rows = feset.size();
+        int cols = feset.iterator().next().split().length;
+
+        LOGGER.debug("rows {}, cols {}", rows, cols);
+
+        Element [][] elink = new Element[rows][rows];
+
+        for(int row = 0; row < rows; row++){
+            elink[row] = feset.get(row).split();
+        }
+
+        for(int col = 0; col < cols; col++){
+            EquiClass ec = new EquiClass();
+            for(int row = 0; row < rows; row++) {
+                ec.add(elink[row][col]);
+            }
+            ret.add(ec);
+            LOGGER.debug("new fact {}", ec);
+        }
+
+        return ret;
     }
 
 }

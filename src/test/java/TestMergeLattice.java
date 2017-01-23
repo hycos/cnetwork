@@ -48,8 +48,8 @@ public class TestMergeLattice {
         Operation concat3 = cn.addOperation(NodeKind.CONCAT, concat1, concat2);
         Operation concat4 = cn.addOperation(NodeKind.CONCAT, k, k);
 
-        mt.addEquiClass(concat3);
-        mt.addEquiClass(b,k);
+        mt.addEquiClass(concat1,concat4);
+        //mt.addEquiClass(b,k);
         //mt.addEquiClass(concat4,k);
         //mt.addEquiClass(k,a);
         //mt.addEquiClass(e,k);

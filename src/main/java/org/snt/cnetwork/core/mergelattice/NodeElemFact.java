@@ -6,6 +6,7 @@ import org.snt.cnetwork.core.ConstraintNetwork;
 import org.snt.cnetwork.core.Node;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class NodeElemFact implements EquiClassFact<Node> {
 
@@ -84,8 +85,14 @@ public class NodeElemFact implements EquiClassFact<Node> {
         LOGGER.debug("additional equi class {}", top);
 
         ret.add(top);
+        ret.addAll(top.infer());
         ret.addAll(s.values());
 
+        // infer additional facts
+        Set<EquiClass> addfacts = s.values().stream().map(v -> v.infer())
+                .flatMap(x-> x.stream()).collect(Collectors.toSet());
+
+        ret.addAll(addfacts);
 
         return ret;
     }

@@ -24,6 +24,11 @@ public class SingletonElement extends Element {
         return new SingletonElement(lbl);
     }
 
+    @Override
+    public boolean isNested() {
+        return false;
+    }
+
     public boolean isTuple() {
         return false;
     }

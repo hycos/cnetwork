@@ -275,7 +275,8 @@ public class MergeLattice<T> extends
             return vertexSet().stream()
                     .filter(v ->
                             incomingEdgesOfKind(v, EquiEdge.Kind.SUB).size() > 1
-                                    && !hasIncomingEdgesOfKind(v, EquiEdge.Kind.SPLIT)
+                                    //&& !hasIncomingEdgesOfKind(v, EquiEdge
+                                    //.Kind.SPLIT)
                                     && !v.equals(bottom)
                     ).findFirst()
                     .get();
