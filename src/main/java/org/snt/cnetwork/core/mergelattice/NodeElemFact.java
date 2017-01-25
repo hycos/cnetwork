@@ -14,15 +14,24 @@ public class NodeElemFact implements EquiClassFact<Node> {
 
 
     private ConstraintNetwork cn;
+    private Map<Integer, EquiClass> escache = new HashMap<>();
+
 
     public NodeElemFact(ConstraintNetwork cn) {
         this.cn = cn;
     }
 
-    private void handleNode(Node n, Map<Node,EquiClass> es) {
+    private void handleNode(Node n, Set<EquiClass> es) {
+
+        if(escache.containsKey(n.getId())) {
+            es.add(escache.get(n.getId()));
+            return;
+        }
 
         if (n.isOperand()) {
-            es.put(n,new EquiClass(new SingletonElement(n.getLabel())));
+            EquiClass eq = new EquiClass(new SingletonElement(n.getLabel()));
+            escache.put(n.getId(), eq);
+            es.add(eq);
         } else {
             assert n.isOperation();
             createNestedElement(n, es);
@@ -30,7 +39,7 @@ public class NodeElemFact implements EquiClassFact<Node> {
     }
 
 
-    private void createNestedElement(Node n, Map<Node,EquiClass> es) {
+    private void createNestedElement(Node n, Set<EquiClass> es) {
         LOGGER.debug("create nested element {} params {}",n, cn
                 .getParametersFor(n).size());
         assert n.isOperation();
@@ -38,7 +47,7 @@ public class NodeElemFact implements EquiClassFact<Node> {
         List<Element> elems = new Vector<>();
         for (Node p : cn.getParametersFor(n)) {
             handleNode(p,es);
-            Set<Element> ess = es.get(p).getElements();
+            Set<Element> ess = escache.get(p.getId()).getElements();
             assert ess.size() == 1;
             Element e = ess.iterator().next();
             assert e != null;
@@ -46,22 +55,25 @@ public class NodeElemFact implements EquiClassFact<Node> {
         }
 
         LOGGER.debug("elements");
-        NestedElement nested = new NestedElement(n.getLabel(),elems.toArray
-                (new Element[elems.size()]));
+        NestedElement nested = new NestedElement(n.getLabel(),
+                elems.toArray(new Element[elems.size()]));
         nested.setAnnotation(n.getKind().toString());
 
-        es.put(n,new EquiClass(nested));
+        EquiClass eq = new EquiClass(nested);
+
+        escache.put(n.getId(), eq);
+        es.add(eq);
     }
 
 
     @Override
     public Collection<EquiClass> createEquiClasses(Node... nods) {
 
-        Map<Node,EquiClass> s = new HashMap<>();
+        Set<EquiClass> s = new HashSet<>();
 
         Set<EquiClass> ret = new HashSet<>();
 
-        List<Element> ele = new Vector<Element>();
+        List<Element> ele = new Vector<>();
 
         for(int k = 0; k < nods.length; k++) {
 
@@ -69,9 +81,9 @@ public class NodeElemFact implements EquiClassFact<Node> {
 
             handleNode(nod,s);
 
-            assert s.containsKey(nod);
+            assert escache.containsKey(nod.getId());
 
-            Collection<Element> cele = s.get(nod).getElements();
+            Collection<Element> cele = escache.get(nod.getId()).getElements();
             assert cele.size() == 1;
 
             Element nodele = cele.iterator().next();
@@ -86,10 +98,10 @@ public class NodeElemFact implements EquiClassFact<Node> {
 
         ret.add(top);
         ret.addAll(top.infer());
-        ret.addAll(s.values());
+        ret.addAll(s);
 
         // infer additional facts
-        Set<EquiClass> addfacts = s.values().stream().map(v -> v.infer())
+        Set<EquiClass> addfacts = s.stream().map(v -> v.infer())
                 .flatMap(x-> x.stream()).collect(Collectors.toSet());
 
         ret.addAll(addfacts);
