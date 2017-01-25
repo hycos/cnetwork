@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 
 public class MergeLattice<T> extends
-        DirectedMultigraph<EquiClass, EquiEdge> {
+        DirectedMultigraph<EquiClass, EquiEdge> implements Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(MergeLattice.class);
 
@@ -32,6 +32,13 @@ public class MergeLattice<T> extends
         this.elementFact = elementFact;
     }
 
+
+    public MergeLattice(MergeLattice other) {
+        super(new EdgeFact());
+
+
+
+    }
 
     private EquiClass findParent(EquiClass e) {
 
@@ -249,6 +256,7 @@ public class MergeLattice<T> extends
 
         LOGGER.debug("JOIN of {} and {} is {}", parent, child, joinpt);
 
+        // there is not join point (child is not a subset of parent)
         if (joinpt.equals(top))
             return getSingleSuperclass(child);
 
@@ -261,8 +269,9 @@ public class MergeLattice<T> extends
                                 ());
         LOGGER.debug("EQQ {}", eq.toString());
 
+        // every upwards connection goes through joinpt
         if (eq.isEmpty())
-            return getSingleSuperclass(child);
+            return top;
 
         LOGGER.debug("eq {}", eq.toString());
         assert eq.size() == 1;
@@ -411,10 +420,6 @@ public class MergeLattice<T> extends
         LOGGER.debug("Equiclasses to add ==================");
     }
 
-    private Set<EquiClass> getParamsFor(EquiClass foo) {
-        return outgoingEdgesOfKind(foo, EquiEdge.Kind.SPLIT).stream().map
-                (EquiEdge::getTarget).collect(Collectors.toSet());
-    }
 
     private EquiClass handleTuple(EquiClass foo) {
 
@@ -491,7 +496,9 @@ public class MergeLattice<T> extends
     private void merge() {
         LOGGER.debug("MERGE");
         mergeSub();
-        LOGGER.debug(this.toDot());
+
+        LOGGER.debug(toDot());
+
         mergeTuples();
     }
 
