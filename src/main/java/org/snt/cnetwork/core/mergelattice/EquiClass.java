@@ -7,13 +7,13 @@ import org.snt.cnetwork.utils.EscapeUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class EquiClass {
+public class EquiClass implements Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(EquiClass.class);
 
-    protected Set<Element> set = new TreeSet<>();
+    protected final Set<Element> set = new TreeSet<>();
 
-    public static class Top extends EquiClass {
+    public static final class Top extends EquiClass {
         @Override
         public String toString() {
             return "\u22A4";
@@ -43,9 +43,14 @@ public class EquiClass {
         public boolean isAtomic() {
             return true;
         }
+
+        @Override
+        public EquiClass clone() {
+            return new Top();
+        }
     }
 
-    public static class Bottom extends EquiClass {
+    public static final class Bottom extends EquiClass {
         @Override
         public String toString() {
             return "\u22A5";
@@ -73,10 +78,15 @@ public class EquiClass {
         public boolean isAtomic() {
             return true;
         }
+
+        @Override
+        public EquiClass clone() {
+            return new Bottom();
+        }
     }
 
     private static int nid = 0;
-    private int id = 0;
+    private final int id;
 
     public EquiClass() {
         this.id = nid++;
@@ -93,19 +103,16 @@ public class EquiClass {
         set.add(nod);
     }
 
-    public EquiClass(Element [] nods) {
-        this(Arrays.asList(nods));
-    }
-
     public EquiClass(Collection<Element> nods) {
         this();
         set.addAll(nods);
     }
 
-    public void add(Element ele) {
+    private void add(Element ele) {
         set.add(ele);
     }
-    public void addAll(Collection<Element> ele) {
+
+    private void addAll(Collection<Element> ele) {
         set.addAll(ele);
     }
 
@@ -248,8 +255,12 @@ public class EquiClass {
         return multiSplit();
     }
 
+    public EquiClass clone() {
+        return new EquiClass(this);
+    }
+
     /**
-     * Infer additional facts from the given ones
+     * Infer additional facts from the ones present in this set
      * @return
      */
     public Set<EquiClass> infer() {

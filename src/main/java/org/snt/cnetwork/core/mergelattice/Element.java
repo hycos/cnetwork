@@ -7,11 +7,15 @@ public abstract class Element implements Comparable, Cloneable{
 
     final static Logger LOGGER = LoggerFactory.getLogger(Element.class);
 
-    protected String lbl = "";
+    final protected String lbl;
     protected String annotation = "";
 
     public Element(String lbl) {
         this.lbl = lbl;
+    }
+
+    public Element(Element e) {
+        this(e.lbl);
     }
 
     public abstract Element [] split();

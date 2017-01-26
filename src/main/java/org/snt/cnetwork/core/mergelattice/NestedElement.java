@@ -3,18 +3,27 @@ package org.snt.cnetwork.core.mergelattice;
 
 import java.util.*;
 
-public class NestedElement extends Element {
+public final class NestedElement extends Element {
 
-    protected Element [] tuple = null;
+    protected final Element [] tuple;
+
+    /**
+     * flat copy of a nested element. Deep copy
+     * would be too expensive because of the recursive
+     * nature of this data structure
+     * @param ne
+     */
+    public NestedElement(NestedElement ne) {
+        this(ne.lbl, Arrays.copyOf(ne.tuple, ne.tuple.length));
+    }
 
     public NestedElement(String label, Element ... pars) {
        super(label);
        tuple = new Element[pars.length];
 
        for(int i = 0; i < pars.length; i++) {
-
            assert pars[i] != null;
-           tuple[i] = pars[i];
+           tuple[i] = pars[i].clone();
        }
     }
 
@@ -28,9 +37,7 @@ public class NestedElement extends Element {
 
     @Override
     public Element clone() {
-        NestedElement et = new NestedElement(lbl);
-        et.tuple = Arrays.copyOf(this.tuple, this.tuple.length);
-        return et;
+        return new NestedElement(this);
     }
 
     @Override

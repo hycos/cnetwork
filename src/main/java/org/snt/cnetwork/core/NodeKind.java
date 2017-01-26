@@ -250,6 +250,16 @@ public enum NodeKind {
                 STARTSWITH || this == ENDSWITH || this == ITE;
     }
 
+    public boolean isEquality() {
+        return this == EQUALS || this == STR_EQUALS || this == NUM_EQUALS ||
+                this == BOOL_EQUALS;
+    }
+
+    public boolean isInequality() {
+        return this == NEQUALS || this == STR_NEQUALS || this == NUM_NEQUALS ||
+                this == BOOL_NEQUALS;
+    }
+
     public boolean isOperation() {
         return isComparative() || isSanitizer() || this == SUBSTR || this == INDEXOF || this == TOLOWER || this
                 == TOUPPER || this == CONCAT || this == TRIM|| this == LEN ||

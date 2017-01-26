@@ -4,18 +4,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.ConstraintNetwork;
 import org.snt.cnetwork.core.Node;
+import org.snt.cnetwork.exception.MissingItemException;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class NodeElemFact implements EquiClassFact<Node> {
+public final class NodeElemFact implements EquiClassFact<Node> {
 
     final static Logger LOGGER = LoggerFactory.getLogger(NodeElemFact.class);
-
 
     private ConstraintNetwork cn;
     private Map<Integer, EquiClass> escache = new HashMap<>();
 
+    public NodeElemFact(ConstraintNetwork cn, NodeElemFact ne) {
+        this(cn);
+        // clone cache
+        for(Map.Entry<Integer, EquiClass> e : ne.escache.entrySet()) {
+            escache.put(e.getKey(), e.getValue());
+        }
+    }
 
     public NodeElemFact(ConstraintNetwork cn) {
         this.cn = cn;
@@ -130,6 +137,35 @@ public class NodeElemFact implements EquiClassFact<Node> {
     }
 
     @Override
+    public EquiClass[] getEquiClassesFor(Node ... ns) throws MissingItemException {
+
+        EquiClass [] ec = new EquiClass[ns.length];
+        for(int k = 0; k < ns.length; k++ ) {
+
+            Node n = ns[k];
+
+            if(!escache.containsKey(n.getId()))
+                throw new MissingItemException("Node " + n.getLabel() + " is " +
+                        "not present");
+
+            assert escache.containsKey(n.getId());
+
+            ec[k] = escache.get(n.getId());
+        }
+
+        return ec;
+    }
+
+    /**@Override
+    public boolean areEquivalent(Node a, Node b) {
+
+        assert escache.containsKey(a.getId());
+        assert escache.containsKey(b.getId());
+
+        return true;
+    }**/
+
+
     public String computeLabel(String... s) {
 
         StringBuffer sb = new StringBuffer();

@@ -27,7 +27,7 @@ public class EquiEdge extends DefaultEdge implements
     }
 
     public enum Kind {
-        EQUI(0,"equi"),
+        NEQUI(0,"equi"),
         SPLIT(1,"split"),
         SUB(2, "sub");
 
@@ -43,8 +43,8 @@ public class EquiEdge extends DefaultEdge implements
             switch (kind) {
                 case "par":
                     return SPLIT;
-                case "equi":
-                    return EQUI;
+                case "nequi":
+                    return NEQUI;
                 case "sub":
                     return SUB;
             }

@@ -27,6 +27,6 @@ public class EdgeFact implements EdgeFactory<EquiClass,EquiEdge> {
     @Override
     public EquiEdge createEdge(EquiClass sourceVertex,
                                              EquiClass targetVertex) {
-        return new EquiEdge(sourceVertex, targetVertex, EquiEdge.Kind.EQUI,-1);
+        return new EquiEdge(sourceVertex, targetVertex, EquiEdge.Kind.SUB,-1);
     }
 }

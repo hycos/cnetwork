@@ -7,21 +7,20 @@ public class SingletonElement extends Element {
         super(label);
     }
 
+    public SingletonElement(SingletonElement se) {
+        this(se.lbl);
+    }
+
     @Override
     public Element[] split() {
         Element [] e = new Element[1];
-        e[0] = this;
+        e[0] = new SingletonElement(this);
         return e;
     }
 
     @Override
-    public String getLabel() {
-        return lbl;
-    }
-
-    @Override
     public Element clone() {
-        return new SingletonElement(lbl);
+        return new SingletonElement(this);
     }
 
     @Override
