@@ -35,13 +35,17 @@ public class ConstraintNetworkBuilder {
 
     public Operation addConstraint(NodeKind kind, Node... params) throws
             EUFInconsistencyException {
+
         List<Node> lst = Arrays.asList(params);
         Operation n = cn.addConstraint(kind, lst);
+
         if (kind.isEquality() && eufEnabled) {
             euf.addEquiClass(params);
         } else if (kind.isInequality() && eufEnabled) {
-
+            assert params.length == 2;
+            euf.addInequialityConstraint(params[0], params[1]);
         }
+
         return n;
     }
 

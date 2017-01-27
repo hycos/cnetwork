@@ -10,7 +10,6 @@ package org.snt.cnetwork.core;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.EdgeFactory;
 import org.jgrapht.graph.DirectedPseudograph;
-import org.jgrapht.graph.EdgeSetFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -176,9 +175,6 @@ public class AbstractGraph implements DirectedGraph<Node, Edge>, Cloneable {
         return delegate.removeVertex(arg0);
     }
 
-    public void setEdgeSetFactory(EdgeSetFactory<Node, Edge> arg0) {
-        delegate.setEdgeSetFactory(arg0);
-    }
 
     public void setEdgeWeight(Edge arg0, double arg1) {
         delegate.setEdgeWeight(arg0, arg1);

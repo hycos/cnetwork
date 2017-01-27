@@ -1,3 +1,4 @@
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ public class TestConstraintNetworkBuilder {
         String sor = ".*' +[Oo][Rr] +'";
         Node or = new Operand(sor, NodeKind.STRREXP);
         Node v1 = new Operand("sv7", NodeKind.NUMVAR);
+        Node v3 = new Operand("xz9", NodeKind.NUMVAR);
         Node toStrV1 = cb.addOperation(NodeKind.TOSTR, v1);
         Node orv1 = cb.addOperation(NodeKind.CONCAT, or, toStrV1);
         Node eq = new Operand(" +\\>= +", NodeKind.STRREXP);
@@ -27,14 +29,30 @@ public class TestConstraintNetworkBuilder {
         String scomment = "(\\<!\\-\\-|#)";
         Node comment = new Operand(scomment, NodeKind.STRREXP);
 
+
+        boolean thrown = false;
         try {
             cb.addOperation(NodeKind.CONCAT, orv1compv2, comment);
             cb.addConstraint(NodeKind.NUM_EQUALS, v1, v2);
             cb.addConstraint(NodeKind.MATCHES, x, orv1compv2);
+            cb.addConstraint(NodeKind.GREATER, v1, v3);
         } catch (EUFInconsistencyException e) {
-            LOGGER.error(e.getMessage());
+            thrown = true;
         }
-        LOGGER.debug(cb.getConstraintNetwork().toDot());
+
+        Assert.assertFalse(thrown);
+
+
+        try {
+            cb.addConstraint(NodeKind.EQUALS, v3, v2);
+        } catch (EUFInconsistencyException e) {
+            LOGGER.debug("error {}", e.getMessage());
+            thrown = true;
+        }
+
+        Assert.assertTrue(thrown);
+
+        //LOGGER.debug(cb.getConstraintNetwork().toDot());
         LOGGER.debug(cb.getEufLattice().toDot());
 
     }

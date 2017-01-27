@@ -257,7 +257,8 @@ public enum NodeKind {
 
     public boolean isInequality() {
         return this == NEQUALS || this == STR_NEQUALS || this == NUM_NEQUALS ||
-                this == BOOL_NEQUALS;
+                this == BOOL_NEQUALS || this == GREATER || this == SMALLER ||
+                this == STR_NEQUALSIC;
     }
 
     public boolean isOperation() {

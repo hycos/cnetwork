@@ -491,11 +491,6 @@ public class MergeLattice<T> extends
         return ret;
     }
 
-    /**
-     *
-     * @param e
-     * @return
-     */
     private Set<EquiClass> getSuccesssorsOf(EquiClass e) {
         Set<EquiClass> ret = new LinkedHashSet<>();
         LinkedList<EquiClass> q = new LinkedList<>();
