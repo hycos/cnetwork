@@ -11,7 +11,7 @@ public class EquiClass implements Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(EquiClass.class);
 
-    protected final Set<Element> set = new TreeSet<>();
+
 
     public static final class Top extends EquiClass {
         @Override
@@ -87,25 +87,21 @@ public class EquiClass implements Cloneable {
 
     private static int nid = 0;
     private final int id;
+    protected final Set<Element> set = new TreeSet<>();
 
-    public EquiClass() {
+    public EquiClass(Element ... nods) {
         this.id = nid++;
+        set.addAll(Arrays.asList(nods));
     }
+
 
     public EquiClass(EquiClass other) {
         this(other.getElements());
     }
 
-    public EquiClass(Element nod) {
-        this();
-        assert nod != null;
-        assert set != null;
-        set.add(nod);
-    }
 
     public EquiClass(Collection<Element> nods) {
-        this();
-        set.addAll(nods);
+        this(nods.toArray(new Element [nods.size()]));
     }
 
     private void add(Element ele) {
@@ -189,7 +185,10 @@ public class EquiClass implements Cloneable {
     public EquiClass intersection(EquiClass other) {
         Set<Element> isect = new HashSet<>(set);
         isect.retainAll(other.set);
-        return new EquiClass(isect);
+
+        EquiClass eisect = new EquiClass(isect);
+        LOGGER.debug("isect {} {} {}", this, other, eisect);
+        return eisect;
     }
 
     public EquiClass union(EquiClass other) {

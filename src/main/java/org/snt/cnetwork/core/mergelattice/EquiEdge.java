@@ -27,9 +27,9 @@ public class EquiEdge extends DefaultEdge implements
     }
 
     public enum Kind {
-        NEQUI(0,"equi"),
-        SPLIT(1,"split"),
-        SUB(2, "sub");
+        SPLIT(0,"split"),
+        SUB(1, "sub"),
+        INEQ(2, "ineq");
 
         private final String value;
         private int ival;
@@ -43,10 +43,10 @@ public class EquiEdge extends DefaultEdge implements
             switch (kind) {
                 case "par":
                     return SPLIT;
-                case "nequi":
-                    return NEQUI;
                 case "sub":
                     return SUB;
+                case "ineq":
+                    return INEQ;
             }
             // should never ever happen
             assert (false);

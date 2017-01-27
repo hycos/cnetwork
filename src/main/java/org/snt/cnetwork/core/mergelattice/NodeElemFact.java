@@ -117,6 +117,11 @@ public final class NodeElemFact implements EquiClassFact<Node> {
     }
 
     @Override
+    public Collection<EquiClass> createEquiClass(Node p) {
+       return createEquiClasses(p);
+    }
+
+    @Override
     public String computeLabel(Element... s) {
 
         StringBuffer sb = new StringBuffer();
@@ -139,21 +144,34 @@ public final class NodeElemFact implements EquiClassFact<Node> {
     @Override
     public EquiClass[] getEquiClassesFor(Node ... ns) throws MissingItemException {
 
+
+        LOGGER.debug("create equi classes");
+
         EquiClass [] ec = new EquiClass[ns.length];
+
         for(int k = 0; k < ns.length; k++ ) {
-
             Node n = ns[k];
-
-            if(!escache.containsKey(n.getId()))
-                throw new MissingItemException("Node " + n.getLabel() + " is " +
-                        "not present");
-
-            assert escache.containsKey(n.getId());
-
-            ec[k] = escache.get(n.getId());
+            ec[k] = getEquiClassFor(n);
         }
 
         return ec;
+    }
+
+    @Override
+    public EquiClass getEquiClassFor(Node n) throws MissingItemException {
+
+        if(!escache.containsKey(n.getId()))
+            throw new MissingItemException("Node " + n.getLabel() + " is " +
+                    "not present");
+
+        assert escache.containsKey(n.getId());
+
+        return escache.get(n.getId());
+    }
+
+    @Override
+    public boolean hasEquiClassFor(Node n) {
+        return this.escache.containsKey(n);
     }
 
     /**@Override

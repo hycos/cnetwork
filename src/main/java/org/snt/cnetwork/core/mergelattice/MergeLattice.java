@@ -5,6 +5,7 @@ import org.apache.commons.collections.map.HashedMap;
 import org.jgrapht.graph.DirectedMultigraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.exception.MissingItemException;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -36,27 +37,119 @@ public class MergeLattice<T> extends
 
     public MergeLattice(MergeLattice other) {
         super(new EdgeFact());
-
-
-
     }
 
-    /** API calls **/
-    public EquiClass addEquiClass(T... toadd) {
+    /** API **/
+    public void addInequialityConstraint(T ... e) throws EUFInconsistencyException {
+
+        LOGGER.debug("add inequality constraint");
+
+        Set<EquiClass> pr = getPredecessorsOf(bottom);
+
+        LOGGER.debug("PR {}", pr);
+
+        assert e.length == 2;
+
+
+        if(!elementFact.hasEquiClassFor(e[0])) {
+            LOGGER.debug("ADD 0");
+            addEquiClass(e[0]);
+        }
+
+        if(!elementFact.hasEquiClassFor(e[1])) {
+            LOGGER.debug("ADD 0");
+            addEquiClass(e[1]);
+        }
+        EquiClass [] ec = new EquiClass[2];
+
+        try {
+            ec[0] = elementFact.getEquiClassFor(e[0]);
+            ec[1] = elementFact.getEquiClassFor(e[1]);
+        } catch (MissingItemException e1) {
+            assert false;
+        }
+
+        assert ec.length == 2;
+
+        EquiClass fst = findParent(ec[0]);
+        EquiClass snd = findParent(ec[1]);
+
+        if(fst.equals(snd))
+            throw new EUFInconsistencyException("Inconsistency detected " +
+                    "between " + fst + " " + snd);
+
+        LOGGER.debug("fst par {}", fst);
+        LOGGER.debug("snd par {}", snd);
+
+        fst = fst.equals(top) ? ec[0] : fst;
+        snd = snd.equals(top) ? ec[1] : snd;
+
+
+        addIneqEdge(fst, snd);
+        addIneqEdge(snd, fst);
+    }
+
+    private EquiClass addEquiClass(T toadd)
+            throws EUFInconsistencyException {
+        return addEquiClass(elementFact.createEquiClass(toadd));
+    }
+    public EquiClass addEquiClass(T... toadd)
+            throws EUFInconsistencyException {
         return addEquiClass(elementFact.createEquiClasses(toadd));
     }
-
     public EquiClass join(T ... e) throws MissingItemException {
         return join(elementFact.getEquiClassesFor(e));
     }
     public EquiClass meet(T ... e) throws MissingItemException {
         return meet(elementFact.getEquiClassesFor(e));
     }
-    /** API calls **/
-
-
+    public Set<EquiClass> getPredecessorsOf(T n) {
+        EquiClass e;
+        try {
+            e = elementFact.getEquiClassFor(n);
+        } catch (MissingItemException e1) {
+            LOGGER.error(e1.getMessage());
+            return new HashSet<>();
+        }
+        return getPredecessorsOf(e);
+    }
+    public Set<EquiClass> getSuccessorsOf(T n) {
+        EquiClass e = null;
+        try {
+            e = elementFact.getEquiClassFor(n);
+        } catch (MissingItemException e1) {
+            LOGGER.error(e1.getMessage());
+            return new HashSet<>();
+        }
+        return getSuccesssorsOf(e);
+    }
+    public EquiClass getBottom() {
+        return this.bottom;
+    }
+    public EquiClass getTop() {
+        return this.top;
+    }
+    /** API **/
 
     private EquiClass findParent(EquiClass e) {
+
+        EquiClass parent = top;
+
+        LOGGER.debug(":: Find parent for {}", e);
+
+        if(vertexSet().contains(e)) {
+            parent = join(e, bottom);
+            LOGGER.debug(":: Preds {} bottom {}:: parent {}", getPredecessorsOf
+                            (e), getPredecessorsOf(bottom),
+                    parent);
+        }
+
+        LOGGER.debug(":: parent is {}", parent);
+
+        return parent;
+    }
+
+    private EquiClass findSubsumptionPoint(EquiClass e) {
 
         EquiClass cursor = bottom;
 
@@ -74,6 +167,26 @@ public class MergeLattice<T> extends
 
         return cursor;
     }
+
+    private boolean checkEUFConsistency(EquiClass e) {
+
+        EquiClass cursor = top;
+
+        LinkedList<EquiClass> wlist = new LinkedList<>();
+
+        Set<EquiClass> ret = new LinkedHashSet<>();
+
+        for(EquiClass n : getConnectedOutNodesOfKind(cursor, EquiEdge.Kind
+                .SUB)) {
+            if(e.hasOverlap(n))
+                ret.add(n);
+        }
+
+        return edgeSet().stream().filter(s -> s.getKind() == EquiEdge.Kind.INEQ)
+                .filter(s -> ret.contains(s.getSource()) && ret.contains(s
+                        .getTarget())).count() == 0;
+    }
+
 
     private void split(EquiClass n) {
 
@@ -98,17 +211,14 @@ public class MergeLattice<T> extends
                 LOGGER.debug("child:{}, parent:{}", s, parent);
 
                 if (parent.isNested()) {
-                    addParEdge(parent, s, ++idx);
+                    addSplitEdge(parent, s, ++idx);
                 } else {
                     LOGGER.debug("parent {} no single", parent);
                     addSubEdge(parent, s);
                 }
 
-                //if(!equiLookup.containsKey(s)) {
-                //    LOGGER.debug("add to worklist");
                 if (!s.isAtomic())
                     worklist.addLast(s);
-                //}
             }
         }
     }
@@ -130,13 +240,18 @@ public class MergeLattice<T> extends
     }
 
 
-    public EquiClass addEquiClass(Collection<EquiClass> toadd) {
-        toadd.forEach(e -> addEquiClass(e));
-        return findParent(toadd.iterator().next());
+    public EquiClass addEquiClass(Collection<EquiClass> toadd) throws
+            EUFInconsistencyException {
+
+        for(EquiClass ec : toadd) {
+            addEquiClass(ec);
+        }
+
+        return findSubsumptionPoint(toadd.iterator().next());
     }
 
 
-    public void addEquiClass(EquiClass n) {
+    public void addEquiClass(EquiClass n) throws EUFInconsistencyException {
 
         LOGGER.debug("add equi class {}", n);
 
@@ -148,6 +263,10 @@ public class MergeLattice<T> extends
         if (isAlreadySubsumed(n))
             return;
 
+        if(!checkEUFConsistency(n)) {
+            throw new EUFInconsistencyException(n + " constradicts with " +
+                    "imposed inequality constraints");
+        }
 
         EquiClass par = findParent(n);
 
@@ -162,6 +281,8 @@ public class MergeLattice<T> extends
 
         // split the equiclass and
         split(n);
+
+
         merge();
 
         if (edgeSet().contains(init)) {
@@ -173,7 +294,6 @@ public class MergeLattice<T> extends
 
     public Set<EquiEdge> incomingEdgesOfKind(EquiClass e, EquiEdge.Kind
             kind) {
-
         LOGGER.debug(e.getDotLabel());
         assert vertexSet().contains(e);
 
@@ -241,7 +361,7 @@ public class MergeLattice<T> extends
         return equiLookup.get(v);
     }
 
-    public void addParEdge(EquiClass src, EquiClass dst, int idx) {
+    public void addSplitEdge(EquiClass src, EquiClass dst, int idx) {
         LOGGER.debug("add par edge {} -> {}", src, dst);
         addEdge(src, dst, EquiEdge.Kind.SPLIT, idx);
 
@@ -262,6 +382,11 @@ public class MergeLattice<T> extends
 
         if (dst.isSingleton() && dst.isAtomic())
             linkToBottom(dst);
+    }
+
+    public void addIneqEdge(EquiClass src, EquiClass dst) {
+        LOGGER.debug("add sub edge {} -> {}", src, dst);
+        addEdge(src, dst, EquiEdge.Kind.INEQ, -1);
     }
 
 
@@ -348,32 +473,21 @@ public class MergeLattice<T> extends
 
     private Set<EquiClass> getPredecessorsOf(EquiClass e) {
         Set<EquiClass> ret = new LinkedHashSet<>();
-
-        LOGGER.debug("get preds of {}", e);
-
         LinkedList<EquiClass> q = new LinkedList<>();
-        q.add(e);
+
+        q.addAll(getConnectedInNodesOfKind(e, EquiEdge.Kind.SUB));
 
         while(!q.isEmpty()) {
 
-            EquiClass cur = q.pollFirst();
+            EquiClass cur = q.poll();
 
-            assert cur != null;
-            LOGGER.debug("cur {}", cur);
-            ret.add(cur);
+            if(!cur.equals(top))
+                ret.add(cur);
 
-            if(cur == top) {
-                return ret;
-            }
-
-            for(EquiClass s : getConnectedInNodesOfKind(cur, EquiEdge.Kind
-                    .SUB)) {
-                LOGGER.debug("S {}", s);
-                q.addLast(s);
-            }
+            q.addAll(getConnectedInNodesOfKind(cur, EquiEdge.Kind.SUB));
         }
 
-        assert (ret != null);
+        ret.add(top);
         return ret;
     }
 
@@ -383,29 +497,23 @@ public class MergeLattice<T> extends
      * @return
      */
     private Set<EquiClass> getSuccesssorsOf(EquiClass e) {
-
         Set<EquiClass> ret = new LinkedHashSet<>();
-
         LinkedList<EquiClass> q = new LinkedList<>();
-        q.add(e);
+
+        q.addAll(getConnectedOutNodesOfKind(e, EquiEdge.Kind.SUB));
 
         while(!q.isEmpty()) {
 
             EquiClass cur = q.poll();
-            ret.add(cur);
 
-            if(cur == bottom) {
-                return ret;
-            }
+            if(!cur.equals(bottom))
+                ret.add(cur);
 
-            for(EquiClass s : getConnectedOutNodesOfKind(cur, EquiEdge.Kind
-                    .SUB)) {
-                q.addLast(s);
-            }
+            q.addAll(getConnectedOutNodesOfKind(cur, EquiEdge.Kind.SUB));
         }
 
+        ret.add(bottom);
         return ret;
-
     }
 
 
@@ -428,6 +536,8 @@ public class MergeLattice<T> extends
 
             ret.retainAll(getPredecessorsOf(c));
         }
+
+        LOGGER.debug("joint result {}", ret);
 
         if(ret.isEmpty())
             return top;
@@ -455,7 +565,7 @@ public class MergeLattice<T> extends
 
     private void mergeSub() {
         LOGGER.debug("merge subclasses");
-        EquiClass nxt = null;
+        EquiClass nxt;
 
         while ((nxt = nextSubMergePt()) != null) {
 
@@ -481,7 +591,7 @@ public class MergeLattice<T> extends
                 (EquiEdge::getTarget).filter(t -> t.subsumes(n)).count() > 0;
     }
 
-    private void mergeTuples() {
+    private void mergeTuples() throws EUFInconsistencyException {
         LOGGER.debug("merge parameters");
 
         LOGGER.debug(this.toDot());
@@ -591,7 +701,7 @@ public class MergeLattice<T> extends
     }
 
 
-    private void merge() {
+    private void merge() throws EUFInconsistencyException {
         LOGGER.debug("MERGE");
         mergeSub();
 
@@ -697,7 +807,6 @@ public class MergeLattice<T> extends
             if (!n.isAtomic())
                 color = "green";
 
-
             sb.append("\tn" + n.getId() + " [color=" + color + ",shape=\"" +
                     shape + "\"," + label + "=\"" + n.getDotLabel() + "\"];\n");
         }
@@ -726,6 +835,8 @@ public class MergeLattice<T> extends
                 par = "" + e.getSequence();
             } else if (e.getKind() == EquiEdge.Kind.SUB) {
                 ecolor = "orange";
+            } else if (e.getKind() == EquiEdge.Kind.INEQ) {
+                ecolor = "red";
             }
 
 
