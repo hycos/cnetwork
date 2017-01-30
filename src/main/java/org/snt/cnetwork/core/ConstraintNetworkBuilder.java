@@ -78,6 +78,10 @@ public class ConstraintNetworkBuilder
         return nn;
     }
 
+    public Operation addExtOperation(String identifier, List<Node> params) {
+        return cn.addExtOperation(identifier,params);
+    }
+
     public boolean removeAllVertices(Collection<? extends Node> n) {
         return cn.removeAllVertices(n);
     }
@@ -152,12 +156,39 @@ public class ConstraintNetworkBuilder
         return new ConstraintNetworkBuilder(this);
     }
 
+    public void setStartNode(Node n) {
+        cn.setStartNode(n);
+    }
+
     public int outDegreeOf(Node n) {
         return cn.outDegreeOf(n);
     }
 
     public int inDegreeOf(Node n) {
         return cn.inDegreeOf(n);
+    }
+
+    public Node registerExtOperation(String bytecodesig, String lbl) {
+        return cn.registerExtOperation(bytecodesig, lbl);
+    }
+
+    public void join(NodeKind kind, Node cpoint, ConstraintNetworkBuilder
+            othercn) {
+        cn.join(kind,cpoint,othercn.getConstraintNetwork());
+    }
+
+    public Node getNodeById(int id) {
+        return cn.getNodeById(id);
+    }
+
+    public ConstraintNetworkBuilder subgraph(Collection<Node> vertices) {
+        ConstraintNetworkBuilder cb = new ConstraintNetworkBuilder(this);
+        cb.subgraph(vertices);
+        return cb;
+    }
+
+    public Collection<Node> getAllVariables() {
+        return cn.getAllVariables();
     }
 
     @Override

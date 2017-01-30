@@ -66,7 +66,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return ret;
     }
 
-    protected ConstraintNetwork subgraph(Collection<Node> vertices) {
+    private ConstraintNetwork subgraph(Collection<Node> vertices) {
         ConstraintNetwork g = new ConstraintNetwork();
 
         for (Node n : vertices) {
