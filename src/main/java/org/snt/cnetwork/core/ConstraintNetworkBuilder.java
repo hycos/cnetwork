@@ -98,7 +98,7 @@ public class ConstraintNetworkBuilder extends ConstraintNetworkObserver<Node> {
 
 
     @Override
-    public void update(Node n) {
+    public void update(Node n) throws EUFInconsistencyException {
         if(n.getKind().isEquality()) {
             assert n.getRange() instanceof BooleanRange;
             if(((BooleanRange) n.getRange()).isAlwaysTrue()) {

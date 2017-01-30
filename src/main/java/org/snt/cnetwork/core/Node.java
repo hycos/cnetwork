@@ -3,6 +3,7 @@ package org.snt.cnetwork.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.*;
+import org.snt.cnetwork.exception.EUFInconsistencyException;
 
 public abstract class Node extends ConstraintNetworkSubject<Node> implements
         Cloneable {
@@ -158,13 +159,13 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
     }
 
     //@TODO:Julian just for convenience -- have to refactor this
-    public void setRange(Range r) {
+    public void setRange(Range r) throws EUFInconsistencyException {
         this.dom.setDomain(r);
         notifyAllObservers(this);
     }
 
     //@TODO:Julian just for convenience -- have to refactor this
-    public void setAutomaton(Automaton a) {
+    public void setAutomaton(Automaton a) throws EUFInconsistencyException {
         this.dom.setDomain(a);
         notifyAllObservers(this);
     }
