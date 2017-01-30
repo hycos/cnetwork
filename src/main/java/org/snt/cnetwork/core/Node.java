@@ -4,7 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.*;
 
-public abstract class Node implements Cloneable {
+public abstract class Node extends ConstraintNetworkSubject<Node> implements
+        Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(Node.class);
 
@@ -159,11 +160,13 @@ public abstract class Node implements Cloneable {
     //@TODO:Julian just for convenience -- have to refactor this
     public void setRange(Range r) {
         this.dom.setDomain(r);
+        notifyAllObservers(this);
     }
 
     //@TODO:Julian just for convenience -- have to refactor this
     public void setAutomaton(Automaton a) {
         this.dom.setDomain(a);
+        notifyAllObservers(this);
     }
 
 

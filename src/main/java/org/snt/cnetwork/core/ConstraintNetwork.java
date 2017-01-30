@@ -407,15 +407,6 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         }
     }
 
-    // @TODO Julian: refactor tis later on
-    public Node getOperandByLabel(String label) {
-        return getNodeByLabel(label);
-    }
-
-    public Node getOperationByLabel(String label) {
-        return getNodeByLabel(label);
-    }
-
     public Node getNodeByLabel(String label) {
         return this.nodeLookup.get(label);
     }
