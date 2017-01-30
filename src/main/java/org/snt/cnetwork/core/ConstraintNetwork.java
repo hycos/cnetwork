@@ -28,9 +28,9 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     private MergeLattice<Node> euf = null;
 
 
-    public ConstraintNetwork() {}
+    protected ConstraintNetwork() {}
 
-    public ConstraintNetwork(ConstraintNetwork other) {
+    protected ConstraintNetwork(ConstraintNetwork other) {
         for(Node n : other.vertexSet()) {
             this.addVertex(n.clone());
         }
@@ -44,7 +44,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         buildNodeIdx();
     }
 
-    public Set<Edge> getAllConnectedEdges(Node n) {
+    protected Set<Edge> getAllConnectedEdges(Node n) {
         Set<Edge> ret = new HashSet<Edge>();
 
         ret.addAll(super.incomingEdgesOf(n));
@@ -53,7 +53,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return ret;
     }
 
-    public Node getNodeById(int id) {
+    protected Node getNodeById(int id) {
 
         Node ret = null;
 
@@ -66,7 +66,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return ret;
     }
 
-    public ConstraintNetwork subgraph(Collection<Node> vertices) {
+    protected ConstraintNetwork subgraph(Collection<Node> vertices) {
         ConstraintNetwork g = new ConstraintNetwork();
 
         for (Node n : vertices) {
@@ -84,24 +84,24 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return g;
     }
 
-    public boolean addEdge(Edge edge) {
+    protected boolean addEdge(Edge edge) {
         return super.addEdge(edge.getSrcNode(), edge.getDestNode(), edge);
     }
 
 
-    public Node getStartNode() {
+    protected Node getStartNode() {
         return this.startNode;
     }
 
-    public void setStartNode(Node startNode) {
+    protected void setStartNode(Node startNode) {
         this.startNode = startNode;
     }
 
-    public void unsetStartNode() {
+    protected void unsetStartNode() {
         this.startNode = null;
     }
 
-    public List<Edge> getIncomingEdgesOfKind(Node n, EdgeKind kind) {
+    protected List<Edge> getIncomingEdgesOfKind(Node n, EdgeKind kind) {
 
         LinkedList<Edge> ret = new LinkedList<Edge>();
 
@@ -123,7 +123,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return ret;
     }
 
-    public List<Node> getParametersFor(Node n) {
+    protected List<Node> getParametersFor(Node n) {
         List<Node> params = new Vector<>();
 
         if (n instanceof Operation) {
@@ -134,13 +134,13 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return params;
     }
 
-    public Operand getAuxiliaryVariable(NodeKind kind) {
+    protected Operand getAuxiliaryVariable(NodeKind kind) {
         Operand op = new Operand(variablePfx + (vidx++), kind);
         addNode(op);
         return op;
     }
 
-    public Operand addOperand(NodeKind kind, String label) {
+    protected Operand addOperand(NodeKind kind, String label) {
         Node n = this.getNodeByLabel(label);
         if (n == null) {
             n = new Operand(label, kind);
@@ -151,7 +151,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return op;
     }
 
-    public Operation registerExtOperation(String bytecodesig, String label) {
+    protected Operation registerExtOperation(String bytecodesig, String label) {
 
         //LOGGER.info("bytecodesig " + bytecodesig);
         //LOGGER.info("name " + label);
@@ -170,13 +170,13 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return op;
     }
 
-    public Operation getExtOperation(String label) {
+    protected Operation getExtOperation(String label) {
         if (!this.opLookup.containsKey(label))
             return null;
         return this.opLookup.get(label);
     }
 
-    public Operation addExtOperation(String identifier, List<Node> params) {
+    protected Operation addExtOperation(String identifier, List<Node> params) {
 
         Operation ext = getExtOperation(identifier);
 
@@ -231,7 +231,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         }
     }
 
-    public Set<Node> getConnectedInNodes(Node n) {
+    protected Set<Node> getConnectedInNodes(Node n) {
         Set<Node> ret = new HashSet<Node>();
         Set<Edge> incoming;
         if((incoming = incomingEdgesOf(n)) != null) {
@@ -242,7 +242,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return ret;
     }
 
-    public Set<Node> getConnectedOutNodes(Node n) {
+    protected Set<Node> getConnectedOutNodes(Node n) {
         Set<Node> ret = new HashSet<Node>();
         Set<Edge> outgoing;
         if((outgoing = outgoingEdgesOf(n)) != null) {
@@ -253,26 +253,26 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return ret;
     }
 
-    public Operation addConstraint(NodeKind kind, Node... params) {
+    protected Operation addConstraint(NodeKind kind, Node... params) {
         List<Node> lst = Arrays.asList(params);
         return addConstraint(kind, lst);
     }
 
-    public Operation addConstraint(NodeKind kind, List<Node> params) {
+    protected Operation addConstraint(NodeKind kind, List<Node> params) {
         return addOperation(kind, true, params);
     }
 
-    public Operation addOperation(NodeKind kind, Node... params) {
+    protected Operation addOperation(NodeKind kind, Node... params) {
         List<Node> lst = Arrays.asList(params);
         return addOperation(kind, lst);
     }
 
-    public Operation addOperation(NodeKind kind, List<Node> params) {
+    protected Operation addOperation(NodeKind kind, List<Node> params) {
         return addOperation(kind, false, params);
     }
 
 
-    public Operation addOperation(NodeKind kind, boolean isConstraint, List<Node> params) {
+    protected Operation addOperation(NodeKind kind, boolean isConstraint, List<Node> params) {
         //LOGGER.info("PARAMS LEN " + params.size());
         Operation op;
 
@@ -298,7 +298,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     }
 
 
-    public Edge addConnection(Node src, Node target, EdgeKind kind, int priority) {
+    protected Edge addConnection(Node src, Node target, EdgeKind kind, int priority) {
         Edge e = new Edge(src, target, kind, priority);
         addConnection(e);
         return e;
@@ -312,7 +312,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     }
 
 
-    public Edge addConnection(Edge e, boolean updateLbl) {
+    protected Edge addConnection(Edge e, boolean updateLbl) {
 
         Edge r = addConnection(e);
         if(!updateLbl) {
@@ -340,14 +340,14 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
 
     }
 
-    public Edge addConnection(Edge e) {
+    protected Edge addConnection(Edge e) {
         addVertex(e.getSrcNode());
         addVertex(e.getDestNode());
         super.addEdge(e.getSrcNode(), e.getDestNode(), e);
         return e;
     }
 
-    public void addConnections(Set<Edge> edges) {
+    protected void addConnections(Set<Edge> edges) {
         for (Edge e : edges) {
             addConnection(e);
         }
@@ -395,24 +395,24 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         }
     }
 
-    public Node addNode(Node n) {
+    protected Node addNode(Node n) {
         addVertex(n);
         return n;
     }
 
-    public void buildNodeIdx() {
+    protected void buildNodeIdx() {
         this.nodeLookup.clear();
         for (Node n : this.vertexSet()) {
             this.nodeLookup.put(n.getLabel(), n);
         }
     }
 
-    public Node getNodeByLabel(String label) {
+    protected Node getNodeByLabel(String label) {
         return this.nodeLookup.get(label);
     }
 
 
-    public Collection<Node> getAllVariables() {
+    protected Collection<Node> getAllVariables() {
         Set<Node> variables = new HashSet<Node>();
         for (Node n : this.vertexSet()) {
             if (n.isOperand() && !n.isLiteral())
@@ -422,7 +422,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     }
 
 
-    public void join(NodeKind kind, Node cpoint, ConstraintNetwork othercn) {
+    protected void join(NodeKind kind, Node cpoint, ConstraintNetwork othercn) {
 
 
         assert (othercn.getStartNode() != null);
@@ -530,13 +530,13 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return sb.toString();
     }
 
-    public void debug() {
+    protected void debug() {
         for (Map.Entry<String, Node> e : this.nodeLookup.entrySet()) {
             LOGGER.info(e.getKey());
         }
     }
 
-    public String toConfig() {
+    protected String toConfig() {
 
         StringBuilder sb = new StringBuilder();
 

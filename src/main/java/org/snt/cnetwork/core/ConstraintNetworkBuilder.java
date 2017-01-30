@@ -5,25 +5,25 @@ import org.snt.cnetwork.core.mergelattice.MergeLattice;
 import org.snt.cnetwork.core.mergelattice.NodeElemFact;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
-public class ConstraintNetworkBuilder extends ConstraintNetworkObserver<Node> {
+public class ConstraintNetworkBuilder
+        extends ConstraintNetworkObserver<Node>
+        implements Cloneable {
 
     private ConstraintNetwork cn = new ConstraintNetwork();
-    private NodeElemFact nf = new NodeElemFact(cn);
-    private MergeLattice<Node> euf = new MergeLattice<Node>(nf);
+    private NodeElemFact nf = new NodeElemFact(this);
+    private MergeLattice<Node> euf = new MergeLattice<>(nf);
 
     boolean eufEnabled = false;
 
     public ConstraintNetworkBuilder(ConstraintNetworkBuilder cnb) {
         eufEnabled = cnb.eufEnabled;
         if(cnb.eufEnabled) {
-            this.cn = new ConstraintNetwork(cnb.cn);
-            this.nf = new NodeElemFact(this.cn,cnb.nf);
-            this.euf = new MergeLattice(new NodeElemFact(cnb.cn));
+            cn = new ConstraintNetwork(cnb.cn);
+            this.nf = new NodeElemFact(this,cnb.nf);
+            this.euf = new MergeLattice(this.nf);
         }
     }
 
@@ -37,43 +37,53 @@ public class ConstraintNetworkBuilder extends ConstraintNetworkObserver<Node> {
 
     public Operation addConstraint(NodeKind kind, Node... params) throws
             EUFInconsistencyException {
-
         List<Node> lst = Arrays.asList(params);
-        Operation n = cn.addConstraint(kind, lst);
-
-        if (kind.isEquality() && eufEnabled) {
-            euf.addEquiClass(params);
-        } else if (kind.isInequality() && eufEnabled) {
-            assert params.length == 2;
-            euf.addInequialityConstraint(params[0], params[1]);
-        }
-
-        return n;
+        return addConstraint(kind, lst);
     }
 
-    public Operation addOperation(NodeKind kind, Node... params) {
+    public Operation addOperation(NodeKind kind, Node... params) throws
+            EUFInconsistencyException {
         List<Node> lst = Arrays.asList(params);
-        Operation op = cn.addOperation(kind, lst);
-        if(eufEnabled)
-            op.attach(this);
-        return op;
+        return addOperation(kind, lst);
     }
 
-    public Operation addOperation(NodeKind kind, List<Node> params) {
+    public Edge addConnection(Edge e, boolean updateLbl) {
+        return cn.addConnection(e, updateLbl);
+    }
+
+
+    public Operation addOperation(NodeKind kind, List<Node> params) throws
+            EUFInconsistencyException {
         Operation op = cn.addOperation(kind, false, params);
         if(eufEnabled)
             op.attach(this);
+        update(op);
         return op;
     }
 
-    public Operation addConstraint(NodeKind kind, List<Node> params) {
+    public Operation addConstraint(NodeKind kind, List<Node> params) throws
+            EUFInconsistencyException {
         Operation op = cn.addOperation(kind, true, params);
-        op.attach(this);
+        if(eufEnabled)
+            op.attach(this);
+        update(op);
         return op;
     }
 
-    public Node addNode(Node n) {
-        return cn.addNode(n);
+    public Node addNode(Node n) throws EUFInconsistencyException {
+        Node nn = cn.addNode(n);
+        if(eufEnabled)
+            nn.attach(this);
+        update(n);
+        return nn;
+    }
+
+    public boolean removeAllVertices(Collection<? extends Node> n) {
+        return cn.removeAllVertices(n);
+    }
+
+    public boolean removeAllEdges(Collection<? extends Edge> e) {
+        return cn.removeAllEdges(e);
     }
 
     public Node getNodeByLabel(String lbl) {
@@ -81,7 +91,7 @@ public class ConstraintNetworkBuilder extends ConstraintNetworkObserver<Node> {
     }
 
     public ConstraintNetwork getConstraintNetwork() {
-        return this.cn;
+        return cn;
     }
 
     public MergeLattice getEufLattice() {
@@ -89,38 +99,93 @@ public class ConstraintNetworkBuilder extends ConstraintNetworkObserver<Node> {
     }
 
     public Edge addConnection(Node src, Node target, EdgeKind kind, int prio) {
-        return this.cn.addConnection(src,target,kind,prio);
+        return cn.addConnection(src,target,kind,prio);
     }
 
     public void addConnections(Set<Edge> edges) {
-       this.cn.addConnections(edges);
+       cn.addConnections(edges);
     }
 
 
+    public List<Node> getParametersFor(Node n) {
+        return cn.getParametersFor(n);
+    }
+
+    public Set<Node> vertexSet() {
+        return cn.vertexSet();
+    }
+
+    public Set<Edge> edgeSet() {
+        return cn.edgeSet();
+    }
+
+
+    public Set<Node> getConnectedInNodes(Node n) {
+        return cn.getConnectedInNodes(n);
+    }
+
+    public Set<Node> getConnectedOutNodes(Node n) {
+        return cn.getConnectedOutNodes(n);
+    }
+
+    public boolean removeVertex(Node n){
+        return cn.removeVertex(n);
+    }
+    
+    public boolean containsVertex(Node n) {
+        return cn.containsVertex(n);
+    }
+
+    public Operand addOperand(NodeKind kind, String label) {
+        return cn.addOperand(kind, label);
+    }
+
+    public Set<Edge> incomingEdgesOf(Node n) {
+        return incomingEdgesOf(n);
+    }
+
+    public Set<Edge> outgoingEdgesOf(Node n) {
+        return outgoingEdgesOf(n);
+    }
+
+    public ConstraintNetworkBuilder clone() {
+        return new ConstraintNetworkBuilder(this);
+    }
+
+    public int outDegreeOf(Node n) {
+        return cn.outDegreeOf(n);
+    }
+
+    public int inDegreeOf(Node n) {
+        return cn.inDegreeOf(n);
+    }
+
     @Override
     public void update(Node n) throws EUFInconsistencyException {
-        if(n.getKind().isEquality()) {
-            assert n.getRange() instanceof BooleanRange;
-            if(((BooleanRange) n.getRange()).isAlwaysTrue()) {
-                List<Node> pars = cn.getParametersFor(n);
-                assert pars.size() == 2;
-                euf.addEquiClass(pars.get(0), pars.get(1));
-            }
-            if(((BooleanRange) n.getRange()).isAlwaysFalse()) {
-                List<Node> pars = cn.getParametersFor(n);
-                assert pars.size() == 2;
-                euf.addInequialityConstraint(pars.get(0), pars.get(1));
-            }
-        } else if (n.getKind().isInequality()) {
-            if(((BooleanRange) n.getRange()).isAlwaysFalse()) {
-                List<Node> pars = cn.getParametersFor(n);
-                assert pars.size() == 2;
-                euf.addEquiClass(pars.get(0), pars.get(1));
-            }
-            if(((BooleanRange) n.getRange()).isAlwaysTrue()) {
-                List<Node> pars = cn.getParametersFor(n);
-                assert pars.size() == 2;
-                euf.addInequialityConstraint(pars.get(0), pars.get(1));
+        if(eufEnabled) {
+            if (n.getKind().isEquality()) {
+                assert n.getRange() instanceof BooleanRange;
+                if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
+                    List<Node> pars = cn.getParametersFor(n);
+                    assert pars.size() == 2;
+                    euf.addEquiClass(pars.get(0), pars.get(1));
+                }
+                if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
+                    List<Node> pars = cn.getParametersFor(n);
+                    assert pars.size() == 2;
+                    euf.addInequialityConstraint(pars.get(0), pars.get(1));
+                }
+            } else if (n.getKind().isInequality()) {
+                if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
+                    List<Node> pars = cn.getParametersFor(n);
+                    assert pars.size() == 2;
+                    euf.addEquiClass(pars.get(0), pars.get(1));
+                }
+                if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
+                    List<Node> pars = cn.getParametersFor(n);
+                    assert pars.size() == 2;
+                    euf.addInequialityConstraint(pars.get(0), pars.get(1));
+                }
             }
         }
     }

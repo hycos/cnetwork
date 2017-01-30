@@ -2,7 +2,7 @@ package org.snt.cnetwork.core.mergelattice;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.ConstraintNetwork;
+import org.snt.cnetwork.core.ConstraintNetworkBuilder;
 import org.snt.cnetwork.core.Node;
 import org.snt.cnetwork.exception.MissingItemException;
 
@@ -13,10 +13,10 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
     final static Logger LOGGER = LoggerFactory.getLogger(NodeElemFact.class);
 
-    private ConstraintNetwork cn;
+    private ConstraintNetworkBuilder cn;
     private Map<Integer, EquiClass> escache = new HashMap<>();
 
-    public NodeElemFact(ConstraintNetwork cn, NodeElemFact ne) {
+    public NodeElemFact(ConstraintNetworkBuilder cn, NodeElemFact ne) {
         this(cn);
         // clone cache
         for(Map.Entry<Integer, EquiClass> e : ne.escache.entrySet()) {
@@ -24,7 +24,7 @@ public final class NodeElemFact implements EquiClassFact<Node> {
         }
     }
 
-    public NodeElemFact(ConstraintNetwork cn) {
+    public NodeElemFact(ConstraintNetworkBuilder cn) {
         this.cn = cn;
     }
 

@@ -1,8 +1,9 @@
+package org.snt.cnetwork.core;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.*;
 import org.snt.cnetwork.core.mergelattice.EquiClass;
 import org.snt.cnetwork.core.mergelattice.MergeLattice;
 import org.snt.cnetwork.core.mergelattice.NodeElemFact;
@@ -18,7 +19,7 @@ public class TestMergeLattice {
     @Test
     public void testSimple1() {
 
-        ConstraintNetwork cn = new ConstraintNetwork();
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
         MergeLattice<Node> mt = new MergeLattice<>(new NodeElemFact(cn));
 
         Operand a = cn.addOperand(NodeKind.STRLIT, "a");
@@ -43,7 +44,7 @@ public class TestMergeLattice {
     @Test
     public void testPredSucc() {
 
-        ConstraintNetwork cn = new ConstraintNetwork();
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
         MergeLattice<Node> mt = new MergeLattice<>(new NodeElemFact(cn));
 
         Operand a = cn.addOperand(NodeKind.STRLIT, "a");
@@ -92,7 +93,7 @@ public class TestMergeLattice {
     public void testSimple2() {
 
         LOGGER.debug("SIMPLE 2");
-        ConstraintNetwork cn = new ConstraintNetwork();
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
         MergeLattice<Node> mt = new MergeLattice<>(new NodeElemFact(cn));
 
         Operand a = cn.addOperand(NodeKind.STRLIT, "a");
@@ -136,7 +137,7 @@ public class TestMergeLattice {
     @Test
     public void testOperation() {
 
-        ConstraintNetwork cn = new ConstraintNetwork();
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
         MergeLattice<Node> mt = new MergeLattice<>(new NodeElemFact(cn));
 
 
@@ -145,14 +146,14 @@ public class TestMergeLattice {
         Operand e = cn.addOperand(NodeKind.STRVAR, "e");
         Operand k = cn.addOperand(NodeKind.STRVAR, "k");
 
-        Operation concat1 = cn.addOperation(NodeKind.CONCAT, a, b);
-        Operation concat4 = cn.addOperation(NodeKind.CONCAT, k, k);
-
         try {
+            Operation concat1 = cn.addOperation(NodeKind.CONCAT, a, b);
+            Operation concat4 = cn.addOperation(NodeKind.CONCAT, k, k);
             mt.addEquiClass(concat1,concat4);
         } catch (EUFInconsistencyException e1) {
-            Assert.assertTrue(false);
+            Assert.assertFalse(true);
         }
+
         LOGGER.debug(mt.toDot());
 
         assert mt.vertexSet().size() == 16;
@@ -161,30 +162,29 @@ public class TestMergeLattice {
     @Test
     public void testRecursion() {
 
-        ConstraintNetwork cn = new ConstraintNetwork();
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
         MergeLattice<Node> mt = new MergeLattice<>(new NodeElemFact(cn));
 
         Operand a = cn.addOperand(NodeKind.STRLIT, "a");
         Operand b = cn.addOperand(NodeKind.STRVAR, "b");
         Operand k = cn.addOperand(NodeKind.STRVAR, "k");
 
-        Operation concat1 = cn.addOperation(NodeKind.CONCAT, a, b);
-        Operation concat2 = cn.addOperation(NodeKind.CONCAT, a, k);
-
         try {
-            mt.addEquiClass(concat1,k);
-            mt.addEquiClass(concat2,k);
-        } catch (EUFInconsistencyException e) {
-            Assert.assertTrue(false);
-        }
+            Operation concat1 = cn.addOperation(NodeKind.CONCAT, a, b);
+            Operation concat2 = cn.addOperation(NodeKind.CONCAT, a, k);
 
+            mt.addEquiClass(concat1, k);
+            mt.addEquiClass(concat2, k);
+        } catch (EUFInconsistencyException e) {
+            Assert.assertFalse(true);
+        }
 
         LOGGER.debug(mt.toDot());
     }
 
     @Test
     public void testConsistency() {
-        ConstraintNetwork cn = new ConstraintNetwork();
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
         MergeLattice<Node> mt = new MergeLattice<>(new NodeElemFact(cn));
 
         Operand a = cn.addOperand(NodeKind.STRLIT, "a");
