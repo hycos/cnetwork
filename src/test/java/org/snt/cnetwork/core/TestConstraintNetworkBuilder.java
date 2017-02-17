@@ -47,5 +47,29 @@ public class TestConstraintNetworkBuilder {
         }
     }
 
+    @Test
+    public void testBuilder2() {
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+
+        Node zero = cn.addOperand(NodeKind.NUMLIT, "0");
+        Node one = cn.addOperand(NodeKind.NUMLIT, "1");
+        Node filename_1 = cn.addOperand(NodeKind.NUMVAR, "filename_1");
+        Node dot = cn.addOperand(NodeKind.STRLIT, ".");
+
+        try {
+            Node idxof = cn.addOperation(NodeKind.INDEXOF, filename_1, dot, zero);
+            cn.addConstraint(NodeKind.EQUALS, idxof, zero);
+            Node subone = cn.addOperation(NodeKind.SUBSTR, idxof, one);
+            Node sub = cn.addOperation(NodeKind.SUBSTR,idxof, subone);
+            cn.addConstraint(NodeKind.NUM_EQUALS, one, sub);
+        } catch (EUFInconsistencyException e) {
+            e.printStackTrace();
+        }
+
+        LOGGER.debug(cn.getEufLattice().toDot());
+
+
+    }
+
 
 }

@@ -14,11 +14,11 @@ public final class NestedElement extends Element {
      * @param ne
      */
     public NestedElement(NestedElement ne) {
-        this(ne.lbl, Arrays.copyOf(ne.tuple, ne.tuple.length));
+        this(ne.lbl, ne.annotation, Arrays.copyOf(ne.tuple, ne.tuple.length));
     }
 
-    public NestedElement(String label, Element ... pars) {
-       super(label);
+    public NestedElement(String label, String annotation, Element ... pars) {
+       super(label,annotation);
        tuple = new Element[pars.length];
 
        for(int i = 0; i < pars.length; i++) {

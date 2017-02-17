@@ -10,12 +10,13 @@ public abstract class Element implements Comparable, Cloneable{
     final protected String lbl;
     protected String annotation = "";
 
-    public Element(String lbl) {
+    public Element(String lbl, String annotation) {
         this.lbl = lbl;
+        this.annotation = annotation;
     }
 
     public Element(Element e) {
-        this(e.lbl);
+        this(e.lbl, e.annotation);
     }
 
     public abstract Element [] split();

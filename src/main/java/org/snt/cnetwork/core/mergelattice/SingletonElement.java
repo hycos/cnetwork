@@ -3,12 +3,18 @@ package org.snt.cnetwork.core.mergelattice;
 
 public class SingletonElement extends Element {
 
-    public SingletonElement(String label) {
-        super(label);
+    public SingletonElement(String label, String annotation) {
+        super(label, annotation);
     }
 
+    public SingletonElement(String label) {
+        super(label, "");
+    }
+
+
+
     public SingletonElement(SingletonElement se) {
-        this(se.lbl);
+        this(se.lbl, se.annotation);
     }
 
     @Override

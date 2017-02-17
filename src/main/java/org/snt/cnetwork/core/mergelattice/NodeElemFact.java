@@ -62,8 +62,14 @@ public final class NodeElemFact implements EquiClassFact<Node> {
         }
 
         LOGGER.debug("elements");
-        NestedElement nested = new NestedElement(n.getLabel(),
+
+        assert !n.getKind().toString().isEmpty();
+
+        NestedElement nested = new NestedElement(n.getLabel(),n.getKind().toString(),
                 elems.toArray(new Element[elems.size()]));
+
+
+
         nested.setAnnotation(n.getKind().toString());
 
         EquiClass eq = new EquiClass(nested);
@@ -173,15 +179,6 @@ public final class NodeElemFact implements EquiClassFact<Node> {
     public boolean hasEquiClassFor(Node n) {
         return this.escache.containsKey(n);
     }
-
-    /**@Override
-    public boolean areEquivalent(Node a, Node b) {
-
-        assert escache.containsKey(a.getId());
-        assert escache.containsKey(b.getId());
-
-        return true;
-    }**/
 
 
     public String computeLabel(String... s) {

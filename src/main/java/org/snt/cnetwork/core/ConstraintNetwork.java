@@ -536,7 +536,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         }
     }
 
-    protected String toConfig() {
+    public String toConfig() {
 
         StringBuilder sb = new StringBuilder();
 
@@ -557,7 +557,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
                     type = "int";
                 }
 
-                if (((Operand) n).getKind().isThreatModel()) {
+                if (n.getKind().isThreatModel()) {
                     links.add((Operand) n);
                 }
 

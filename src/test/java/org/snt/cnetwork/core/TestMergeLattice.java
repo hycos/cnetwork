@@ -222,7 +222,7 @@ public class TestMergeLattice {
         LOGGER.debug(mt.toDot());
 
     }
-
+    
 
 
 

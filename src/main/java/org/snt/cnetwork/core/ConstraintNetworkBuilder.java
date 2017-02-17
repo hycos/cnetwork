@@ -1,16 +1,21 @@
 package org.snt.cnetwork.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.BooleanRange;
 import org.snt.cnetwork.core.mergelattice.MergeLattice;
 import org.snt.cnetwork.core.mergelattice.NodeElemFact;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class ConstraintNetworkBuilder
         extends ConstraintNetworkObserver<Node>
         implements Cloneable {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(ConstraintNetworkBuilder.class);
 
     private ConstraintNetwork cn = new ConstraintNetwork();
     private NodeElemFact nf = new NodeElemFact(this);
@@ -55,8 +60,8 @@ public class ConstraintNetworkBuilder
     public Operation addOperation(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
         Operation op = cn.addOperation(kind, false, params);
-        if(eufEnabled)
-            op.attach(this);
+        //if(eufEnabled)
+        //    op.attach(this);
         update(op);
         return op;
     }
@@ -64,16 +69,16 @@ public class ConstraintNetworkBuilder
     public Operation addConstraint(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
         Operation op = cn.addOperation(kind, true, params);
-        if(eufEnabled)
-            op.attach(this);
+        //if(eufEnabled)
+        //    op.attach(this);
         update(op);
         return op;
     }
 
     public Node addNode(Node n) throws EUFInconsistencyException {
         Node nn = cn.addNode(n);
-        if(eufEnabled)
-            nn.attach(this);
+        //if(eufEnabled)
+        //    nn.attach(this);
         update(n);
         return nn;
     }
@@ -149,7 +154,7 @@ public class ConstraintNetworkBuilder
     }
 
     public Set<Edge> outgoingEdgesOf(Node n) {
-        return outgoingEdgesOf(n);
+        return cn.outgoingEdgesOf(n);
     }
 
     public ConstraintNetworkBuilder clone() {
@@ -191,31 +196,54 @@ public class ConstraintNetworkBuilder
         return cn.getAllVariables();
     }
 
+    private boolean isRedundantPar(Node p, boolean val) {
+        if (!p.isBoolean())
+            return false;
+
+        BooleanRange br = (BooleanRange)p.getRange();
+        return (br.isAlwaysTrue() && val) || (br.isAlwaysFalse() && !val);
+    }
+
+    private Node [] getParList(Collection<Node> n, boolean val) {
+        List<Node> r = n.stream().filter(x -> !isRedundantPar(x, val)).collect
+                (Collectors
+                .toList());
+        return r.toArray(new Node[r.size()]);
+    }
+
+    private boolean hasRedundantPars(Collection<Node> ps, boolean val) {
+        return ps.stream().filter(x -> isRedundantPar(x, val)).count() > 0;
+    }
+
     @Override
     public void update(Node n) throws EUFInconsistencyException {
+
+
         if(eufEnabled) {
             if (n.getKind().isEquality()) {
                 assert n.getRange() instanceof BooleanRange;
                 if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
                     List<Node> pars = cn.getParametersFor(n);
                     assert pars.size() == 2;
-                    euf.addEquiClass(pars.get(0), pars.get(1));
+                    euf.addEquiClass(getParList(pars, true));
                 }
                 if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
                     List<Node> pars = cn.getParametersFor(n);
                     assert pars.size() == 2;
-                    euf.addInequialityConstraint(pars.get(0), pars.get(1));
+                    if(!hasRedundantPars(pars, false));
+                        euf.addInequialityConstraint(pars.get(0), pars.get(1));
                 }
             } else if (n.getKind().isInequality()) {
                 if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
                     List<Node> pars = cn.getParametersFor(n);
                     assert pars.size() == 2;
-                    euf.addEquiClass(pars.get(0), pars.get(1));
+                    euf.addEquiClass(getParList(pars,false));
                 }
                 if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
                     List<Node> pars = cn.getParametersFor(n);
                     assert pars.size() == 2;
-                    euf.addInequialityConstraint(pars.get(0), pars.get(1));
+                    if(!hasRedundantPars(pars, true));
+                        euf.addInequialityConstraint(pars.get(0), pars.get(1));
                 }
             }
         }
