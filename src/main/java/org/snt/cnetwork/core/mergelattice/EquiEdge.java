@@ -18,7 +18,7 @@ public class EquiEdge extends DefaultEdge implements
     public EquiEdge(EquiClass src, EquiClass dst, Kind kind,
                     int sequence) {
 
-        LOGGER.debug("trying to add {} {}", src, dst);
+        //LOGGER.debug("trying to add {} {}", src, dst);
         assert !src.equals(dst);
         this.dst = dst;
         this.src = src;

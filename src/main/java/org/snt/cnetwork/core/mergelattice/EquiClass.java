@@ -180,7 +180,21 @@ public class EquiClass implements Cloneable {
 
     @Override
     public String toString() {
-        return getDotLabel();
+        //return getDotLabel();
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Equiclass:========\n");
+
+        for(Element e : this.set) {
+            sb.append(e.toString());
+            sb.append("\n");
+        }
+
+        sb.append("=================\n");
+
+
+        return sb.toString();
+
     }
 
     public boolean hasOverlap(EquiClass other) {
@@ -192,7 +206,7 @@ public class EquiClass implements Cloneable {
         isect.retainAll(other.set);
 
         EquiClass eisect = new EquiClass(isect);
-        LOGGER.debug("isect {} {} {}", this, other, eisect);
+        //LOGGER.debug("isect {} {} {}", this, other, eisect);
         return eisect;
     }
 
@@ -318,7 +332,7 @@ public class EquiClass implements Cloneable {
                 ec.add(elink[row][col]);
             }
             ret.add(ec);
-            LOGGER.debug("new fact {}", ec);
+            //LOGGER.debug("new fact {}", ec);
         }
 
         return ret;

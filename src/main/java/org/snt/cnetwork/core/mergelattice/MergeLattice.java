@@ -188,13 +188,16 @@ public class MergeLattice<T> extends
         LOGGER.debug("MO {}", mo);
 
         // remove top edges
-        for(EquiClass s : sub) {
-            addSubEdge(mo, s);
-            removeEdge(top, s);
-        }
+        //for(EquiClass s : sub) {
+        //    addSubEdge(mo, s);
+        //    removeEdge(top, s);
+        //}
+
+        replace(sub, mo);
 
 
         addSubEdge(top, mo);
+        addSubEdge(mo,bottom);
 
         split(mo);
     }
@@ -237,8 +240,19 @@ public class MergeLattice<T> extends
     }
 
 
-    private void split(EquiClass n) {
+    private EquiClass getAlias(EquiClass o) {
+        try {
+            return getConnectedOutNodesOfKind(top, EquiEdge.Kind.SUB).stream()
+                    .filter(x -> x.hasOverlap(o)).findFirst().get();
+        } catch (NoSuchElementException e){
+            return o;
+        }
+    }
 
+
+
+
+    private void split(EquiClass n) {
 
         LinkedList<EquiClass> worklist = new LinkedList<>();
 
@@ -256,37 +270,36 @@ public class MergeLattice<T> extends
 
             int idx = 0;
 
-            for (EquiClass s : parent.split()) {
+            for (EquiClass s : parent.split().stream().filter(
+                    v -> v.isNested()
+            ).collect(Collectors.toSet())) {
 
-                LOGGER.debug("child:{}, parent:{}", s, parent);
 
-                if (parent.isNested()) {
-                    addSplitEdge(parent, s, ++idx);
-                } else if (!vertexSet().contains(s)){
-                    //LOGGER.debug("parent {} no single", parent);
+                Collection<EquiClass> pars = s.split();
+
+                for(EquiClass p : pars) {
+                    EquiClass alias = getAlias(p);
+                    addSplitEdge(s, alias, ++idx);
                     addSubEdge(parent, s);
                 }
 
-                if (!s.isAtomic())
-                    worklist.addLast(s);
+                //if(parent.equals(alias))
+                //    continue;
+
+                //if (parent.isNested()) {
+                //    EquiClass alias = getAlias(s);
+                //    addSplitEdge(parent, alias, ++idx);
+                //} else {
+                    //LOGGER.debug("parent {} no single", parent);
+                //    addSubEdge(parent, s);
+                //    if (!s.isAtomic()) {
+                //        worklist.addLast(s);
+                //    }
+                //}
+
+
             }
         }
-    }
-
-
-    private void removeTopLinks(EquiClass n) {
-
-        if (!containsVertex(n))
-            return;
-
-        Set<EquiEdge> topcon = null;
-        try {
-            topcon = incomingEdgesOfKind(n, EquiEdge.Kind.SUB)
-                    .stream().filter(s -> s.getSource().equals(top)).collect(Collectors.toSet());
-        } catch (NoSuchElementException e) {
-            return;
-        }
-        super.removeAllEdges(topcon);
     }
 
 
@@ -338,25 +351,26 @@ public class MergeLattice<T> extends
     }
 
 
-    public Set<EquiEdge> incomingEdgesOfKind(EquiClass e, EquiEdge.Kind
-            kind) {
-        LOGGER.debug(e.getDotLabel());
-        assert vertexSet().contains(e);
-
-        return incomingEdgesOf(e).stream().filter(ne -> ne.getKind() == kind)
-                .collect(Collectors.toSet());
-    }
-
     public Set<EquiEdge> outgoingEdgesOfKind(EquiClass e, EquiEdge.Kind
             kind) {
-        assert vertexSet().contains(e);
-        return outgoingEdgesOf(e).stream().filter(ne -> ne.getKind() == kind)
-                .collect(Collectors.toSet());
+        Set<EquiEdge> ret = new HashSet<>();
+        if(vertexSet().contains(e)) {
+            ret.addAll(outgoingEdgesOf(e).stream().filter(ne -> ne.getKind() ==
+                    kind)
+                    .collect(Collectors.toSet()));
+        }
+        return ret;
     }
 
-    public Set<EquiEdge> incomingEdges(EquiClass e, EquiEdge.Kind
+    public Set<EquiEdge> incomingEdgesOfKind(EquiClass e, EquiEdge.Kind
             kind) {
-        return incomingEdgesOf(e).stream().collect(Collectors.toSet());
+        Set<EquiEdge> ret = new HashSet<>();
+        if(vertexSet().contains(e)) {
+            ret.addAll(incomingEdgesOf(e).stream().filter(ne -> ne.getKind() ==
+                    kind)
+                    .collect(Collectors.toSet()));
+        }
+        return ret;
     }
 
     public Set<EquiClass> getConnectedOutNodesOfKind(EquiClass e, EquiEdge
@@ -411,9 +425,10 @@ public class MergeLattice<T> extends
         LOGGER.debug("add par edge {} -> {}", src, dst);
         addEdge(src, dst, EquiEdge.Kind.SPLIT, idx);
 
-        linkToTop(dst);
+        if(inSubDegreeOf(dst) == 0)
+            linkToTop(dst);
 
-        if (dst.isSingleton() && dst.isAtomic())
+        if(outSubDegreeOf(dst) == 0)
             linkToBottom(dst);
     }
 
@@ -421,12 +436,12 @@ public class MergeLattice<T> extends
     public void addSubEdge(EquiClass src, EquiClass dst) {
         LOGGER.debug("add sub edge {} -> {}", src, dst);
 
-        // if destination object is linked to top, we can remove it
-        // because we know that it already has another parent
-        removeTopLinks(dst);
         addEdge(src, dst, EquiEdge.Kind.SUB, -1);
 
-        if (dst.isSingleton() && dst.isAtomic())
+        if(inSubDegreeOf(src) == 0)
+            linkToTop(src);
+
+        if(outSubDegreeOf(dst) == 0)
             linkToBottom(dst);
     }
 
@@ -636,90 +651,6 @@ public class MergeLattice<T> extends
     }
 
 
-
-    private EquiClass handleTuple(EquiClass foo) {
-
-        LOGGER.debug("handle Tuple {}", foo);
-
-        //EquiClass fequi = new EquiClass();
-
-        Set<Element> eset = new LinkedHashSet<>();
-
-        for (EquiEdge pedge : outgoingEdgesOfKind(foo, EquiEdge.Kind.SPLIT)) {
-
-            EquiClass par = pedge.getTarget();
-
-            LOGGER.debug("JOIN [{}]+[{}] = {}", foo, par,join(foo,par));
-
-            EquiClass psup = getAliases(foo, par);
-
-            LOGGER.debug("psup {}", psup);
-
-            if (psup.equals(top))
-                continue;
-
-            LOGGER.debug("alisases are {}", psup);
-
-
-            assert foo.getCardinality() == 1;
-
-            // take element which has to be a tuple
-            Element felem = foo.getElements().iterator().next();
-
-            LOGGER.debug("felem is {}", felem);
-            assert felem instanceof NestedElement;
-            assert !felem.getAnnotation().isEmpty();
-
-            // parameter split
-            Element[] split = felem.split();
-
-            int pidx = pedge.getSequence();
-
-
-            for (Element repl : psup.getElements()) {
-
-                //LOGGER.debug("REPL {}", repl);
-                //LOGGER.debug("REPL ELE {}", psup.getCardinality());
-                //assert repl instanceof SingletonElement;
-
-                Element[] etup = new Element[split.length + 1];
-
-
-                for (int i = 1; i < split.length + 1; i++) {
-                    if (i == pidx) {
-                        etup[i] = repl;
-                    } else {
-                        etup[i] = split[i - 1];
-                    }
-                }
-
-
-                Element sig = new SingletonElement("dummy",felem.getAnnotation());
-                etup[0] = sig;
-
-                //LOGGER.debug("ANNOTATAION {}", felem.getAnnotation());
-
-
-                String lbl = elementFact.computeLabel
-                        (etup);
-
-                //LOGGER.debug("new signature {}", lbl);
-
-                NestedElement et = new NestedElement(lbl, felem.getAnnotation
-                        (),Arrays.copyOfRange
-                        (etup, 1, etup.length));
-
-                eset.add(et);
-                //LOGGER.debug("add foo equi class {}", eset.toString());
-            }
-            //LOGGER.debug("DOT {}", this.toDot());
-        }
-
-        return new EquiClass(eset);
-    }
-
-
-
     private void replace(Set<EquiClass> toReplace, EquiClass replacement) {
 
         Set<EquiEdge> edges = toReplace.stream().map(v -> outgoingEdgesOf(v))
@@ -742,7 +673,7 @@ public class MergeLattice<T> extends
         removeEquiClasses(toReplace);
 
         addEdges(edges);
-        split(replacement);
+        //split(replacement);
     }
 
 

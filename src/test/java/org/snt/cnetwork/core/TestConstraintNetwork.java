@@ -33,6 +33,7 @@ public class TestConstraintNetwork {
         tm2.setStartNode(orv1compv2);
         tm2.addConstraint(NodeKind.MATCHES, x, orv1compv2);
         LOGGER.info(tm2.toDot());
+
     }
 
 
