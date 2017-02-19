@@ -214,6 +214,9 @@ public class NumCut extends Cut<Long> implements Cloneable {
 
     @Override
     public boolean equals(Object o) {
+        if(o instanceof AboveAll || o instanceof BelowAll)
+            return false;
+
         if((o instanceof NumCut)) {
             NumCut a = (NumCut)o;
             return endpoint.equals(a.endpoint);

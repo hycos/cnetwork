@@ -33,7 +33,6 @@ public abstract class Element implements Comparable, Cloneable{
         this.annotation = annotation;
     }
 
-
     @Override
     public int hashCode() {
         return getLabel().hashCode();

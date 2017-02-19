@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.DomainKind;
 import org.snt.cnetwork.core.domain.NodeDomainFactory;
+import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.sig.JavaMethodSignature;
 import org.snt.cnetwork.utils.StandardWrappers;
 
@@ -34,16 +35,28 @@ public class Operation extends Node {
 
         switch(sig.getReturnType().toBCString()) {
             case "Ljava/lang/String;":
-                setDomain(NodeDomainFactory.INSTANCE.getDomain
-                        (NodeKind.STRVAR));
+                try {
+                    setDomain(NodeDomainFactory.INSTANCE.getDomain
+                            (NodeKind.STRVAR));
+                } catch (EUFInconsistencyException e) {
+                    assert false;
+                }
                 break;
             case "Z":
-                setDomain(NodeDomainFactory.INSTANCE.getDomain
-                        (NodeKind.BOOLVAR));
+                try {
+                    setDomain(NodeDomainFactory.INSTANCE.getDomain
+                            (NodeKind.BOOLVAR));
+                } catch (EUFInconsistencyException e) {
+                    assert false;
+                }
                 break;
             case "I":
-                setDomain(NodeDomainFactory.INSTANCE.getDomain
-                        (NodeKind.NUMVAR));
+                try {
+                    setDomain(NodeDomainFactory.INSTANCE.getDomain
+                            (NodeKind.NUMVAR));
+                } catch (EUFInconsistencyException e) {
+                    assert false;
+                }
                 break;
             default:
                 assert(false); // shouldn't happen

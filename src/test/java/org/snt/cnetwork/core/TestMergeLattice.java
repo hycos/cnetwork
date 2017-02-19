@@ -37,7 +37,9 @@ public class TestMergeLattice {
         } catch (EUFInconsistencyException e1) {
             Assert.assertTrue(false);
         }
-        assert mt.vertexSet().size() == 7;
+
+        LOGGER.debug(mt.toDot());
+        Assert.assertEquals(mt.vertexSet().size(),9);
     }
 
 
@@ -85,7 +87,8 @@ public class TestMergeLattice {
        } catch (MissingItemException e1) {
            Assert.assertFalse(true);
        }
-        assert mt.vertexSet().size() == 7;
+        LOGGER.debug(mt.toDot());
+       Assert.assertEquals(mt.vertexSet().size(), 9);
     }
 
 
@@ -156,7 +159,7 @@ public class TestMergeLattice {
 
         LOGGER.debug(mt.toDot());
 
-        assert mt.vertexSet().size() == 16;
+        Assert.assertEquals(mt.vertexSet().size(), 10);
     }
 
     @Test
@@ -222,7 +225,39 @@ public class TestMergeLattice {
         LOGGER.debug(mt.toDot());
 
     }
-    
+
+
+    @Test
+    public void testSimpleFunc() {
+
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+
+        Operand a = cn.addOperand(NodeKind.STRLIT, "a");
+        Operand v = cn.addOperand(NodeKind.NUMVAR, "v");
+        Operation fa = null;
+        try {
+            fa = cn.addOperation(NodeKind.LEN, a);
+            fa = cn.addConstraint(NodeKind.EQUALS, fa, cn.addOperand(NodeKind
+                    .NUMLIT, "3"));
+
+            LOGGER.debug(cn.getEufLattice().toDot());
+
+            LOGGER.debug(".........................");
+
+            fa = cn.addConstraint(NodeKind.EQUALS, cn.addOperand(NodeKind
+                    .NUMLIT, "3"), cn.addOperand(NodeKind.NUMVAR, "v"));
+
+            fa = cn.addConstraint(NodeKind.EQUALS, a, v);
+
+        } catch (EUFInconsistencyException e) {
+            e.printStackTrace();
+        }
+
+
+
+        LOGGER.debug(cn.getEufLattice().toDot());
+
+    }
 
 
 

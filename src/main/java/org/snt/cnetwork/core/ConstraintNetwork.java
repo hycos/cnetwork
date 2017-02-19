@@ -2,7 +2,6 @@ package org.snt.cnetwork.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.mergelattice.MergeLattice;
 import org.snt.cnetwork.sig.JavaMethodSignature;
 
 import java.util.*;
@@ -25,9 +24,6 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     private String variablePfx = "_v";
     private int vidx = 0;
 
-    private MergeLattice<Node> euf = null;
-
-
     protected ConstraintNetwork() {}
 
     protected ConstraintNetwork(ConstraintNetwork other) {
@@ -40,7 +36,6 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
             Edge ne = new Edge(src,dest,e.getSequence());
             this.addConnection(ne);
         }
-
         buildNodeIdx();
     }
 
@@ -66,7 +61,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return ret;
     }
 
-    private ConstraintNetwork subgraph(Collection<Node> vertices) {
+    protected ConstraintNetwork subgraph(Collection<Node> vertices) {
         ConstraintNetwork g = new ConstraintNetwork();
 
         for (Node n : vertices) {

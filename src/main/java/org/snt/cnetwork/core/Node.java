@@ -73,8 +73,9 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
         return this.dom;
     }
 
-    public void setDomain(NodeDomain d) {
+    public void setDomain(NodeDomain d) throws EUFInconsistencyException {
         this.dom = d;
+        notifyAllObservers(this);
     }
 
     public NodeKind getKind() {

@@ -1,6 +1,7 @@
 package org.snt.cnetwork.core;
 
 import org.snt.cnetwork.core.domain.NodeDomainFactory;
+import org.snt.cnetwork.exception.EUFInconsistencyException;
 
 public class Constraint extends Operation {
 
@@ -11,15 +12,23 @@ public class Constraint extends Operation {
     public Constraint(String name, NodeKind kind) {
         super(name,kind);
         assert kind.isComparative();
-        setDomain(NodeDomainFactory.INSTANCE.getDomain(NodeKind
-                .BOOLLIT, "true"));
+        try {
+            setDomain(NodeDomainFactory.INSTANCE.getDomain(NodeKind
+                    .BOOLLIT, "true"));
+        } catch (EUFInconsistencyException e) {
+            assert false;
+        }
         assert(this.isBoolean());
     }
 
     public Constraint(Constraint c) {
         super(c);
-        setDomain(NodeDomainFactory.INSTANCE.getDomain(NodeKind
-                .BOOLLIT, "true"));
+        try {
+            setDomain(NodeDomainFactory.INSTANCE.getDomain(NodeKind
+                    .BOOLLIT, "true"));
+        } catch (EUFInconsistencyException e) {
+            assert false;
+        }
         assert(this.isBoolean());
     }
 

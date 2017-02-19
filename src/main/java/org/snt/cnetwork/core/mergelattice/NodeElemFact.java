@@ -55,10 +55,12 @@ public final class NodeElemFact implements EquiClassFact<Node> {
         for (Node p : cn.getParametersFor(n)) {
             handleNode(p,es);
             Set<Element> ess = escache.get(p.getId()).getElements();
-            assert ess.size() == 1;
-            Element e = ess.iterator().next();
-            assert e != null;
-            elems.add(e);
+            LOGGER.debug("ESS {}", ess.toString());
+            LOGGER.debug("SIZ " + ess.size());
+            //assert ess.size() == 1;
+            //Element e = ess.iterator().next();
+            //assert e != null;
+            elems.addAll(ess);
         }
 
         LOGGER.debug("elements");
@@ -82,6 +84,12 @@ public final class NodeElemFact implements EquiClassFact<Node> {
     @Override
     public Collection<EquiClass> createEquiClasses(Node... nods) {
 
+        LOGGER.debug("create equi classes for:");
+        for(Node n : nods) {
+            LOGGER.debug("... {}", n.getLabel());
+        }
+        LOGGER.debug("done");
+
         Set<EquiClass> s = new HashSet<>();
 
         Set<EquiClass> ret = new HashSet<>();
@@ -97,13 +105,15 @@ public final class NodeElemFact implements EquiClassFact<Node> {
             assert escache.containsKey(nod.getId());
 
             Collection<Element> cele = escache.get(nod.getId()).getElements();
-            assert cele.size() == 1;
 
-            Element nodele = cele.iterator().next();
+            //LOGGER.debug("elements {}",cele.toString());
+            //assert cele.size() == 1;
 
-            LOGGER.debug("nele {}", nodele);
+            //Element nodele = cele.iterator().next();
 
-            ele.add(nodele);
+            //LOGGER.debug("nele {}", nodele);
+
+            ele.addAll(cele);
         }
 
         EquiClass top = new EquiClass(ele);

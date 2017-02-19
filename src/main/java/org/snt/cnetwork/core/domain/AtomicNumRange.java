@@ -79,7 +79,7 @@ public class AtomicNumRange extends Range {
     @Override
     public boolean isSingleton(){
 
-        LOGGER.debug("DIFF {}", getDiff());
+        LOGGER.debug("is singleton {} {} {}", lb, ub, lb.equals(ub));
         return lb.equals(ub);
     }
 

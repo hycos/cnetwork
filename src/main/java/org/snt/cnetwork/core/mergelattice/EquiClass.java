@@ -95,6 +95,7 @@ public class EquiClass implements Cloneable {
     }
 
 
+
     public EquiClass(EquiClass other) {
         this(other.getElements());
     }
@@ -143,6 +144,10 @@ public class EquiClass implements Cloneable {
 
     public void addElements(Set<Element> nodes) {
         set.addAll(nodes);
+    }
+
+    public void addElement(Element n) {
+        set.add(n);
     }
 
     public int getId() {
@@ -197,6 +202,11 @@ public class EquiClass implements Cloneable {
         return new EquiClass(union);
     }
 
+    public EquiClass minus(EquiClass other) {
+        Set<Element> minus = new HashSet<>(set);
+        minus.removeAll(other.set);
+        return new EquiClass(minus);
+    }
 
     public boolean subsumes(EquiClass other) {
         return intersection(other).equals(other);
