@@ -189,10 +189,11 @@ public class MergeLattice<T> extends
                     "given constraints");
         }
 
-        if(sub.isEmpty())
+        if(sub.isEmpty()) {
             linkToTop(mo);
-        else
+        } else {
             replace(sub, mo);
+        }
 
         // split the equi class in order to learn interesting facts
         // by analyzing nested equi classes
@@ -397,8 +398,11 @@ public class MergeLattice<T> extends
 
         assert src.isNested();
 
+
         addEdge(src, dst, EquiEdge.Kind.SPLIT, idx);
 
+        if(inSubDegreeOf(src) == 0)
+            linkToTop(src);
 
         if (inSubDegreeOf(dst) == 0)
             linkToTop(dst);
@@ -485,25 +489,38 @@ public class MergeLattice<T> extends
     }
 
 
+
+
     private void replace(Set<EquiClass> toReplace, EquiClass replacement) {
 
         if (toReplace.isEmpty())
             return;
 
-        Set<EquiEdge> edges = toReplace.stream().map(v -> outgoingEdgesOfKind
-                (v, EquiEdge.Kind.SUB))
-                .flatMap(x -> x.stream())
-                .filter(e -> !replacement.equals(e.getTarget()))
-                .map(e -> new EquiEdge(replacement, e
-                        .getTarget(), e.getKind(), e
-                        .getSequence())).collect(Collectors.toSet());
 
-        edges.addAll(toReplace.stream().map(v -> incomingEdgesOfKind(v, EquiEdge.Kind.SUB))
-                .flatMap(x -> x.stream())
-                .filter(e -> !replacement.equals(e.getSource()))
-                .map(e -> new EquiEdge(e.getSource
-                        (), replacement, e.getKind(), e
-                        .getSequence())).collect(Collectors.toSet()));
+        Set<EquiEdge> edges = new HashSet<>();
+
+        Set<EquiEdge> out = toReplace.stream().map(v -> outgoingEdgesOf(v))
+                .flatMap(x -> x.stream()).collect(Collectors.toSet());
+
+
+        Set<EquiEdge> in = toReplace.stream().map(v -> incomingEdgesOf(v))
+                .flatMap(x -> x.stream()).collect(Collectors.toSet());
+
+        removeEquiClasses(toReplace);
+
+        in.stream().forEach( e ->
+                addEdge(new EquiEdge(e.getSource(), replacement, e.getKind(), e
+                        .getSequence())
+        ));
+
+        out.stream().forEach( e ->
+                addEdge(new EquiEdge(replacement, e.getTarget(), e.getKind(), e
+                        .getSequence())
+                ));
+
+
+
+
 
         LOGGER.debug("toreplace {}", toReplace);
         LOGGER.debug("rpl {}", replacement);
