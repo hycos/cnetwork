@@ -7,7 +7,6 @@ import org.snt.cnetwork.core.Node;
 import org.snt.cnetwork.exception.MissingItemException;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public final class NodeElemFact implements EquiClassFact<Node> {
 
@@ -117,17 +116,17 @@ public final class NodeElemFact implements EquiClassFact<Node> {
         }
 
         EquiClass top = new EquiClass(ele);
-        LOGGER.debug("additional equi class {}", top);
+        LOGGER.debug("additional equi class {}", top.getDotLabel());
 
         ret.add(top);
-        ret.addAll(top.infer());
+        //ret.addAll(top.infer());
         ret.addAll(s);
 
         // infer additional facts
-        Set<EquiClass> addfacts = s.stream().map(v -> v.infer())
-                .flatMap(x-> x.stream()).collect(Collectors.toSet());
+        //Set<EquiClass> addfacts = s.stream().map(v -> v.infer())
+        //        .flatMap(x-> x.stream()).collect(Collectors.toSet());
 
-        ret.addAll(addfacts);
+        //ret.addAll(addfacts);
 
         return ret;
     }

@@ -32,25 +32,25 @@ public class ConstraintNetworkBuilder
     public ConstraintNetworkBuilder(ConstraintNetworkBuilder cnb) {
         eufEnabled = cnb.eufEnabled;
         this.cn = new ConstraintNetwork(cnb.cn);
-        if(cnb.eufEnabled) {
-            this.nf = new NodeElemFact(this,cnb.nf);
+        if (cnb.eufEnabled) {
+            this.nf = new NodeElemFact(this, cnb.nf);
             this.euf = new MergeLattice(cnb.euf, this.nf);
             assert cnb.vertexSet().size() == this.cn.vertexSet().size();
         }
 
-        this.cn.vertexSet().forEach(v->v.attach(this));
+        this.cn.vertexSet().forEach(v -> v.attach(this));
     }
 
     public ConstraintNetworkBuilder(boolean eufEnabled) {
         this.eufEnabled = eufEnabled;
         this.cn = new ConstraintNetwork();
-        if(this.eufEnabled) {
+        if (this.eufEnabled) {
             this.nf = new NodeElemFact(this);
             this.euf = new MergeLattice<>(nf);
         }
     }
 
-    public ConstraintNetworkBuilder(){
+    public ConstraintNetworkBuilder() {
         this(false);
     }
 
@@ -96,7 +96,7 @@ public class ConstraintNetworkBuilder
     }
 
     public Operation addExtOperation(String identifier, List<Node> params) {
-        return cn.addExtOperation(identifier,params);
+        return cn.addExtOperation(identifier, params);
     }
 
     public boolean removeAllVertices(Collection<? extends Node> n) {
@@ -120,11 +120,11 @@ public class ConstraintNetworkBuilder
     }
 
     public Edge addConnection(Node src, Node target, EdgeKind kind, int prio) {
-        return cn.addConnection(src,target,kind,prio);
+        return cn.addConnection(src, target, kind, prio);
     }
 
     public void addConnections(Set<Edge> edges) {
-       cn.addConnections(edges);
+        cn.addConnections(edges);
     }
 
 
@@ -149,10 +149,10 @@ public class ConstraintNetworkBuilder
         return cn.getConnectedOutNodes(n);
     }
 
-    public boolean removeVertex(Node n){
+    public boolean removeVertex(Node n) {
         return cn.removeVertex(n);
     }
-    
+
     public boolean containsVertex(Node n) {
         return cn.containsVertex(n);
     }
@@ -191,7 +191,7 @@ public class ConstraintNetworkBuilder
 
     public void join(NodeKind kind, Node cpoint, ConstraintNetworkBuilder
             othercn) {
-        cn.join(kind,cpoint,othercn.getConstraintNetwork());
+        cn.join(kind, cpoint, othercn.getConstraintNetwork());
     }
 
     public Node getNodeById(int id) {
@@ -213,14 +213,14 @@ public class ConstraintNetworkBuilder
         if (!p.isBoolean())
             return false;
 
-        BooleanRange br = (BooleanRange)p.getRange();
+        BooleanRange br = (BooleanRange) p.getRange();
         return (br.isAlwaysTrue() && val) || (br.isAlwaysFalse() && !val);
     }
 
-    private Node [] getParList(Collection<Node> n, boolean val) {
+    private Node[] getParList(Collection<Node> n, boolean val) {
         List<Node> r = n.stream().filter(x -> !isRedundantPar(x, val)).collect
                 (Collectors
-                .toList());
+                        .toList());
         return r.toArray(new Node[r.size()]);
     }
 
@@ -229,7 +229,7 @@ public class ConstraintNetworkBuilder
     }
 
     private void attach(Node n) {
-        if(eufEnabled) {
+        if (eufEnabled) {
             LOGGER.debug("Attach listener to {}", n.getLabel());
             n.attach(this);
         }
@@ -239,104 +239,105 @@ public class ConstraintNetworkBuilder
     public void update(Node n) throws EUFInconsistencyException {
         LOGGER.debug(">> update {}", n.getDotLabel());
 
-        if(eufEnabled) {
+        if (eufEnabled) {
             /**if (n.getKind().isEquality()) {
-                assert n.getRange() instanceof BooleanRange;
-                if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
-                    List<Node> pars = cn.getParametersFor(n);
-                    assert pars.size() == 2;
-                    euf.addEquiClass(getParList(pars, true));
-                }
-                if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
-                    List<Node> pars = cn.getParametersFor(n);
-                    assert pars.size() == 2;
-                    if(!hasRedundantPars(pars, false));
-                        euf.addInequialityConstraint(pars.get(0), pars.get(1));
-                }
-            } else if (n.getKind().isInequality()) {
-                if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
-                    List<Node> pars = cn.getParametersFor(n);
-                    assert pars.size() == 2;
-                    euf.addEquiClass(getParList(pars,false));
-                }
-                if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
-                    List<Node> pars = cn.getParametersFor(n);
-                    assert pars.size() == 2;
-                    if(!hasRedundantPars(pars, true));
-                        euf.addInequialityConstraint(pars.get(0), pars.get(1));
-                }
-            } else {**/
-                if(n.isNumeric() && n.getRange().isSingleton
-                        () && !n.isLiteral()) {
+             assert n.getRange() instanceof BooleanRange;
+             if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
+             List<Node> pars = cn.getParametersFor(n);
+             assert pars.size() == 2;
+             euf.addEquiClass(getParList(pars, true));
+             }
+             if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
+             List<Node> pars = cn.getParametersFor(n);
+             assert pars.size() == 2;
+             if(!hasRedundantPars(pars, false));
+             euf.addInequialityConstraint(pars.get(0), pars.get(1));
+             }
+             } else if (n.getKind().isInequality()) {
+             if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
+             List<Node> pars = cn.getParametersFor(n);
+             assert pars.size() == 2;
+             euf.addEquiClass(getParList(pars,false));
+             }
+             if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
+             List<Node> pars = cn.getParametersFor(n);
+             assert pars.size() == 2;
+             if(!hasRedundantPars(pars, true));
+             euf.addInequialityConstraint(pars.get(0), pars.get(1));
+             }
+             } else {**/
+            if (n.isNumeric() && n.getRange().isSingleton
+                    () && !n.isLiteral()) {
 
 
-                    LOGGER.debug("RAN " + n.getLabel() + " " + n.getRange()
-                            .toString
-                            ());
-                    nf.createEquiClass(n);
+                LOGGER.debug("RAN " + n.getLabel() + " " + n.getRange()
+                        .toString
+                                ());
+                nf.createEquiClass(n);
 
-                    EquiClass eq = null;
-                    try {
-                        eq = nf.getEquiClassFor(n).clone();
-                    } catch (MissingItemException e) {
-                        assert false;
+                EquiClass eq = null;
+                try {
+                    eq = nf.getEquiClassFor(n).clone();
+                } catch (MissingItemException e) {
+                    assert false;
+                }
+
+                eq.addElement(new SingletonElement(n.getRange().getMin()
+                        .getEndpoint().toString()));
+
+                LOGGER.debug("new eq {}", eq.toString());
+
+                euf.addEquiClass(eq);
+
+            } else if (n.isString() && n.getAutomaton().isSingleton() && !n.isLiteral()) {
+
+                nf.createEquiClass(n);
+
+                EquiClass eq = null;
+                try {
+                    eq = nf.getEquiClassFor(n).clone();
+                } catch (MissingItemException e) {
+                    assert false;
+                }
+
+                eq.addElement(new SingletonElement("\"" + n .getAutomaton
+                        ().getShortestExample() + "\""));
+
+                LOGGER.debug("new eq {}", eq.toString());
+
+                euf.addEquiClass(eq);
+            } else if (n.isBoolean() && !n.isLiteral()) {
+
+                if (n.getKind().isInequality()) {
+                    if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
+                        List<Node> pars = cn.getParametersFor(n);
+                        assert pars.size() == 2;
+                        euf.addEquiClass(getParList(pars, false));
                     }
-
-                    eq.addElement(new SingletonElement(n.getRange().getMin()
-                            .getEndpoint().toString()));
-
-                    LOGGER.debug("new eq {}", eq.toString());
-
-                    euf.addEquiClass(eq);
-
-                } else if (n.isString() && n.getAutomaton().isSingleton() && !n.isLiteral()) {
-
-                    nf.createEquiClass(n);
-
-                    EquiClass eq = null;
-                    try {
-                        eq = nf.getEquiClassFor(n).clone();
-                    } catch (MissingItemException e) {
-                        assert false;
+                    if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
+                        List<Node> pars = cn.getParametersFor(n);
+                        assert pars.size() == 2;
+                        if (!hasRedundantPars(pars, true)) ;
+                        euf.addInequialityConstraint(pars.get(0), pars.get(1));
                     }
-
-                    eq.addElement(new SingletonElement("\"" + n.getAutomaton
-                            ().getShortestExample() + "\""));
-
-                    LOGGER.debug("new eq {}", eq.toString());
-
-                    euf.addEquiClass(eq);
-                } else if (n.isBoolean() && !n.isLiteral()) {
-
-                    //f (n.getKind().isEquality()) {
-                        assert n.getRange() instanceof BooleanRange;
-                        if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
-                            List<Node> pars = cn.getParametersFor(n);
-                            assert pars.size() == 2;
-                            euf.addEquiClass(getParList(pars, true));
-                        }
-                        if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
-                            List<Node> pars = cn.getParametersFor(n);
-                            assert pars.size() == 2;
-                            if(!hasRedundantPars(pars, false));
-                            euf.addInequialityConstraint(pars.get(0), pars.get(1));
-                        }
-                    //} else if (n.getKind().isInequality()) {
-                        if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
-                            List<Node> pars = cn.getParametersFor(n);
-                            assert pars.size() == 2;
-                            euf.addEquiClass(getParList(pars,false));
-                        }
-                        if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
-                            List<Node> pars = cn.getParametersFor(n);
-                            assert pars.size() == 2;
-                            if(!hasRedundantPars(pars, true));
-                            euf.addInequialityConstraint(pars.get(0), pars.get(1));
-                        }
-                    //} else {
-
+                } else if (n.getKind().isEquality()) {
+                    LOGGER.debug("n {}", n.getDotLabel());
+                    assert n.getRange() instanceof BooleanRange;
+                    if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
+                        List<Node> pars = cn.getParametersFor(n);
+                        assert pars.size() == 2;
+                        euf.addEquiClass(getParList(pars, true));
+                    }
+                    if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
+                        List<Node> pars = cn.getParametersFor(n);
+                        assert pars.size() == 2;
+                        if (!hasRedundantPars(pars, false)) ;
+                        euf.addInequialityConstraint(pars.get(0), pars.get(1));
+                    }
                 }
+
             }
+        }
 
     }
 }

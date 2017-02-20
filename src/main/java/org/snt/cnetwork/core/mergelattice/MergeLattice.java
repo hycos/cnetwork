@@ -1,7 +1,6 @@
 package org.snt.cnetwork.core.mergelattice;
 
 
-import org.apache.commons.collections.map.HashedMap;
 import org.jgrapht.graph.DirectedMultigraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +24,6 @@ public class MergeLattice<T> extends
 
     private EquiClassFact elementFact = null;
 
-    private Map<EquiClass, EquiClass> equiLookup = new HashedMap();
-
 
     public void setEquiClassFact(EquiClassFact<T> elementFact) {
         this.elementFact = elementFact;
@@ -44,7 +41,7 @@ public class MergeLattice<T> extends
     public MergeLattice(MergeLattice<T> other, EquiClassFact<T> elementFact) {
         this(elementFact);
 
-        for(EquiClass e : other.vertexSet()) {
+        for (EquiClass e : other.vertexSet()) {
             try {
                 addEquiClass(e);
             } catch (EUFInconsistencyException e1) {
@@ -52,30 +49,32 @@ public class MergeLattice<T> extends
             }
         }
 
-        for(EquiEdge e : other.edgeSet()) {
+        for (EquiEdge e : other.edgeSet()) {
             addEdge(e);
         }
 
     }
 
-    /** API **/
-    public void addInequialityConstraint(T ... e) throws EUFInconsistencyException {
+    /**
+     * API
+     **/
+    public void addInequialityConstraint(T... e) throws EUFInconsistencyException {
 
         //LOGGER.debug("add inequality constraint");
 
         assert e.length == 2;
 
 
-        if(!elementFact.hasEquiClassFor(e[0])) {
-            LOGGER.debug("ADD 0");
+        if (!elementFact.hasEquiClassFor(e[0])) {
+            LOGGER.debug("ADD 0 {}", e[0]);
             addEquiClass(e[0]);
         }
 
-        if(!elementFact.hasEquiClassFor(e[1])) {
-            LOGGER.debug("ADD 0");
+        if (!elementFact.hasEquiClassFor(e[1])) {
+            LOGGER.debug("ADD 0 {}", e[0]);
             addEquiClass(e[1]);
         }
-        EquiClass [] ec = new EquiClass[2];
+        EquiClass[] ec = new EquiClass[2];
 
         try {
             ec[0] = elementFact.getEquiClassFor(e[0]);
@@ -89,15 +88,17 @@ public class MergeLattice<T> extends
         EquiClass fst = getAlias(ec[0]);
         EquiClass snd = getAlias(ec[1]);
 
-        LOGGER.debug("fst par {}", fst);
-        LOGGER.debug("snd par {}", snd);
+
+        LOGGER.debug("fst {} par {}", ec[0].getDotLabel(), fst.getDotLabel());
+        LOGGER.debug("snd {} par {}", ec[1].getDotLabel(), snd.getDotLabel());
 
 
         // cannot create an ineq edge where source and dest are pointing to the
         // same equi class
-        if(fst.equals(snd))
+        if (fst.equals(snd)) {
             throw new EUFInconsistencyException("Inconsistency detected " +
                     "between " + fst + " " + snd);
+        }
 
 
         fst = fst.equals(top) ? ec[0] : fst;
@@ -112,81 +113,66 @@ public class MergeLattice<T> extends
             throws EUFInconsistencyException {
         return addEquiClass(elementFact.createEquiClass(toadd));
     }
+
     public EquiClass addEquiClass(T... toadd)
             throws EUFInconsistencyException {
         return addEquiClass(elementFact.createEquiClasses(toadd));
     }
-    public EquiClass join(T ... e) throws MissingItemException {
+
+    public EquiClass join(T... e) throws MissingItemException {
         return join(elementFact.getEquiClassesFor(e));
     }
-    public EquiClass meet(T ... e) throws MissingItemException {
+
+    public EquiClass meet(T... e) throws MissingItemException {
         return meet(elementFact.getEquiClassesFor(e));
     }
-    public Set<EquiClass> getPredecessorsOf(T n) {
-        EquiClass e;
-        try {
-            e = elementFact.getEquiClassFor(n);
-        } catch (MissingItemException e1) {
-            LOGGER.error(e1.getMessage());
-            return new HashSet<>();
-        }
-        return getPredecessorsOf(e);
-    }
-    public Set<EquiClass> getSuccessorsOf(T n) {
-        EquiClass e = null;
-        try {
-            e = elementFact.getEquiClassFor(n);
-        } catch (MissingItemException e1) {
-            LOGGER.error(e1.getMessage());
-            return new HashSet<>();
-        }
-        return getSuccesssorsOf(e);
-    }
+
     public EquiClass getBottom() {
         return this.bottom;
     }
+
     public EquiClass getTop() {
         return this.top;
     }
-    /** API **/
 
-    private EquiClass findParent(EquiClass e) {
+    /**
+     * API
+     **/
 
-        EquiClass parent = top;
 
-        //LOGGER.debug(":: Find parent for {}", e);
+    private EquiClass union(Collection<EquiClass> e) {
+        assert !e.isEmpty();
+        return e.stream().reduce(EquiClass::union).get();
+    }
 
-        if(vertexSet().contains(e)) {
-            parent = join(e, bottom);
-            LOGGER.debug(":: Preds {} bottom {}:: parent {}", getPredecessorsOf
-                            (e), getPredecessorsOf(bottom),
-                    parent);
-        }
-
-        //LOGGER.debug(":: parent is {}", parent);
-
-        return parent;
+    private EquiClass intersection(Collection<EquiClass> e) {
+        assert !e.isEmpty();
+        return e.stream().reduce(EquiClass::intersection).get();
     }
 
     private void insert(final EquiClass e) throws EUFInconsistencyException {
 
-        // 1. geneerate max overlap
+        if(isAlreadySubsumed(e))
+            return;
+
         EquiClass mo = e;
+        LOGGER.debug("insert {}", e.getDotLabel());
+
+
+        // 1. geneerate max overlap
         try {
-            mo = e.union(getConnectedOutNodesOfKind(top, EquiEdge.Kind.SUB).
+            mo = mo.union(getConnectedOutNodesOfKind(top, EquiEdge.Kind.SUB).
                     stream().filter(n -> n.hasOverlap(e)
             ).reduce(EquiClass::union).get());
-        } catch (NoSuchElementException ex) {
-          ;
-        }
+        } catch (NoSuchElementException ex) {}
 
         // 2. cleanup lattice
         EquiClass finalMo = mo;
 
-        Stream <EquiClass> ostream =
+        Stream<EquiClass> ostream =
                 getConnectedOutNodesOfKind(top, EquiEdge.Kind.SUB)
-                .stream().filter(n -> finalMo.subsumes(n) &&
-                !finalMo.equals(n));
+                        .stream().filter(n -> finalMo.subsumes(n) &&
+                        !finalMo.equals(n));
 
         Set<EquiClass> sub = ostream.collect(Collectors.toSet());
 
@@ -198,15 +184,15 @@ public class MergeLattice<T> extends
                 .filter(t -> finalMo.hasOverlap(t.getSource()))
                 .filter(t -> finalMo.hasOverlap(t.getTarget())).count() > 0;
 
-        if(inconsistent) {
+        if (inconsistent) {
             throw new EUFInconsistencyException("Equi class " + mo + "contradicts " +
                     "given constraints");
         }
 
-
-        LOGGER.debug("MO {}", mo);
-
-        replace(sub, mo);
+        if(sub.isEmpty())
+            linkToTop(mo);
+        else
+            replace(sub, mo);
 
         // split the equi class in order to learn interesting facts
         // by analyzing nested equi classes
@@ -237,97 +223,96 @@ public class MergeLattice<T> extends
         try {
             return getConnectedOutNodesOfKind(top, EquiEdge.Kind.SUB).stream()
                     .filter(x -> x.hasOverlap(o)).findFirst().get();
-        } catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             return o;
         }
     }
 
 
-
-
     private void split(EquiClass n) {
 
         LinkedList<EquiClass> worklist = new LinkedList<>();
+        LOGGER.debug("split {}", n.getDotLabel());
 
-        worklist.add(n);
+
+        if (!n.isNested()){
+
+            Set<EquiClass> nsub = n.split().stream().filter(e -> e.isNested())
+                    .collect(Collectors.toSet());
+
+            // no nested elements contained
+            if(nsub.isEmpty())
+                return;
+
+
+            nsub.forEach(s -> addSubEdge(n, s));
+
+            worklist.addAll(nsub);
+
+
+        } else {
+            worklist.add(n);
+        }
+
 
         while (!worklist.isEmpty()) {
-
-            EquiClass parent = worklist.removeFirst();
-
-            if (parent.isAtomic())
-                continue;
-
-
-            //LOGGER.debug("*** split {} {}", parent, parent.split().size());
-
-            int idx = 0;
-
-            for (EquiClass s : parent.split().stream().filter(
-                    v -> v.isNested()
-            ).collect(Collectors.toSet())) {
-
-
-                Collection<EquiClass> pars = s.split();
-
-                for(EquiClass p : pars) {
-                    EquiClass alias = getAlias(p);
-                    addSplitEdge(s, alias, ++idx);
-                    addSubEdge(parent, s);
-                }
-
-                //if(parent.equals(alias))
-                //    continue;
-
-                //if (parent.isNested()) {
-                //    EquiClass alias = getAlias(s);
-                //    addSplitEdge(parent, alias, ++idx);
-                //} else {
-                    //LOGGER.debug("parent {} no single", parent);
-                //    addSubEdge(parent, s);
-                //    if (!s.isAtomic()) {
-                //        worklist.addLast(s);
-                //    }
-                //}
-
-
-            }
+            EquiClass next = worklist.pop();
+            worklist.addAll(handleNestedElement(next));
         }
+        LOGGER.debug(toDot());
+    }
+
+
+    private Set<EquiClass> handleNestedElement(EquiClass parent) {
+        int x = 0;
+
+        LOGGER.debug("handle nested element {}", parent.getDotLabel());
+        Set<EquiClass> ret = new HashSet<>();
+
+        assert parent.isNested();
+
+        for(EquiClass n : parent.split()) {
+            EquiClass alias = getAlias(n);
+
+            LOGGER.debug("Alias for {} is {}", n.getDotLabel(), alias.getDotLabel());
+
+            addSplitEdge(parent, alias, ++x);
+
+            if(n.isNested())
+                ret.add(n);
+
+        }
+        return ret;
     }
 
 
     public EquiClass addEquiClass(Collection<EquiClass> toadd) throws
             EUFInconsistencyException {
 
-        for(EquiClass ec : toadd) {
-            addEquiClass(ec);
-        }
+        EquiClass eq = union(toadd);
 
-        return findSubsumptionPoint(toadd.iterator().next());
+        for(EquiClass e : toadd) {
+            //LOGGER.debug(">> {}", e.getDotLabel());
+            addEquiClass(e);
+        }
+        return findSubsumptionPoint(eq);
     }
+
+
 
 
     public void addEquiClass(EquiClass n)
             throws EUFInconsistencyException {
 
+        LOGGER.debug("(+) add equi class {}", n.getDotLabel());
 
 
-        LOGGER.debug("(+) add equi class {}", n);
-
-
-        LOGGER.debug(toDot());
-
-        if (equiLookup.containsKey(n) || n.isEmpty()) {
-            LOGGER.debug("already there");
-            return;
-        }
-
-        if (isAlreadySubsumed(n)) {
+        if (isAlreadySubsumed(n) || n.isEmpty()) {
             LOGGER.debug("already subsumed");
             return;
         }
 
-        LOGGER.debug("find max ov {}", n);
+        LOGGER.debug("find max ov for {}", n.getDotLabel());
         insert(n);
 
         if (edgeSet().contains(init)) {
@@ -341,7 +326,7 @@ public class MergeLattice<T> extends
     public Set<EquiEdge> outgoingEdgesOfKind(EquiClass e, EquiEdge.Kind
             kind) {
         Set<EquiEdge> ret = new HashSet<>();
-        if(vertexSet().contains(e)) {
+        if (vertexSet().contains(e)) {
             ret.addAll(outgoingEdgesOf(e).stream().filter(ne -> ne.getKind() ==
                     kind)
                     .collect(Collectors.toSet()));
@@ -352,7 +337,7 @@ public class MergeLattice<T> extends
     public Set<EquiEdge> incomingEdgesOfKind(EquiClass e, EquiEdge.Kind
             kind) {
         Set<EquiEdge> ret = new HashSet<>();
-        if(vertexSet().contains(e)) {
+        if (vertexSet().contains(e)) {
             ret.addAll(incomingEdgesOf(e).stream().filter(ne -> ne.getKind() ==
                     kind)
                     .collect(Collectors.toSet()));
@@ -373,10 +358,9 @@ public class MergeLattice<T> extends
         Set<EquiClass> ret = new LinkedHashSet<>();
         ret.addAll(incomingEdgesOfKind(e, kind).stream().map(EquiEdge::getSource)
                 .collect
-                (Collectors.toSet()));
+                        (Collectors.toSet()));
         return ret;
     }
-
 
 
     @Override
@@ -401,34 +385,44 @@ public class MergeLattice<T> extends
     }
 
     public EquiClass checkAndGet(EquiClass v) {
-        if (!equiLookup.containsKey(v)) {
-            equiLookup.put(v, v);
+        if (!vertexSet().contains(v)) {
             super.addVertex(v);
         }
-        return equiLookup.get(v);
+        return v;
     }
 
     public void addSplitEdge(EquiClass src, EquiClass dst, int idx) {
-        LOGGER.debug("add par edge {} -> {}", src, dst);
+        LOGGER.debug("add split edge {} -> {}", src.getDotLabel(), dst
+                .getDotLabel());
+
+        assert src.isNested();
+
         addEdge(src, dst, EquiEdge.Kind.SPLIT, idx);
 
-        if(inSubDegreeOf(dst) == 0)
+
+        if (inSubDegreeOf(dst) == 0)
             linkToTop(dst);
 
-        if(outSubDegreeOf(dst) == 0)
+        if (outSubDegreeOf(dst) == 0)
             linkToBottom(dst);
     }
 
 
     public void addSubEdge(EquiClass src, EquiClass dst) {
-        LOGGER.debug("add sub edge {} -> {}", src, dst);
+        LOGGER.debug("add sub edge {} -> {}", src.getDotLabel(), dst.getDotLabel());
+
+        //assert  src.subsumes(dst);
+
+        // no link to bottom require anymore
+        removeEdge(src,bottom);
 
         addEdge(src, dst, EquiEdge.Kind.SUB, -1);
 
-        if(inSubDegreeOf(src) == 0)
+
+        if (inSubDegreeOf(src) == 0)
             linkToTop(src);
 
-        if(outSubDegreeOf(dst) == 0)
+        if (outSubDegreeOf(dst) == 0)
             linkToBottom(dst);
     }
 
@@ -448,45 +442,6 @@ public class MergeLattice<T> extends
         return out != null && out.size() > 0;
     }
 
-    private EquiClass getSingleSuperclass(EquiClass child) {
-        assert incomingEdgesOfKind(child, EquiEdge.Kind.SUB).size() == 1;
-
-        return incomingEdgesOfKind(child, EquiEdge.Kind.SUB).iterator().next
-                ().getSource();
-    }
-
-
-
-    private EquiClass getAliases(EquiClass parent, EquiClass child) {
-
-        LOGGER.debug("get aliases");
-        EquiClass joinpt = join(parent, child);
-
-        LOGGER.debug("JOIN of {} and {} is {}", parent, child, joinpt);
-
-        // there is not join point (child is not a subset of parent)
-        if (joinpt.equals(top))
-            return getSingleSuperclass(child);
-
-        //LOGGER.debug("SUB {}", incomingEdgesOfKind(child, EquiEdge.Kind.SUB));
-        // prevent recursion
-        Set<EquiClass> eq = incomingEdgesOfKind(child, EquiEdge.Kind.SUB)
-                .stream().map
-                        (EquiEdge::getSource).filter(s -> !s.equals(joinpt)).collect
-                        (Collectors.toSet
-                                ());
-        //LOGGER.debug("EQQ {}", eq.toString());
-
-        // every upwards connection goes through joinpt
-        if (eq.isEmpty())
-            return top;
-
-        //LOGGER.debug("eq {}", eq.toString());
-        assert eq.size() == 1;
-        return eq.iterator().next();
-    }
-
-
     private EquiClass nextSubMergePt() {
         try {
             return vertexSet().stream()
@@ -501,133 +456,25 @@ public class MergeLattice<T> extends
     }
 
 
-    private Set<EquiClass> getTuplesToMerge() {
-        // get functions first
-        return vertexSet().stream().filter(v ->
-                isTuple(v)).collect(Collectors.toSet());
-    }
 
-    private boolean isTuple(EquiClass e) {
-        return hasOutgoingEdgesOfKind(e, EquiEdge.Kind.SPLIT);
-    }
+    private EquiClass join(EquiClass... e) {
 
-    private boolean isParam(EquiClass e) {
-        return hasIncomingEdgesOfKind(e, EquiEdge.Kind.SPLIT);
-    }
-
-    private boolean isDirectSuccessorOfTop(EquiClass e) {
-        return incomingEdgesOfKind(e, EquiEdge.Kind.SUB).stream().filter(
-                k -> k.getSource().equals(top)
-        ).count() > 0;
-    }
-
-    private Set<EquiClass> getPredecessorsOf(EquiClass e) {
-        Set<EquiClass> ret = new LinkedHashSet<>();
-        LinkedList<EquiClass> q = new LinkedList<>();
-
-        q.addAll(getConnectedInNodesOfKind(e, EquiEdge.Kind.SUB));
-
-        while(!q.isEmpty()) {
-
-            EquiClass cur = q.poll();
-
-            if(!cur.equals(top))
-                ret.add(cur);
-
-            q.addAll(getConnectedInNodesOfKind(cur, EquiEdge.Kind.SUB));
-        }
-
-        ret.add(top);
-        return ret;
-    }
-
-    private Set<EquiClass> getSuccesssorsOf(EquiClass e) {
-        Set<EquiClass> ret = new LinkedHashSet<>();
-        LinkedList<EquiClass> q = new LinkedList<>();
-
-        q.addAll(getConnectedOutNodesOfKind(e, EquiEdge.Kind.SUB));
-
-        while(!q.isEmpty()) {
-
-            EquiClass cur = q.poll();
-
-            if(!cur.equals(bottom))
-                ret.add(cur);
-
-            q.addAll(getConnectedOutNodesOfKind(cur, EquiEdge.Kind.SUB));
-        }
-
-        ret.add(bottom);
-        return ret;
-    }
-
-
-    private EquiClass join(EquiClass ... e) {
-
-        Set<EquiClass> ret = null;
-
-        Objects.requireNonNull(e , "join cannot be called with a null " +
+        Objects.requireNonNull(e, "join cannot be called with a null " +
                 "parameter");
 
-        assert e.length > 0;
+        EquiClass u = union(Arrays.asList(e));
 
-        for(EquiClass c : e) {
-
-            assert c != null;
-
-            if(ret == null) {
-                ret = getPredecessorsOf(c);
-            }
-
-            ret.retainAll(getPredecessorsOf(c));
-        }
-
-        LOGGER.debug("joint result {}", ret);
-
-        if(ret.isEmpty())
-            return top;
-        else
-            return ret.iterator().next();
+        return findSubsumptionPoint(u);
     }
 
-    private EquiClass meet(EquiClass ... e) {
+    private EquiClass meet(EquiClass... e) {
 
-        Set<EquiClass> ret = null;
+        Objects.requireNonNull(e, "join cannot be called with a null " +
+                "parameter");
 
-        for(EquiClass c : e) {
-            if(ret == null) {
-                ret = getSuccesssorsOf(c);
-            }
+        EquiClass u = intersection(Arrays.asList(e));
 
-            ret.retainAll(getSuccesssorsOf(c));
-        }
-
-        if(ret.isEmpty())
-            return bottom;
-        else
-            return ret.iterator().next();
-    }
-
-    private void mergeSub() {
-        LOGGER.debug("merge subclasses");
-        EquiClass nxt;
-
-        while ((nxt = nextSubMergePt()) != null) {
-
-            Set<EquiEdge> in = incomingEdgesOfKind(nxt, EquiEdge.Kind.SUB);
-
-            // merge super sets together
-
-            Set<EquiClass> tomerge = in.stream().map(EquiEdge::getSource)
-                    .collect(Collectors.toSet());
-
-            Set mergedElements = tomerge.stream().map(EquiClass::getElements).flatMap(x ->
-                    x.stream()).collect(Collectors.toSet());
-
-            EquiClass merge = new EquiClass(mergedElements);
-
-            replace(tomerge, merge);
-        }
+        return findSubsumptionPoint(u);
     }
 
 
@@ -640,14 +487,18 @@ public class MergeLattice<T> extends
 
     private void replace(Set<EquiClass> toReplace, EquiClass replacement) {
 
-        Set<EquiEdge> edges = toReplace.stream().map(v -> outgoingEdgesOf(v))
+        if (toReplace.isEmpty())
+            return;
+
+        Set<EquiEdge> edges = toReplace.stream().map(v -> outgoingEdgesOfKind
+                (v, EquiEdge.Kind.SUB))
                 .flatMap(x -> x.stream())
                 .filter(e -> !replacement.equals(e.getTarget()))
                 .map(e -> new EquiEdge(replacement, e
                         .getTarget(), e.getKind(), e
                         .getSequence())).collect(Collectors.toSet());
 
-        edges.addAll(toReplace.stream().map(v -> incomingEdgesOf(v))
+        edges.addAll(toReplace.stream().map(v -> incomingEdgesOfKind(v, EquiEdge.Kind.SUB))
                 .flatMap(x -> x.stream())
                 .filter(e -> !replacement.equals(e.getSource()))
                 .map(e -> new EquiEdge(e.getSource
@@ -671,10 +522,6 @@ public class MergeLattice<T> extends
     private void removeEquiClass(EquiClass v) {
         LOGGER.debug("remove vertex {}", v);
         super.removeVertex(v);
-
-        //assert edgeSet().stream().filter(e -> e.getSource().equals(v) || e
-        //        .getTarget().equals(v)).count() == 0;
-        equiLookup.remove(v);
     }
 
     private void addEdges(Set<EquiEdge> edges) {
@@ -721,7 +568,7 @@ public class MergeLattice<T> extends
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for(EquiClass e : getConnectedOutNodesOfKind(top, EquiEdge.Kind.SUB)) {
+        for (EquiClass e : getConnectedOutNodesOfKind(top, EquiEdge.Kind.SUB)) {
             sb.append(e.toString());
         }
         return sb.toString();
@@ -751,7 +598,7 @@ public class MergeLattice<T> extends
             if (n.isAtomic())
                 color = "green";
 
-            if(n.isNested())
+            if (n.isNested())
                 color = "red";
 
             sb.append("\tn" + n.getId() + " [color=" + color + ",shape=\"" +

@@ -11,8 +11,6 @@ public class EquiClass implements Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(EquiClass.class);
 
-
-
     public static final class Top extends EquiClass {
         @Override
         public String toString() {
@@ -48,6 +46,11 @@ public class EquiClass implements Cloneable {
         public EquiClass clone() {
             return new Top();
         }
+
+        @Override
+        public EquiClass intersection(EquiClass c) {
+            return new Top();
+        }
     }
 
     public static final class Bottom extends EquiClass {
@@ -81,6 +84,11 @@ public class EquiClass implements Cloneable {
 
         @Override
         public EquiClass clone() {
+            return new Bottom();
+        }
+
+        @Override
+        public EquiClass intersection(EquiClass c) {
             return new Bottom();
         }
     }
@@ -202,7 +210,14 @@ public class EquiClass implements Cloneable {
     }
 
     public EquiClass intersection(EquiClass other) {
+        /**if(other instanceof Top) {
+            return this.clone();
+        } else if (other instanceof Bottom) {
+            return new Bottom();
+        }**/
+
         Set<Element> isect = new HashSet<>(set);
+
         isect.retainAll(other.set);
 
         EquiClass eisect = new EquiClass(isect);
@@ -217,6 +232,12 @@ public class EquiClass implements Cloneable {
     }
 
     public EquiClass minus(EquiClass other) {
+
+        //if(other instanceof Top)
+        //    return new EquiClass();
+        //else if (other instanceof Bottom)
+        //    return this.clone();
+
         Set<Element> minus = new HashSet<>(set);
         minus.removeAll(other.set);
         return new EquiClass(minus);
@@ -227,12 +248,9 @@ public class EquiClass implements Cloneable {
     }
 
     public boolean isAtomic() {
-        return isSingleton() && !set.iterator().next().isTuple();
+        return isSingleton();
     }
 
-    public boolean isSingletonTuple() {
-        return isSingleton() && set.iterator().next().isTuple();
-    }
 
     public int getCardinality() {
         return this.set.size();
