@@ -513,7 +513,7 @@ public class MergeLattice<T> extends
                         .getSequence())
         ));
 
-        out.stream().forEach( e ->
+        out.stream().filter(e -> e.getKind() == EquiEdge.Kind.SUB).forEach(e ->
                 addEdge(new EquiEdge(replacement, e.getTarget(), e.getKind(), e
                         .getSequence())
                 ));
