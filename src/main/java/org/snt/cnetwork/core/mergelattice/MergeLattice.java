@@ -11,6 +11,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class MergeLattice<T> extends
@@ -85,15 +86,19 @@ public class MergeLattice<T> extends
 
         assert ec.length == 2;
 
-        EquiClass fst = findParent(ec[0]);
-        EquiClass snd = findParent(ec[1]);
+        EquiClass fst = getAlias(ec[0]);
+        EquiClass snd = getAlias(ec[1]);
 
+        LOGGER.debug("fst par {}", fst);
+        LOGGER.debug("snd par {}", snd);
+
+
+        // cannot create an ineq edge where source and dest are pointing to the
+        // same equi class
         if(fst.equals(snd))
             throw new EUFInconsistencyException("Inconsistency detected " +
                     "between " + fst + " " + snd);
 
-        LOGGER.debug("fst par {}", fst);
-        LOGGER.debug("snd par {}", snd);
 
         fst = fst.equals(top) ? ec[0] : fst;
         snd = snd.equals(top) ? ec[1] : snd;
@@ -163,8 +168,7 @@ public class MergeLattice<T> extends
         return parent;
     }
 
-
-    private void insert(final EquiClass e) {
+    private void insert(final EquiClass e) throws EUFInconsistencyException {
 
         // 1. geneerate max overlap
         EquiClass mo = e;
@@ -178,27 +182,34 @@ public class MergeLattice<T> extends
 
         // 2. cleanup lattice
         EquiClass finalMo = mo;
-        Set<EquiClass> sub = getConnectedOutNodesOfKind(top, EquiEdge.Kind
-                .SUB)
-                .stream()
-                .filter(n -> finalMo.subsumes(n) && !finalMo.equals(n)).collect
-                        (Collectors
-                        .toSet());
+
+        Stream <EquiClass> ostream =
+                getConnectedOutNodesOfKind(top, EquiEdge.Kind.SUB)
+                .stream().filter(n -> finalMo.subsumes(n) &&
+                !finalMo.equals(n));
+
+        Set<EquiClass> sub = ostream.collect(Collectors.toSet());
+
+
+        // 3. check consistency - there cannot be an ineq edge pointing from
+        // and to the same equi class
+        boolean inconsistent = edgeSet().stream()
+                .filter(t -> t.getKind() == EquiEdge.Kind.INEQ)
+                .filter(t -> finalMo.hasOverlap(t.getSource()))
+                .filter(t -> finalMo.hasOverlap(t.getTarget())).count() > 0;
+
+        if(inconsistent) {
+            throw new EUFInconsistencyException("Equi class " + mo + "contradicts " +
+                    "given constraints");
+        }
+
 
         LOGGER.debug("MO {}", mo);
 
-        // remove top edges
-        //for(EquiClass s : sub) {
-        //    addSubEdge(mo, s);
-        //    removeEdge(top, s);
-        //}
-
         replace(sub, mo);
 
-
-        addSubEdge(top, mo);
-        addSubEdge(mo,bottom);
-
+        // split the equi class in order to learn interesting facts
+        // by analyzing nested equi classes
         split(mo);
     }
 
@@ -221,24 +232,6 @@ public class MergeLattice<T> extends
 
         return cursor;
     }
-
-    private boolean checkEUFConsistency(EquiClass e) {
-
-        EquiClass cursor = top;
-
-        Set<EquiClass> ret = new LinkedHashSet<>();
-
-        for(EquiClass n : getConnectedOutNodesOfKind(cursor, EquiEdge.Kind
-                .SUB)) {
-            if(e.hasOverlap(n))
-                ret.add(n);
-        }
-
-        return edgeSet().stream().filter(s -> s.getKind() == EquiEdge.Kind.INEQ)
-                .filter(s -> ret.contains(s.getSource()) && ret.contains(s
-                        .getTarget())).count() == 0;
-    }
-
 
     private EquiClass getAlias(EquiClass o) {
         try {
@@ -333,12 +326,6 @@ public class MergeLattice<T> extends
             LOGGER.debug("already subsumed");
             return;
         }
-
-        if(!checkEUFConsistency(n)) {
-            throw new EUFInconsistencyException(n + " constradicts with " +
-                    "imposed inequality constraints");
-        }
-
 
         LOGGER.debug("find max ov {}", n);
         insert(n);
@@ -731,6 +718,14 @@ public class MergeLattice<T> extends
         return outgoingEdgesOfKind(n, EquiEdge.Kind.SUB).size();
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for(EquiClass e : getConnectedOutNodesOfKind(top, EquiEdge.Kind.SUB)) {
+            sb.append(e.toString());
+        }
+        return sb.toString();
+    }
 
     public String toDot() {
 

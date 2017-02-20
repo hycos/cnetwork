@@ -159,7 +159,7 @@ public class TestMergeLattice {
 
         LOGGER.debug(mt.toDot());
 
-        Assert.assertEquals(mt.vertexSet().size(), 10);
+        Assert.assertEquals(mt.vertexSet().size(), 6);
     }
 
     @Test
@@ -216,6 +216,46 @@ public class TestMergeLattice {
             mt.addEquiClass(b,g);
         } catch (EUFInconsistencyException e2) {
             LOGGER.debug(e2.getMessage());
+            thrown = true;
+        }
+
+        Assert.assertTrue(thrown);
+
+
+        LOGGER.debug(mt.toDot());
+
+    }
+
+    @Test
+    public void testConsistency2() {
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
+        MergeLattice<Node> mt = new MergeLattice<>(new NodeElemFact(cn));
+
+        Operand a = cn.addOperand(NodeKind.STRLIT, "a");
+        Operand b = cn.addOperand(NodeKind.STRVAR, "b");
+        Operand d = cn.addOperand(NodeKind.STRVAR, "d");
+        Operand e = cn.addOperand(NodeKind.STRVAR, "e");
+        Operand f = cn.addOperand(NodeKind.STRVAR, "f");
+        Operand g = cn.addOperand(NodeKind.STRVAR, "g");
+
+        boolean thrown = false;
+
+        try {
+            mt.addEquiClass(a,b);
+            mt.addEquiClass(d);
+            mt.addEquiClass(e);
+            mt.addEquiClass(f,g);
+            mt.addEquiClass(b,g);
+        } catch (EUFInconsistencyException e1) {
+            thrown = true;
+        }
+
+        Assert.assertFalse(thrown);
+
+        try {
+            mt.addInequialityConstraint(b,f);
+        } catch (EUFInconsistencyException e2) {
+            LOGGER.debug("+++ " + e2.getMessage());
             thrown = true;
         }
 
