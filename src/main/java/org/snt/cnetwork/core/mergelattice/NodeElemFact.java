@@ -7,36 +7,46 @@ import org.snt.cnetwork.core.Node;
 import org.snt.cnetwork.exception.MissingItemException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
+/**
+ * Map Constraint network nodes to equivalence classes
+ */
 public final class NodeElemFact implements EquiClassFact<Node> {
 
     final static Logger LOGGER = LoggerFactory.getLogger(NodeElemFact.class);
 
     private ConstraintNetworkBuilder cn;
-    private Map<Integer, EquiClass> escache = new HashMap<>();
+    private EufLattice<Node> euf;
+
+    private NodeCache cache = new NodeCache();
 
     public NodeElemFact(ConstraintNetworkBuilder cn, NodeElemFact ne) {
         this(cn);
         // clone cache
-        for(Map.Entry<Integer, EquiClass> e : ne.escache.entrySet()) {
-            escache.put(e.getKey(), e.getValue());
-        }
+        this.cache = new NodeCache(ne.cache);
+
     }
 
     public NodeElemFact(ConstraintNetworkBuilder cn) {
         this.cn = cn;
+        this.euf = cn.getEufLattice();
+    }
+
+    public void setMergeLattice(EufLattice<Node> euf) {
+        this.euf = euf;
     }
 
     private void handleNode(Node n, Set<EquiClass> es) {
 
-        if(escache.containsKey(n.getId())) {
-            es.add(escache.get(n.getId()));
+        if (cache.containsKey(n)) {
+            es.add(cache.getValueByKey(n));
             return;
         }
 
         if (n.isOperand()) {
             EquiClass eq = new EquiClass(new SingletonElement(n.getLabel()));
-            escache.put(n.getId(), eq);
+            cache.put(n, eq);
             es.add(eq);
         } else {
             assert n.isOperation();
@@ -46,36 +56,46 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
 
     private void createNestedElement(Node n, Set<EquiClass> es) {
-        LOGGER.debug("create nested element {} params {}",n, cn
+        LOGGER.debug("create nested element {} params {}", n, cn
                 .getParametersFor(n).size());
         assert n.isOperation();
 
         List<Element> elems = new Vector<>();
         for (Node p : cn.getParametersFor(n)) {
-            handleNode(p,es);
-            Set<Element> ess = escache.get(p.getId()).getElements();
+
+            LOGGER.debug("handle node {}", p);
+            handleNode(p, es);
+            Set<Element> ess = cache.getValueByKey(p).getElements();
             LOGGER.debug("ESS {}", ess.toString());
             LOGGER.debug("SIZ " + ess.size());
-            //assert ess.size() == 1;
+            assert !ess.isEmpty();
             //Element e = ess.iterator().next();
             //assert e != null;
-            elems.addAll(ess);
+
+            // it is always enought to add only one single element
+            elems.add(ess.iterator().next());
         }
 
         LOGGER.debug("elements");
 
         assert !n.getKind().toString().isEmpty();
 
-        NestedElement nested = new NestedElement(n.getLabel(),n.getKind().toString(),
+        NestedElement nested = new NestedElement(n.getLabel(), n.getKind().toString(),
                 elems.toArray(new Element[elems.size()]));
 
+        nested.setAnnotation(n.getKind().getDesc());
 
+        // the equiclass that represents this node
+        EquiClass nst = new EquiClass(nested);
 
-        nested.setAnnotation(n.getKind().toString());
+        LOGGER.debug("nst {}", nst.getDotLabel());
+        // check if there is already another equiclass for this particular
+        // nested element
+        EquiClass eq = euf.inferEquiClassFor(nst);
+        eq = eq.union(nst);
 
-        EquiClass eq = new EquiClass(nested);
+        cache.put(n, eq);
 
-        escache.put(n.getId(), eq);
         es.add(eq);
     }
 
@@ -84,7 +104,7 @@ public final class NodeElemFact implements EquiClassFact<Node> {
     public Collection<EquiClass> createEquiClasses(Node... nods) {
 
         LOGGER.debug("create equi classes for:");
-        for(Node n : nods) {
+        for (Node n : nods) {
             LOGGER.debug("... {}", n.getLabel());
         }
         LOGGER.debug("done");
@@ -95,15 +115,15 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
         List<Element> ele = new Vector<>();
 
-        for(int k = 0; k < nods.length; k++) {
+        for (int k = 0; k < nods.length; k++) {
 
             Node nod = nods[k];
 
-            handleNode(nod,s);
+            handleNode(nod, s);
 
-            assert escache.containsKey(nod.getId());
+            assert cache.containsKey(nod);
 
-            Collection<Element> cele = escache.get(nod.getId()).getElements();
+            Collection<Element> cele = cache.getValueByKey(nod).getElements();
 
             //LOGGER.debug("elements {}",cele.toString());
             //assert cele.size() == 1;
@@ -119,21 +139,21 @@ public final class NodeElemFact implements EquiClassFact<Node> {
         LOGGER.debug("additional equi class {}", top.getDotLabel());
 
         ret.add(top);
-        //ret.addAll(top.infer());
+        ret.addAll(top.infer());
         ret.addAll(s);
 
         // infer additional facts
-        //Set<EquiClass> addfacts = s.stream().map(v -> v.infer())
-        //        .flatMap(x-> x.stream()).collect(Collectors.toSet());
+        Set<EquiClass> addfacts = s.stream().map(v -> v.infer())
+                .flatMap(x -> x.stream()).collect(Collectors.toSet());
 
-        //ret.addAll(addfacts);
+        ret.addAll(addfacts);
 
         return ret;
     }
 
     @Override
     public Collection<EquiClass> createEquiClass(Node p) {
-       return createEquiClasses(p);
+        return createEquiClasses(p);
     }
 
     @Override
@@ -141,14 +161,14 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
         StringBuffer sb = new StringBuffer();
 
-        if(s.length == 1) {
+        if (s.length == 1) {
             sb.append(s[0].getLabel());
         } else {
             sb.append(s[0].getAnnotation());
             sb.append("(");
-            for(int i = 1; i < s.length; i ++) {
+            for (int i = 1; i < s.length; i++) {
                 sb.append(s[i].getLabel());
-                if(i < s.length-1)
+                if (i < s.length - 1)
                     sb.append(",");
             }
             sb.append(")");
@@ -157,14 +177,14 @@ public final class NodeElemFact implements EquiClassFact<Node> {
     }
 
     @Override
-    public EquiClass[] getEquiClassesFor(Node ... ns) throws MissingItemException {
+    public EquiClass[] getEquiClassesFor(Node... ns) throws MissingItemException {
 
 
         LOGGER.debug("create equi classes");
 
-        EquiClass [] ec = new EquiClass[ns.length];
+        EquiClass[] ec = new EquiClass[ns.length];
 
-        for(int k = 0; k < ns.length; k++ ) {
+        for (int k = 0; k < ns.length; k++) {
             Node n = ns[k];
             ec[k] = getEquiClassFor(n);
         }
@@ -175,18 +195,23 @@ public final class NodeElemFact implements EquiClassFact<Node> {
     @Override
     public EquiClass getEquiClassFor(Node n) throws MissingItemException {
 
-        if(!escache.containsKey(n.getId()))
+        if (!cache.containsKey(n))
             throw new MissingItemException("Node " + n.getLabel() + " is " +
                     "not present");
 
-        assert escache.containsKey(n.getId());
+        assert cache.containsKey(n);
 
-        return escache.get(n.getId());
+        return cache.getValueByKey(n);
     }
 
     @Override
     public boolean hasEquiClassFor(Node n) {
-        return this.escache.containsKey(n);
+        return this.cache.containsKey(n);
+    }
+
+    @Override
+    public String toString() {
+        return this.cache.toString();
     }
 
 
@@ -194,21 +219,20 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
         StringBuffer sb = new StringBuffer();
 
-        if(s.length == 1) {
+        if (s.length == 1) {
             sb.append(s[0]);
         } else {
             sb.append(s[0]);
             sb.append("(");
-            for(int i = 1; i < s.length; i ++) {
+            for (int i = 1; i < s.length; i++) {
                 sb.append(s[i]);
-                if(i < s.length-1)
+                if (i < s.length - 1)
                     sb.append(",");
             }
             sb.append(")");
         }
         return sb.toString();
     }
-
 
 
 }

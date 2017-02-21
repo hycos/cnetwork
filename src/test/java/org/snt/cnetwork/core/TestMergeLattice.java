@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.mergelattice.EquiClass;
-import org.snt.cnetwork.core.mergelattice.MergeLattice;
+import org.snt.cnetwork.core.mergelattice.EufLattice;
 import org.snt.cnetwork.core.mergelattice.NodeElemFact;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.exception.MissingItemException;
@@ -17,7 +17,7 @@ public class TestMergeLattice {
     @Test
     public void testSimple0() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
-        MergeLattice<Node> mt = new MergeLattice<>(new NodeElemFact(cn));
+        EufLattice<Node> mt = new EufLattice<>(new NodeElemFact(cn));
 
         Operand a = cn.addOperand(NodeKind.STRLIT, "a");
         Operand b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -42,7 +42,7 @@ public class TestMergeLattice {
     public void testSimple1() {
 
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
-        MergeLattice<Node> mt = new MergeLattice<>(new NodeElemFact(cn));
+        EufLattice<Node> mt = new EufLattice<>(new NodeElemFact(cn));
 
         Operand a = cn.addOperand(NodeKind.STRLIT, "a");
         Operand b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -71,7 +71,7 @@ public class TestMergeLattice {
 
         LOGGER.debug("SIMPLE 2");
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
-        MergeLattice<Node> mt = new MergeLattice<>(new NodeElemFact(cn));
+        EufLattice<Node> mt = new EufLattice<>(new NodeElemFact(cn));
 
         Operand a = cn.addOperand(NodeKind.STRLIT, "a");
         Operand b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -114,8 +114,8 @@ public class TestMergeLattice {
     @Test
     public void testOperation() {
 
-        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
-        MergeLattice<Node> mt = new MergeLattice<>(new NodeElemFact(cn));
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+        EufLattice<Node> mt = cn.getEufLattice();
 
 
         Operand a = cn.addOperand(NodeKind.STRLIT, "a");
@@ -134,14 +134,15 @@ public class TestMergeLattice {
 
         LOGGER.debug(mt.toDot());
 
-        Assert.assertEquals(mt.vertexSet().size(), 6);
+        Assert.assertEquals(mt.vertexSet().size(), 7);
     }
 
     @Test
     public void testRecursion() {
 
-        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
-        MergeLattice<Node> mt = new MergeLattice<>(new NodeElemFact(cn));
+
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+        EufLattice<Node> mt = cn.getEufLattice();
 
         Operand a = cn.addOperand(NodeKind.STRLIT, "a");
         Operand b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -163,7 +164,7 @@ public class TestMergeLattice {
     @Test
     public void testConsistency() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
-        MergeLattice<Node> mt = cn.getEufLattice();
+        EufLattice<Node> mt = cn.getEufLattice();
 
         Operand a = cn.addOperand(NodeKind.STRLIT, "a");
         Operand b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -206,7 +207,7 @@ public class TestMergeLattice {
     @Test
     public void testConsistency2() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(false);
-        MergeLattice<Node> mt = new MergeLattice<>(new NodeElemFact(cn));
+        EufLattice<Node> mt = new EufLattice<>(new NodeElemFact(cn));
 
         Operand a = cn.addOperand(NodeKind.STRLIT, "a");
         Operand b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -247,34 +248,47 @@ public class TestMergeLattice {
 
 
     @Test
-    public void testSimpleFunc() {
-
+    public void testInference() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+        EufLattice<Node> mt = cn.getEufLattice();
+        NodeElemFact nf = cn.getNodeElementFact();
 
-        Operand a = cn.addOperand(NodeKind.STRLIT, "a");
-        Operand v = cn.addOperand(NodeKind.NUMVAR, "v");
-        Operation fa = null;
+
+        Operand a = cn.addOperand(NodeKind.STRVAR, "a");
+        Operand b = cn.addOperand(NodeKind.STRVAR, "b");
+        Operand one = cn.addOperand(NodeKind.NUMLIT, "1");
+        Operand i = cn.addOperand(NodeKind.NUMVAR, "i");
+        Operand five = cn.addOperand(NodeKind.NUMVAR, "5");
+
         try {
-            fa = cn.addOperation(NodeKind.LEN, a);
-            fa = cn.addConstraint(NodeKind.EQUALS, fa, cn.addOperand(NodeKind
-                    .NUMLIT, "3"));
+            Operation idxof = cn.addOperation(NodeKind.INDEXOF, a, one);
+            cn.addConstraint(NodeKind.EQUALS, idxof, i);
+            cn.addConstraint(NodeKind.EQUALS, a, b);
 
-            LOGGER.debug(cn.getEufLattice().toDot());
+            Operation aliasidxof = cn.addOperation(NodeKind.INDEXOF, b, one);
 
-            LOGGER.debug(".........................");
 
-            fa = cn.addConstraint(NodeKind.EQUALS, cn.addOperand(NodeKind
-                    .NUMLIT, "3"), cn.addOperand(NodeKind.NUMVAR, "v"));
+            cn.addConstraint(NodeKind.EQUALS, aliasidxof, five);
 
-            fa = cn.addConstraint(NodeKind.EQUALS, a, v);
+            //Collection<EquiClass> n = nf.createEquiClasses(aliasidxof);
+
+            //EquiClass foo = n.stream().filter(v -> v.isNested()).findFirst()
+            //        .get();
+
+            //EquiClass sup = mt.inferEquiClassFor(foo);
+
+            //LOGGER.debug("eq {}", sup.getDotLabel());
+
+            //EquiClass ife = sup.union(foo);
+            //LOGGER.debug("ife {}", ife.getDotLabel());
+            //mt.addEquiClass(ife);
 
         } catch (EUFInconsistencyException e) {
             e.printStackTrace();
         }
 
 
-
-        LOGGER.debug(cn.getEufLattice().toDot());
+        LOGGER.debug(mt.toDot());
 
     }
 

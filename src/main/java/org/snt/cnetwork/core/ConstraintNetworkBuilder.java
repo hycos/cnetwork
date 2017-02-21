@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.BooleanRange;
 import org.snt.cnetwork.core.mergelattice.EquiClass;
-import org.snt.cnetwork.core.mergelattice.MergeLattice;
+import org.snt.cnetwork.core.mergelattice.EufLattice;
 import org.snt.cnetwork.core.mergelattice.NodeElemFact;
 import org.snt.cnetwork.core.mergelattice.SingletonElement;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
@@ -25,7 +25,7 @@ public class ConstraintNetworkBuilder
 
     private ConstraintNetwork cn;
     private NodeElemFact nf;
-    private MergeLattice<Node> euf;
+    private EufLattice<Node> euf;
 
     boolean eufEnabled = false;
 
@@ -34,7 +34,8 @@ public class ConstraintNetworkBuilder
         this.cn = new ConstraintNetwork(cnb.cn);
         if (cnb.eufEnabled) {
             this.nf = new NodeElemFact(this, cnb.nf);
-            this.euf = new MergeLattice(cnb.euf, this.nf);
+            this.euf = new EufLattice(cnb.euf, this.nf);
+            this.nf.setMergeLattice(this.euf);
             assert cnb.vertexSet().size() == this.cn.vertexSet().size();
         }
 
@@ -45,9 +46,16 @@ public class ConstraintNetworkBuilder
         this.eufEnabled = eufEnabled;
         this.cn = new ConstraintNetwork();
         if (this.eufEnabled) {
+            // EUF has to e assigned first here
             this.nf = new NodeElemFact(this);
-            this.euf = new MergeLattice<>(nf);
+            this.euf = new EufLattice<>(nf);
+            this.nf.setMergeLattice(this.euf);
         }
+    }
+
+
+    public NodeElemFact getNodeElementFact() {
+        return this.nf;
     }
 
     public ConstraintNetworkBuilder() {
@@ -115,7 +123,7 @@ public class ConstraintNetworkBuilder
         return cn;
     }
 
-    public MergeLattice getEufLattice() {
+    public EufLattice getEufLattice() {
         return this.euf;
     }
 
@@ -240,32 +248,6 @@ public class ConstraintNetworkBuilder
         LOGGER.debug(">> update {}", n.getDotLabel());
 
         if (eufEnabled) {
-            /**if (n.getKind().isEquality()) {
-             assert n.getRange() instanceof BooleanRange;
-             if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
-             List<Node> pars = cn.getParametersFor(n);
-             assert pars.size() == 2;
-             euf.addEquiClass(getParList(pars, true));
-             }
-             if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
-             List<Node> pars = cn.getParametersFor(n);
-             assert pars.size() == 2;
-             if(!hasRedundantPars(pars, false));
-             euf.addInequialityConstraint(pars.get(0), pars.get(1));
-             }
-             } else if (n.getKind().isInequality()) {
-             if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
-             List<Node> pars = cn.getParametersFor(n);
-             assert pars.size() == 2;
-             euf.addEquiClass(getParList(pars,false));
-             }
-             if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
-             List<Node> pars = cn.getParametersFor(n);
-             assert pars.size() == 2;
-             if(!hasRedundantPars(pars, true));
-             euf.addInequialityConstraint(pars.get(0), pars.get(1));
-             }
-             } else {**/
             if (n.isNumeric() && n.getRange().isSingleton
                     () && !n.isLiteral()) {
 
@@ -317,7 +299,7 @@ public class ConstraintNetworkBuilder
                     if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
                         List<Node> pars = cn.getParametersFor(n);
                         assert pars.size() == 2;
-                        if (!hasRedundantPars(pars, true)) ;
+                        if (!hasRedundantPars(pars, true));
                         euf.addInequialityConstraint(pars.get(0), pars.get(1));
                     }
                 } else if (n.getKind().isEquality()) {
@@ -335,7 +317,8 @@ public class ConstraintNetworkBuilder
                         euf.addInequialityConstraint(pars.get(0), pars.get(1));
                     }
                 }
-
+            } else if(!n.isBoolean() && n.isOperation()) {
+                euf.addEquiClass(n);
             }
         }
 
