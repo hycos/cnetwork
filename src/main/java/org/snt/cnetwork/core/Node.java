@@ -125,7 +125,7 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
 
     @Override
     public String toString() {
-        return label;
+        return "" + id;
     }
 
     public void setLabel(String label) {

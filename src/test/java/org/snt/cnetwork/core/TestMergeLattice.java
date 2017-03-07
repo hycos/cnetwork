@@ -250,9 +250,6 @@ public class TestMergeLattice {
     @Test
     public void testInference() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
-        EufLattice<Node> mt = cn.getEufLattice();
-        NodeElemFact nf = cn.getNodeElementFact();
-
 
         Operand a = cn.addOperand(NodeKind.STRVAR, "a");
         Operand b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -287,8 +284,6 @@ public class TestMergeLattice {
             e.printStackTrace();
         }
 
-
-        LOGGER.debug(mt.toDot());
 
     }
 

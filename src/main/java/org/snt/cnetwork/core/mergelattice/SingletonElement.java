@@ -1,20 +1,20 @@
 package org.snt.cnetwork.core.mergelattice;
 
 
-public class SingletonElement extends Element {
+public class SingletonElement<T> extends Element<T> {
 
-    public SingletonElement(String label, String annotation) {
-        super(label, annotation);
+    public SingletonElement(T n, String label, String annotation) {
+        super(n, label, annotation);
     }
 
-    public SingletonElement(String label) {
-        super(label, "");
+    public SingletonElement(T n, String label) {
+        super(n, label, "");
     }
 
 
 
     public SingletonElement(SingletonElement se) {
-        this(se.lbl, se.annotation);
+        this((T)se.emap, se.lbl, se.annotation);
     }
 
     @Override

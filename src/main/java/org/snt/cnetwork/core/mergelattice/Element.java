@@ -3,20 +3,24 @@ package org.snt.cnetwork.core.mergelattice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class Element implements Comparable, Cloneable{
+public abstract class Element<T> implements Comparable, Cloneable{
 
     final static Logger LOGGER = LoggerFactory.getLogger(Element.class);
 
-    final protected String lbl;
+    protected String lbl = "";
     protected String annotation = "";
 
-    public Element(String lbl, String annotation) {
+    // used to map a 'real' object to this element
+    protected T emap;
+
+    public Element(T emap, String lbl, String annotation) {
         this.lbl = lbl;
         this.annotation = annotation;
+        this.emap = emap;
     }
 
     public Element(Element e) {
-        this(e.lbl, e.annotation);
+        this((T)e.emap, e.lbl, e.annotation);
     }
 
     public abstract Element [] split();

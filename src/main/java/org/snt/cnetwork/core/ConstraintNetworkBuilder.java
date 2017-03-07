@@ -35,7 +35,6 @@ public class ConstraintNetworkBuilder
         if (cnb.eufEnabled) {
             this.nf = new NodeElemFact(this, cnb.nf);
             this.euf = new EufLattice(cnb.euf, this.nf);
-            this.nf.setMergeLattice(this.euf);
             assert cnb.vertexSet().size() == this.cn.vertexSet().size();
         }
 
@@ -49,7 +48,6 @@ public class ConstraintNetworkBuilder
             // EUF has to e assigned first here
             this.nf = new NodeElemFact(this);
             this.euf = new EufLattice<>(nf);
-            this.nf.setMergeLattice(this.euf);
         }
     }
 
@@ -264,7 +262,7 @@ public class ConstraintNetworkBuilder
                     assert false;
                 }
 
-                eq.addElement(new SingletonElement(n.getRange().getMin()
+                eq.addElement(new SingletonElement(n, n.getRange().getMin()
                         .getEndpoint().toString()));
 
                 LOGGER.debug("new eq {}", eq.toString());
@@ -282,7 +280,7 @@ public class ConstraintNetworkBuilder
                     assert false;
                 }
 
-                eq.addElement(new SingletonElement("\"" + n .getAutomaton
+                eq.addElement(new SingletonElement(n, "\"" + n .getAutomaton
                         ().getShortestExample() + "\""));
 
                 LOGGER.debug("new eq {}", eq.toString());

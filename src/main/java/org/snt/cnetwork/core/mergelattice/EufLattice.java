@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.exception.MissingItemException;
+import org.snt.cnetwork.utils.BiMap;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
@@ -24,6 +25,7 @@ public class EufLattice<T> extends
 
     private EquiClassFact elementFact = null;
 
+    private BiMap<String, EquiClass> ecache = new BiMap<>();
 
     public void setEquiClassFact(EquiClassFact<T> elementFact) {
         this.elementFact = elementFact;
@@ -71,7 +73,7 @@ public class EufLattice<T> extends
         }
 
         if (!elementFact.hasEquiClassFor(e[1])) {
-            LOGGER.debug("ADD 0 {}", e[0]);
+            LOGGER.debug("ADD 1 {}", e[1]);
             addEquiClass(e[1]);
         }
         EquiClass[] ec = new EquiClass[2];
@@ -183,8 +185,10 @@ public class EufLattice<T> extends
 
         if (inconsistent) {
             throw new EUFInconsistencyException("Equi class " + mo + "contradicts " +
-                    "given constraints");
+                    "give" +
+                    "n constraints");
         }
+
 
         if(sub.isEmpty()) {
             linkToTop(mo);
@@ -483,15 +487,30 @@ public class EufLattice<T> extends
         final String anno = e.getElements().iterator().next().getAnnotation();
 
 
-        // if there exist an alias, it has to be among this set
+        // if there exist an alias, it has to be among this elems
         Set<EquiClass> srccrit = vertexSet().stream()
                 .filter(v -> v.isNested())
                 .filter(v -> v.getElements().iterator().next().getAnnotation
                         ().equals(anno)).collect(Collectors.toSet());
 
+        if(srccrit.isEmpty())
+            return bottom;
+
+        LOGGER.debug("srccrit {}", srccrit);
         assert e.getElements().size() == 1;
 
+        LOGGER.debug("card {}", e.getCardinality());
+
+        LOGGER.debug("spl {}", e.split().size());
+
+        LOGGER.debug("CL {}", e.getClass());
+        // get the paramters
         Collection<EquiClass> ec = e.split();
+
+        assert ec.size() > 0;
+
+        LOGGER.debug("split is {}", ec);
+
         Set<EquiClass> tcrit = new HashSet<>();
 
         // get
@@ -499,12 +518,16 @@ public class EufLattice<T> extends
         for(EquiClass eq : ec) {
             EquiClass cov = getCoveringEquiClass(eq);
 
-            // we can directly stop - param does not have aliases yet
-            if(!vertexSet().contains(cov))
-                return e;
 
             LOGGER.debug("covering {} for {}", cov.getDotLabel(), eq.getDotLabel
                     ());
+
+
+            // we can directly stop - param does not have aliases yet
+            if(!vertexSet().contains(cov)) {
+                LOGGER.debug("not there yet");
+                return e;
+            }
 
             assert vertexSet().contains(cov);
 
@@ -515,12 +538,18 @@ public class EufLattice<T> extends
                     .filter(t -> !t.getSource().equals(top))
                     .map(t -> t.getSource()).collect(Collectors.toSet());
 
-            tcrit.addAll(inc);
+
+            if(idx == 1) {
+                tcrit.addAll(inc);
+            } else {
+                tcrit.retainAll(inc);
+            }
             pidx ++;
         }
 
-        if(srccrit.isEmpty() || tcrit.isEmpty())
+        if(srccrit.isEmpty() || tcrit.isEmpty()) {
             return bottom;
+        }
 
         Set<EquiClass> chop = fwslice(srccrit);
         chop.retainAll(bwslice(tcrit));
@@ -537,6 +566,8 @@ public class EufLattice<T> extends
         if(chop.size() == 1) {
             return chop.iterator().next();
         } else {
+            LOGGER.debug("chop {}", chop);
+            LOGGER.debug("chop size {}", chop.size());
             assert chop.isEmpty();
             return bottom;
         }
@@ -605,6 +636,7 @@ public class EufLattice<T> extends
         Set<EquiEdge> in = toReplace.stream().map(v -> incomingEdgesOf(v))
                 .flatMap(x -> x.stream()).collect(Collectors.toSet());
 
+
         removeEquiClasses(toReplace);
 
         in.stream().forEach( e ->
@@ -627,7 +659,7 @@ public class EufLattice<T> extends
         removeEquiClasses(toReplace);
 
         addEdges(edges);
-        //split(replacement);
+        split(replacement);
     }
 
 

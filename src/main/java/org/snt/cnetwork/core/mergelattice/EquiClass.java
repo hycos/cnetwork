@@ -129,6 +129,7 @@ public class EquiClass implements Cloneable {
                 sb.append(",");
             }
             sb.append(EscapeUtils.escapeSpecialCharacters(n.getLabel()));
+            sb.append("[" + n.emap.toString() + "]");
         }
         sb.append("\\}");
         return sb.toString();
@@ -188,9 +189,7 @@ public class EquiClass implements Cloneable {
 
     @Override
     public String toString() {
-        //return getDotLabel();
         StringBuilder sb = new StringBuilder();
-
         sb.append("Equiclass:========\n");
 
         for(Element e : this.set) {
@@ -199,10 +198,7 @@ public class EquiClass implements Cloneable {
         }
 
         sb.append("=================\n");
-
-
         return sb.toString();
-
     }
 
     public boolean hasOverlap(EquiClass other) {
@@ -210,12 +206,6 @@ public class EquiClass implements Cloneable {
     }
 
     public EquiClass intersection(EquiClass other) {
-        /**if(other instanceof Top) {
-            return this.clone();
-        } else if (other instanceof Bottom) {
-            return new Bottom();
-        }**/
-
         Set<Element> isect = new HashSet<>(set);
 
         isect.retainAll(other.set);
@@ -232,12 +222,6 @@ public class EquiClass implements Cloneable {
     }
 
     public EquiClass minus(EquiClass other) {
-
-        //if(other instanceof Top)
-        //    return new EquiClass();
-        //else if (other instanceof Bottom)
-        //    return this.clone();
-
         Set<Element> minus = new HashSet<>(set);
         minus.removeAll(other.set);
         return new EquiClass(minus);

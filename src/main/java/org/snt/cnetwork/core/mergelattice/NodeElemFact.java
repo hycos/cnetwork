@@ -10,14 +10,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Map Constraint network nodes to equivalence classes
+ * Generate Equivalence Classes from Nodes
  */
 public final class NodeElemFact implements EquiClassFact<Node> {
 
     final static Logger LOGGER = LoggerFactory.getLogger(NodeElemFact.class);
 
     private ConstraintNetworkBuilder cn;
-    private EufLattice<Node> euf;
 
     private NodeCache cache = new NodeCache();
 
@@ -30,11 +29,6 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
     public NodeElemFact(ConstraintNetworkBuilder cn) {
         this.cn = cn;
-        this.euf = cn.getEufLattice();
-    }
-
-    public void setMergeLattice(EufLattice<Node> euf) {
-        this.euf = euf;
     }
 
     private void handleNode(Node n, Set<EquiClass> es) {
@@ -45,7 +39,8 @@ public final class NodeElemFact implements EquiClassFact<Node> {
         }
 
         if (n.isOperand()) {
-            EquiClass eq = new EquiClass(new SingletonElement(n.getLabel()));
+            EquiClass eq = new EquiClass(new SingletonElement(n,n.getLabel
+                    ()));
             cache.put(n, eq);
             es.add(eq);
         } else {
@@ -80,7 +75,9 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
         assert !n.getKind().toString().isEmpty();
 
-        NestedElement nested = new NestedElement(n.getLabel(), n.getKind().toString(),
+        NestedElement<Node> nested = new NestedElement(n, n.getLabel(), n
+                .getKind()
+                .toString(),
                 elems.toArray(new Element[elems.size()]));
 
         nested.setAnnotation(n.getKind().getDesc());
@@ -91,12 +88,13 @@ public final class NodeElemFact implements EquiClassFact<Node> {
         LOGGER.debug("nst {}", nst.getDotLabel());
         // check if there is already another equiclass for this particular
         // nested element
-        EquiClass eq = euf.inferEquiClassFor(nst);
-        eq = eq.union(nst);
+        //EquiClass eq = euf.inferEquiClassFor(nst);
+        //eq = eq.union(nst);
 
-        cache.put(n, eq);
+        //cache.put(n, eq);
 
-        es.add(eq);
+        cache.put(n, nst);
+        es.add(nst);
     }
 
 

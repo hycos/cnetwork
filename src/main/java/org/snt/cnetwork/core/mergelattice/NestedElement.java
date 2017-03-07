@@ -3,7 +3,7 @@ package org.snt.cnetwork.core.mergelattice;
 
 import java.util.*;
 
-public final class NestedElement extends Element {
+public final class NestedElement<T> extends Element<T> {
 
     protected final Element [] tuple;
 
@@ -14,11 +14,12 @@ public final class NestedElement extends Element {
      * @param ne
      */
     public NestedElement(NestedElement ne) {
-        this(ne.lbl, ne.annotation, Arrays.copyOf(ne.tuple, ne.tuple.length));
+        this((T)ne.emap,ne.lbl, ne.annotation, Arrays.copyOf(ne.tuple, ne.tuple
+                .length));
     }
 
-    public NestedElement(String label, String annotation, Element ... pars) {
-       super(label,annotation);
+    public NestedElement(T n, String label, String annotation, Element ... pars) {
+       super(n, label,annotation);
        tuple = new Element[pars.length];
 
        for(int i = 0; i < pars.length; i++) {
