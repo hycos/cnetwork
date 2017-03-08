@@ -124,8 +124,8 @@ public class TestMergeLattice {
         Operand k = cn.addOperand(NodeKind.STRVAR, "k");
 
         try {
-            Operation concat1 = cn.addOperation(NodeKind.CONCAT, a, b);
-            Operation concat4 = cn.addOperation(NodeKind.CONCAT, k, k);
+            Node concat1 = cn.addOperation(NodeKind.CONCAT, a, b);
+            Node concat4 = cn.addOperation(NodeKind.CONCAT, k, k);
             mt.addEquiClass(concat1,concat4);
             mt.addEquiClass(e);
         } catch (EUFInconsistencyException e1) {
@@ -149,8 +149,8 @@ public class TestMergeLattice {
         Operand k = cn.addOperand(NodeKind.STRVAR, "k");
 
         try {
-            Operation concat1 = cn.addOperation(NodeKind.CONCAT, a, b);
-            Operation concat2 = cn.addOperation(NodeKind.CONCAT, a, k);
+            Node concat1 = cn.addOperation(NodeKind.CONCAT, a, b);
+            Node concat2 = cn.addOperation(NodeKind.CONCAT, a, k);
 
             mt.addEquiClass(concat1, k);
             mt.addEquiClass(concat2, k);
@@ -258,33 +258,15 @@ public class TestMergeLattice {
         Operand five = cn.addOperand(NodeKind.NUMVAR, "5");
 
         try {
-            Operation idxof = cn.addOperation(NodeKind.INDEXOF, a, one);
+            Node idxof = cn.addOperation(NodeKind.INDEXOF, a, one);
             cn.addConstraint(NodeKind.EQUALS, idxof, i);
             cn.addConstraint(NodeKind.EQUALS, a, b);
-
-            Operation aliasidxof = cn.addOperation(NodeKind.INDEXOF, b, one);
-
-
-            cn.addConstraint(NodeKind.EQUALS, aliasidxof, five);
-
-            //Collection<EquiClass> n = nf.createEquiClasses(aliasidxof);
-
-            //EquiClass foo = n.stream().filter(v -> v.isNested()).findFirst()
-            //        .get();
-
-            //EquiClass sup = mt.inferEquiClassFor(foo);
-
-            //LOGGER.debug("eq {}", sup.getDotLabel());
-
-            //EquiClass ife = sup.union(foo);
-            //LOGGER.debug("ife {}", ife.getDotLabel());
-            //mt.addEquiClass(ife);
-
+            Node aliasidxof = cn.addOperation(NodeKind.INDEXOF, b, one);
         } catch (EUFInconsistencyException e) {
             e.printStackTrace();
         }
 
-
+        LOGGER.debug(cn.getEufLattice().toDot());
     }
 
 

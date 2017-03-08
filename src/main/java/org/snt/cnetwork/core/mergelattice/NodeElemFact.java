@@ -19,16 +19,19 @@ public final class NodeElemFact implements EquiClassFact<Node> {
     private ConstraintNetworkBuilder cn;
 
     private NodeCache cache = new NodeCache();
+    private EufLattice euf = null;
 
     public NodeElemFact(ConstraintNetworkBuilder cn, NodeElemFact ne) {
         this(cn);
         // clone cache
         this.cache = new NodeCache(ne.cache);
+        this.euf = cn.getEufLattice();
 
     }
 
     public NodeElemFact(ConstraintNetworkBuilder cn) {
         this.cn = cn;
+        this.euf = cn.getEufLattice();
     }
 
     private void handleNode(Node n, Set<EquiClass> es) {
@@ -212,25 +215,7 @@ public final class NodeElemFact implements EquiClassFact<Node> {
         return this.cache.toString();
     }
 
-
-    public String computeLabel(String... s) {
-
-        StringBuffer sb = new StringBuffer();
-
-        if (s.length == 1) {
-            sb.append(s[0]);
-        } else {
-            sb.append(s[0]);
-            sb.append("(");
-            for (int i = 1; i < s.length; i++) {
-                sb.append(s[i]);
-                if (i < s.length - 1)
-                    sb.append(",");
-            }
-            sb.append(")");
-        }
-        return sb.toString();
+    public NodeCache getNodeCache() {
+        return cache;
     }
-
-
 }

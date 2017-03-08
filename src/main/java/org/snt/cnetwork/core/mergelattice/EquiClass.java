@@ -129,7 +129,7 @@ public class EquiClass implements Cloneable {
                 sb.append(",");
             }
             sb.append(EscapeUtils.escapeSpecialCharacters(n.getLabel()));
-            sb.append("[" + n.emap.toString() + "]");
+            sb.append("[" + n.mappedElement.toString() + "]");
         }
         sb.append("\\}");
         return sb.toString();

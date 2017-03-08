@@ -201,6 +201,14 @@ public class EufLattice<T> extends
         split(mo);
     }
 
+    private void checkParamBackwards(EquiClass c) {
+
+        Set<EquiEdge> isplit = incomingEdgesOfKind(c, EquiEdge.Kind.SPLIT);
+
+
+
+    }
+
 
     private EquiClass findSubsumptionPoint(EquiClass e) {
 

@@ -195,6 +195,10 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     }
 
 
+    public String getLabel(NodeKind kind, List<Node> params) {
+        return kind.toString() + "(" + getParameterList(params) + ")";
+    }
+
     private String getParameterList(List<Node> params) {
 
         String label = "";
@@ -266,12 +270,11 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return addOperation(kind, false, params);
     }
 
-
     protected Operation addOperation(NodeKind kind, boolean isConstraint, List<Node> params) {
         //LOGGER.info("PARAMS LEN " + params.size());
         Operation op;
 
-        String label = kind.toString() + "(" + getParameterList(params) + ")";
+        String label = getLabel(kind, params);
         //LOGGER.info("LABEL IS " + label);
 
         op = (Operation) getNodeByLabel(label);
@@ -289,7 +292,6 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         }
         linkParams(op, params);
         return op;
-
     }
 
 

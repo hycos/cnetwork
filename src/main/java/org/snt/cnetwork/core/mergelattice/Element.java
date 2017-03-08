@@ -11,16 +11,16 @@ public abstract class Element<T> implements Comparable, Cloneable{
     protected String annotation = "";
 
     // used to map a 'real' object to this element
-    protected T emap;
+    protected T mappedElement;
 
     public Element(T emap, String lbl, String annotation) {
         this.lbl = lbl;
         this.annotation = annotation;
-        this.emap = emap;
+        this.mappedElement = emap;
     }
 
     public Element(Element e) {
-        this((T)e.emap, e.lbl, e.annotation);
+        this((T)e.mappedElement, e.lbl, e.annotation);
     }
 
     public abstract Element [] split();
@@ -32,6 +32,10 @@ public abstract class Element<T> implements Comparable, Cloneable{
     }
 
     public String getAnnotation() { return annotation ;}
+
+    public T getMappedElement() {
+        return mappedElement;
+    }
 
     public void setAnnotation(String annotation) {
         this.annotation = annotation;

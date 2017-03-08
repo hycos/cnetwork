@@ -14,7 +14,7 @@ public class SingletonElement<T> extends Element<T> {
 
 
     public SingletonElement(SingletonElement se) {
-        this((T)se.emap, se.lbl, se.annotation);
+        this((T)se.mappedElement, se.lbl, se.annotation);
     }
 
     @Override

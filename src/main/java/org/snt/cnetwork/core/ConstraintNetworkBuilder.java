@@ -3,10 +3,7 @@ package org.snt.cnetwork.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.BooleanRange;
-import org.snt.cnetwork.core.mergelattice.EquiClass;
-import org.snt.cnetwork.core.mergelattice.EufLattice;
-import org.snt.cnetwork.core.mergelattice.NodeElemFact;
-import org.snt.cnetwork.core.mergelattice.SingletonElement;
+import org.snt.cnetwork.core.mergelattice.*;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.exception.MissingItemException;
 
@@ -60,13 +57,13 @@ public class ConstraintNetworkBuilder
         this(false);
     }
 
-    public Operation addConstraint(NodeKind kind, Node... params) throws
+    public Node addConstraint(NodeKind kind, Node... params) throws
             EUFInconsistencyException {
         List<Node> lst = Arrays.asList(params);
         return addConstraint(kind, lst);
     }
 
-    public Operation addOperation(NodeKind kind, Node... params) throws
+    public Node addOperation(NodeKind kind, Node... params) throws
             EUFInconsistencyException {
         List<Node> lst = Arrays.asList(params);
         return addOperation(kind, lst);
@@ -77,29 +74,25 @@ public class ConstraintNetworkBuilder
     }
 
 
-    public Operation addOperation(NodeKind kind, List<Node> params) throws
+    public Node addOperation(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
-        Operation op = cn.addOperation(kind, false, params);
+        Node op = cn.addOperation(kind, false, params);
+        op = infer(op);
         attach(op);
         update(op);
         return op;
     }
 
-    public Operation addConstraint(NodeKind kind, List<Node> params) throws
+    public Node addConstraint(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
-        Operation op = cn.addOperation(kind, true, params);
+        Node op = cn.addOperation(kind, true, params);
         LOGGER.debug(">> add constraint {}", op);
+        op = infer(op);
         attach(op);
         update(op);
         return op;
     }
 
-    public Node addNode(Node n) throws EUFInconsistencyException {
-        Node nn = cn.addNode(n);
-        attach(n);
-        update(n);
-        return nn;
-    }
 
     public Operation addExtOperation(String identifier, List<Node> params) {
         return cn.addExtOperation(identifier, params);
@@ -241,6 +234,42 @@ public class ConstraintNetworkBuilder
         }
     }
 
+    public Node infer(Node n) {
+
+        Node nn = inferEquivalentNode(n);
+
+        // is already present as nn
+        if(!nn.equals(n)) {
+            return nn;
+        }
+
+        // n is the first of its kind
+        return n;
+    }
+
+
+
+    private Node inferEquivalentNode(Node n) {
+        if(n.isOperand()) {
+            return n;
+        } else {
+            nf.createEquiClass(n);
+            EquiClass en = nf.getNodeCache().getValueByKey(n);
+            EquiClass nen = euf.inferEquiClassFor(en);
+
+            if(nen == null || nen == euf.getBottom() || nen == euf.getTop()) {
+                return n;
+            }
+
+            LOGGER.debug("equivalent class {}", nen.getDotLabel());
+            assert nen.isSingleton();
+
+            Element<Node> e =  nen.getElements().iterator().next();
+            return e.getMappedElement();
+        }
+    }
+
+
     @Override
     public void update(Node n) throws EUFInconsistencyException {
         LOGGER.debug(">> update {}", n.getDotLabel());
@@ -297,8 +326,8 @@ public class ConstraintNetworkBuilder
                     if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
                         List<Node> pars = cn.getParametersFor(n);
                         assert pars.size() == 2;
-                        if (!hasRedundantPars(pars, true));
-                        euf.addInequialityConstraint(pars.get(0), pars.get(1));
+                        if (!hasRedundantPars(pars, true))
+                            euf.addInequialityConstraint(pars.get(0), pars.get(1));
                     }
                 } else if (n.getKind().isEquality()) {
                     LOGGER.debug("n {}", n.getDotLabel());
@@ -311,8 +340,8 @@ public class ConstraintNetworkBuilder
                     if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
                         List<Node> pars = cn.getParametersFor(n);
                         assert pars.size() == 2;
-                        if (!hasRedundantPars(pars, false)) ;
-                        euf.addInequialityConstraint(pars.get(0), pars.get(1));
+                        if (!hasRedundantPars(pars, false))
+                            euf.addInequialityConstraint(pars.get(0), pars.get(1));
                     }
                 }
             } else if(!n.isBoolean() && n.isOperation()) {

@@ -14,7 +14,7 @@ public final class NestedElement<T> extends Element<T> {
      * @param ne
      */
     public NestedElement(NestedElement ne) {
-        this((T)ne.emap,ne.lbl, ne.annotation, Arrays.copyOf(ne.tuple, ne.tuple
+        this((T)ne.mappedElement,ne.lbl, ne.annotation, Arrays.copyOf(ne.tuple, ne.tuple
                 .length));
     }
 
