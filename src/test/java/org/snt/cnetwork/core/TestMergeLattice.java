@@ -267,6 +267,7 @@ public class TestMergeLattice {
         }
 
         LOGGER.debug(cn.getEufLattice().toDot());
+        LOGGER.debug(cn.getConstraintNetwork().toDot());
     }
 
 

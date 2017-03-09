@@ -21,6 +21,5 @@ public class Pair<T,K> {
 
         return this.first.equals(((Pair) o).first) && this.second.equals((
                 (Pair) o).second);
-
     }
 }

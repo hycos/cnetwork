@@ -7,10 +7,12 @@ import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.exception.MissingItemException;
 import org.snt.cnetwork.utils.BiMap;
+import org.snt.cnetwork.utils.HashPair;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 
@@ -201,12 +203,140 @@ public class EufLattice<T> extends
         split(mo);
     }
 
-    private void checkParamBackwards(EquiClass c) {
+
+    /**
+     * Search for un
+     */
+    private void mergeSplits(EquiClass c) throws EUFInconsistencyException {
+
+        LOGGER.debug("check param bw for {}", c.getDotLabel());
 
         Set<EquiEdge> isplit = incomingEdgesOfKind(c, EquiEdge.Kind.SPLIT);
 
 
+        // find equiclasses to merge
+        Map<HashPair<Integer, String>, Set<EquiClass>> mmap = new HashMap<>();
 
+
+        // first collect potential equiclasses that could be merged
+        // by following edges with the same parameter sequence
+        // backwards
+        for(EquiEdge e : isplit) {
+            LOGGER.debug(">> {}",e.getSource().getDotLabel());
+            EquiClass src = e.getSource();
+
+
+            assert src.isNested();
+            assert src.getElements().size() == 1;
+
+            String kind = src.getElements().iterator().next().getAnnotation();
+
+            HashPair<Integer,String> key = new HashPair(e.getSequence(), kind);
+
+            if(!mmap.containsKey(key)) {
+                mmap.put(key, new HashSet<>());
+            }
+
+            mmap.get(key).add(src);
+        }
+
+
+
+        Set<Set<EquiClass>> tm = mmap.values().stream().filter(s -> s.size()
+                > 1).collect(Collectors.toSet());
+
+
+        for(Set<EquiClass> s : tm) {
+            mergeNestedSet(s);
+        }
+
+    }
+
+    /**
+     * s consists of equiclasses with the same annotion
+     * and the same amount of parameters
+     * @param s
+     */
+    private void mergeNestedSet(Set<EquiClass> s) throws EUFInconsistencyException {
+
+        Map<Integer, Map<EquiClass, Set<EquiClass>>> mmap = new HashMap<>();
+
+
+        // group mergeable classes
+
+        Set<EquiClass> un = new HashSet<>();
+
+        int pnum = -1;
+
+        for (EquiClass c : s) {
+
+            un.add(c);
+
+            LOGGER.debug("look at ec {}", c.getDotLabel());
+
+            Set<EquiEdge> out = outgoingEdgesOfKind(c, EquiEdge.Kind.SPLIT);
+
+            int on = out.size();
+
+            if(pnum < 0) {
+                pnum = on;
+            } else {
+                LOGGER.debug("pnum {} on {}", pnum, on);
+                if(pnum != on)
+                    return;
+            }
+
+            assert pnum == on;
+
+            for(EquiEdge o : out) {
+
+                int seq = o.getSequence();
+                EquiClass src = o.getSource();
+                EquiClass dst = o.getTarget();
+
+                if(!mmap.containsKey(seq))
+                    mmap.put(seq, new HashMap<>());
+
+
+                if(!mmap.get(seq).containsKey(dst))
+                    mmap.get(seq).put(dst,new HashSet<>());
+
+
+                mmap.get(seq).get(dst).add(src);
+            }
+
+        }
+
+        LOGGER.debug("UN {}", un);
+
+        Set<Integer> iset = IntStream.rangeClosed(1, pnum).boxed().collect
+                (Collectors.toSet());
+
+
+        LOGGER.debug("PNUM {}", pnum);
+
+        LOGGER.debug("ISET {}", iset);
+
+
+        if(!mmap.keySet().equals(iset))
+          return;
+
+        LOGGER.debug("merge 1");
+
+
+
+        for(Map<EquiClass, Set<EquiClass>> r : mmap.values()) {
+            for(Set<EquiClass> rs : r.values()) {
+               un.retainAll(rs);
+            }
+        }
+
+
+        EquiClass ec = un.stream().reduce((x,y) -> x.union(y)).get();
+
+        addEquiClass(ec);
+
+        // if this point is reached all the parameter of two
     }
 
 
@@ -239,7 +369,7 @@ public class EufLattice<T> extends
     }
 
 
-    private void split(EquiClass n) {
+    private void split(EquiClass n) throws EUFInconsistencyException {
 
         LinkedList<EquiClass> worklist = new LinkedList<>();
         LOGGER.debug("split {}", n.getDotLabel());
@@ -274,7 +404,7 @@ public class EufLattice<T> extends
     }
 
 
-    private Set<EquiClass> handleNestedElement(EquiClass parent) {
+    private Set<EquiClass> handleNestedElement(EquiClass parent) throws EUFInconsistencyException {
         int x = 0;
 
         LOGGER.debug("handle nested element {}", parent.getDotLabel());
@@ -419,7 +549,7 @@ public class EufLattice<T> extends
         return v;
     }
 
-    public void addSplitEdge(EquiClass src, EquiClass dst, int idx) {
+    public void addSplitEdge(EquiClass src, EquiClass dst, int idx) throws EUFInconsistencyException {
         LOGGER.debug("add split edge {} -> {}", src.getDotLabel(), dst
                 .getDotLabel());
 
@@ -436,6 +566,12 @@ public class EufLattice<T> extends
 
         if (outSubDegreeOf(dst) == 0)
             linkToBottom(dst);
+
+
+        //@TODO: Julian -- is this ok?
+
+
+        mergeSplits(dst);
     }
 
 
@@ -629,7 +765,7 @@ public class EufLattice<T> extends
     }
 
 
-    private void replace(Set<EquiClass> toReplace, EquiClass replacement) {
+    private void replace(Set<EquiClass> toReplace, EquiClass replacement) throws EUFInconsistencyException {
 
         if (toReplace.isEmpty())
             return;
