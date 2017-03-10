@@ -240,6 +240,8 @@ public class ConstraintNetworkBuilder
 
         // is already present as nn
         if(!nn.equals(n)) {
+
+            LOGGER.debug("inferred {}", nn.getDotLabel());
             return nn;
         }
 
@@ -253,6 +255,7 @@ public class ConstraintNetworkBuilder
         if(n.isOperand()) {
             return n;
         } else {
+            // create temporary equi class
             nf.createEquiClass(n);
             EquiClass en = nf.getNodeCache().getValueByKey(n);
             EquiClass nen = euf.inferEquiClassFor(en);

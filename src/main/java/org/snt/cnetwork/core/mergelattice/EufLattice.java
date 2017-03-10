@@ -569,9 +569,7 @@ public class EufLattice<T> extends
 
 
         //@TODO: Julian -- is this ok?
-
-
-        mergeSplits(dst);
+        //mergeSplits(dst);
     }
 
 
@@ -647,7 +645,6 @@ public class EufLattice<T> extends
 
         LOGGER.debug("spl {}", e.split().size());
 
-        LOGGER.debug("CL {}", e.getClass());
         // get the paramters
         Collection<EquiClass> ec = e.split();
 
@@ -658,7 +655,7 @@ public class EufLattice<T> extends
         Set<EquiClass> tcrit = new HashSet<>();
 
         // get
-        int pidx = 0;
+        int pidx = 1;
         for(EquiClass eq : ec) {
             EquiClass cov = getCoveringEquiClass(eq);
 
@@ -675,7 +672,7 @@ public class EufLattice<T> extends
 
             assert vertexSet().contains(cov);
 
-            final int idx = pidx ++;
+            final int idx = pidx;
             Set<EquiClass> inc = incomingEdgesOf(cov).stream()
                     .filter(t -> t.getKind() == EquiEdge.Kind.SPLIT)
                     .filter(t -> t.getSequence() == idx)
@@ -697,6 +694,8 @@ public class EufLattice<T> extends
 
         Set<EquiClass> chop = fwslice(srccrit);
         chop.retainAll(bwslice(tcrit));
+
+        LOGGER.debug("chop {}", chop);
 
         try {
             chop = chop.stream().filter(v -> v.isNested())
