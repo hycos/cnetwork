@@ -7,10 +7,7 @@ import org.snt.cnetwork.core.mergelattice.*;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.exception.MissingItemException;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -74,10 +71,29 @@ public class ConstraintNetworkBuilder
     }
 
 
+    private List<Node> inferParam(List<Node> param) {
+
+        List<Node> ret = new Vector<>();
+
+        for(Node p : param) {
+            ret.add(infer(p));
+        }
+
+        return ret;
+    }
+
     public Node addOperation(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
-        Node op = cn.addOperation(kind, false, params);
-        op = infer(op);
+
+        Node op = cn.addOperation(kind, false, inferParam(params));
+        Node nop = infer(op);
+
+        // there is already an equivalent node present in the cn
+        if(!op.equals(nop)) {
+            // we can drop the vertex to be added
+            cn.removeVertex(op);
+            return nop;
+        }
         attach(op);
         update(op);
         return op;
@@ -85,9 +101,17 @@ public class ConstraintNetworkBuilder
 
     public Node addConstraint(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
-        Node op = cn.addOperation(kind, true, params);
+        Node op = cn.addOperation(kind, true, inferParam(params));
         LOGGER.debug(">> add constraint {}", op);
-        op = infer(op);
+        Node nop = infer(op);
+
+        // there is already an equivalent node present in the cn
+        if(!op.equals(nop)) {
+            // we can drop the vertex to be added
+            cn.removeVertex(op);
+            return nop;
+        }
+
         attach(op);
         update(op);
         return op;
@@ -258,7 +282,13 @@ public class ConstraintNetworkBuilder
             // create temporary equi class
             nf.createEquiClass(n);
             EquiClass en = nf.getNodeCache().getValueByKey(n);
-            EquiClass nen = euf.inferEquiClassFor(en);
+            Set<EquiClass> snen = euf.inferEquiClassFor(en);
+
+            LOGGER.debug("ieq {}", snen);
+
+            assert snen.size() == 1;
+
+            EquiClass nen = snen.iterator().next();
 
             if(nen == null || nen == euf.getBottom() || nen == euf.getTop()) {
                 return n;
@@ -268,7 +298,11 @@ public class ConstraintNetworkBuilder
             assert nen.isSingleton();
 
             Element<Node> e =  nen.getElements().iterator().next();
-            return e.getMappedElement();
+            Node emap = e.getMappedElement();
+
+            LOGGER.debug("mapped element is {}", emap.getLabel());
+
+            return emap;
         }
     }
 

@@ -270,7 +270,11 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return addOperation(kind, false, params);
     }
 
-    protected Operation addOperation(NodeKind kind, boolean isConstraint, List<Node> params) {
+
+
+    protected Operation addOperation(NodeKind kind,
+                                     boolean isConstraint,
+                                     List<Node> params) {
         //LOGGER.info("PARAMS LEN " + params.size());
         Operation op;
 

@@ -248,7 +248,7 @@ public class TestMergeLattice {
 
 
     @Test
-    public void testInference() {
+    public void testInferenceCase1() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
 
         Operand a = cn.addOperand(NodeKind.STRVAR, "a");
@@ -256,12 +256,45 @@ public class TestMergeLattice {
         Operand one = cn.addOperand(NodeKind.NUMLIT, "1");
         Operand i = cn.addOperand(NodeKind.NUMVAR, "i");
         Operand five = cn.addOperand(NodeKind.NUMVAR, "5");
+        Operand k = cn.addOperand(NodeKind.NUMVAR, "k");
 
         try {
             Node idxof = cn.addOperation(NodeKind.INDEXOF, a, one);
             cn.addConstraint(NodeKind.EQUALS, idxof, i);
             cn.addConstraint(NodeKind.EQUALS, a, b);
             Node aliasidxof = cn.addOperation(NodeKind.INDEXOF, b, one);
+            cn.addConstraint(NodeKind.EQUALS, aliasidxof, k);
+
+        } catch (EUFInconsistencyException e) {
+            e.printStackTrace();
+        }
+
+        LOGGER.debug(cn.getEufLattice().toDot());
+        LOGGER.debug(cn.getConstraintNetwork().toDot());
+    }
+
+    @Test
+    public void testInferenceCase2() {
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+
+        Operand a = cn.addOperand(NodeKind.STRVAR, "a");
+        Operand b = cn.addOperand(NodeKind.STRVAR, "b");
+        Operand c = cn.addOperand(NodeKind.STRVAR, "c");
+
+        Operand one = cn.addOperand(NodeKind.NUMLIT, "1");
+        Operand i = cn.addOperand(NodeKind.NUMVAR, "i");
+        Operand five = cn.addOperand(NodeKind.NUMVAR, "5");
+        Operand k = cn.addOperand(NodeKind.NUMVAR, "k");
+
+        try {
+            Node idxof = cn.addOperation(NodeKind.INDEXOF, a, one);
+            cn.addConstraint(NodeKind.EQUALS, idxof, i);
+            Node aliasidxof = cn.addOperation(NodeKind.INDEXOF, b, one);
+            cn.addConstraint(NodeKind.EQUALS, aliasidxof, k);
+            //Node caliasidxof = cn.addOperation(NodeKind.INDEXOF, c, one);
+            cn.addConstraint(NodeKind.EQUALS, a, b);
+            //cn.addConstraint(NodeKind.EQUALS, c, b);
+            //cn.addConstraint(NodeKind.EQUALS, aliasidxof, k);
         } catch (EUFInconsistencyException e) {
             e.printStackTrace();
         }

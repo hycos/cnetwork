@@ -4,10 +4,10 @@ package org.snt.cnetwork.core.mergelattice;
 import org.jgrapht.graph.DirectedMultigraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.Node;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.exception.MissingItemException;
 import org.snt.cnetwork.utils.BiMap;
-import org.snt.cnetwork.utils.HashPair;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
@@ -27,7 +27,7 @@ public class EufLattice<T> extends
 
     private EquiClassFact elementFact = null;
 
-    private BiMap<String, EquiClass> ecache = new BiMap<>();
+    private BiMap<Node, Node> ncache = new BiMap<>();
 
     public void setEquiClassFact(EquiClassFact<T> elementFact) {
         this.elementFact = elementFact;
@@ -201,6 +201,9 @@ public class EufLattice<T> extends
         // split the equi class in order to learn interesting facts
         // by analyzing nested equi classes
         split(mo);
+
+        //@TODO: Julian -- is this ok?
+        mergeSplits(mo);
     }
 
 
@@ -211,17 +214,17 @@ public class EufLattice<T> extends
 
         LOGGER.debug("check param bw for {}", c.getDotLabel());
 
-        Set<EquiEdge> isplit = incomingEdgesOfKind(c, EquiEdge.Kind.SPLIT);
+        //Set<EquiEdge> isplit = incomingEdgesOfKind(c, EquiEdge.Kind.SPLIT);
 
 
         // find equiclasses to merge
-        Map<HashPair<Integer, String>, Set<EquiClass>> mmap = new HashMap<>();
+        //Map<HashPair<Integer, String>, Set<EquiClass>> mmap = new HashMap<>();
 
 
         // first collect potential equiclasses that could be merged
         // by following edges with the same parameter sequence
         // backwards
-        for(EquiEdge e : isplit) {
+        /**for(EquiEdge e : isplit) {
             LOGGER.debug(">> {}",e.getSource().getDotLabel());
             EquiClass src = e.getSource();
 
@@ -238,17 +241,42 @@ public class EufLattice<T> extends
             }
 
             mmap.get(key).add(src);
+        }**/
+
+
+        Set<EquiClass> in = getConnectedInNodesOfKind(c, EquiEdge.Kind.SPLIT);
+
+
+        Set<EquiClass> toAdd = new HashSet<>();
+
+        for(EquiClass i : in) {
+
+            Set<EquiClass> ni = inferEquiClassFor(i);
+
+            EquiClass eq = new EquiClass();
+            eq = eq.union(i);
+
+            for(EquiClass n : ni) {
+                eq = eq.union(n);
+            }
+
+            toAdd.add(eq);
+
         }
 
+        //LOGGER.debug("TOADD {}", toAdd);
+
+        if(!toAdd.isEmpty())
+            addEquiClass(toAdd);
 
 
-        Set<Set<EquiClass>> tm = mmap.values().stream().filter(s -> s.size()
+        /**Set<Set<EquiClass>> tm = mmap.values().stream().filter(s -> s.size()
                 > 1).collect(Collectors.toSet());
 
 
         for(Set<EquiClass> s : tm) {
             mergeNestedSet(s);
-        }
+        }**/
 
     }
 
@@ -432,6 +460,7 @@ public class EufLattice<T> extends
     public EquiClass addEquiClass(Collection<EquiClass> toadd) throws
             EUFInconsistencyException {
 
+
         EquiClass eq = union(toadd);
 
         for(EquiClass e : toadd) {
@@ -567,9 +596,6 @@ public class EufLattice<T> extends
         if (outSubDegreeOf(dst) == 0)
             linkToBottom(dst);
 
-
-        //@TODO: Julian -- is this ok?
-        //mergeSplits(dst);
     }
 
 
@@ -619,10 +645,12 @@ public class EufLattice<T> extends
     }
 
     // given a nested equiclass infer the equivalent based on parameter
-    // equivalence
-    public EquiClass inferEquiClassFor(EquiClass e) {
+    // equivalence (the parameter
+    public Set<EquiClass> inferEquiClassFor(EquiClass e) {
         assert e.isNested();
         assert e.getElements().size() == 1;
+
+        Set<EquiClass> ret = new HashSet<>();
 
         LOGGER.debug("infer equivalence class for {}", e.getDotLabel());
 
@@ -632,11 +660,16 @@ public class EufLattice<T> extends
         // if there exist an alias, it has to be among this elems
         Set<EquiClass> srccrit = vertexSet().stream()
                 .filter(v -> v.isNested())
+                .filter(v -> !v.equals(e))
                 .filter(v -> v.getElements().iterator().next().getAnnotation
                         ().equals(anno)).collect(Collectors.toSet());
 
-        if(srccrit.isEmpty())
-            return bottom;
+
+
+        if(srccrit.isEmpty()) {
+            ret.add(e);
+            return ret;
+        }
 
         LOGGER.debug("srccrit {}", srccrit);
         assert e.getElements().size() == 1;
@@ -665,9 +698,10 @@ public class EufLattice<T> extends
 
 
             // we can directly stop - param does not have aliases yet
-            if(!vertexSet().contains(cov)) {
+            if (!vertexSet().contains(cov)) {
                 LOGGER.debug("not there yet");
-                return e;
+                ret.add(e);
+                return ret;
             }
 
             assert vertexSet().contains(cov);
@@ -677,42 +711,75 @@ public class EufLattice<T> extends
                     .filter(t -> t.getKind() == EquiEdge.Kind.SPLIT)
                     .filter(t -> t.getSequence() == idx)
                     .filter(t -> !t.getSource().equals(top))
-                    .map(t -> t.getSource()).collect(Collectors.toSet());
+                    .filter(t -> t.getSource().getElements().iterator().next
+                            ().getAnnotation().equals(anno))
+                    .map(t -> t.getTarget()).collect(Collectors.toSet());
 
+            if (inc.isEmpty()) {
+                // not all parameters are covered
+                ret.add(e);
+                return ret;
+            } else {
+                tcrit.addAll(inc);
+            }
 
-            if(idx == 1) {
+            /**if(idx == 1) {
                 tcrit.addAll(inc);
             } else {
                 tcrit.retainAll(inc);
-            }
+            }**/
             pidx ++;
         }
 
+        LOGGER.debug("tcrit {}", tcrit);
+
         if(srccrit.isEmpty() || tcrit.isEmpty()) {
-            return bottom;
+            ret.add(e);
+            return ret;
         }
 
-        Set<EquiClass> chop = fwslice(srccrit);
-        chop.retainAll(bwslice(tcrit));
+        Set<EquiClass> fw = fwslice(srccrit);
+        Set<EquiClass> bw = bwslice(tcrit);
 
-        LOGGER.debug("chop {}", chop);
+        LOGGER.debug("FW {}", fw);
+        LOGGER.debug("BW {}", bw);
+
+        Set<EquiClass> chop = new HashSet<>();
+        chop.addAll(fw);
+        chop.retainAll(bw);
+
+
 
         try {
-            chop = chop.stream().filter(v -> v.isNested())
+            chop = chop.stream()
+                    .filter(v -> v.isNested())
+                    .filter(v -> !v.equals(top))
+                    .filter(v -> !v.equals(bottom))
                     .filter(v -> v.getElements().iterator().next().getAnnotation
                             ().equals(anno)).collect(Collectors.toSet());
         } catch(NoSuchElementException x) {
-            return bottom;
+            ret.add(e);
+            return ret;
         }
 
+        LOGGER.debug("chop {}", chop);
 
-        if(chop.size() == 1) {
+
+        /**if(chop.size() == 1) {
+            ret.add
             return chop.iterator().next();
         } else {
             LOGGER.debug("chop {}", chop);
             LOGGER.debug("chop size {}", chop.size());
-            assert chop.isEmpty();
+            //assert chop.isEmpty();
             return bottom;
+        }**/
+
+        if(chop.isEmpty()){
+            ret.add(e);
+            return ret;
+        } else {
+            return chop;
         }
 
     }
@@ -730,7 +797,7 @@ public class EufLattice<T> extends
 
             slice.add(ec);
             if(inDegreeOf(ec) > 0){
-                wlist.addAll(getConnectedInNodesOfKind(ec, EquiEdge.Kind.SUB));
+                wlist.addAll(getConnectedInNodesOfKind(ec, EquiEdge.Kind.SPLIT));
             }
         }
         return slice;
@@ -750,7 +817,7 @@ public class EufLattice<T> extends
 
             slice.add(ec);
             if(outDegreeOf(ec) > 0){
-                wlist.addAll(getConnectedInNodesOfKind(ec, EquiEdge.Kind.SUB));
+                wlist.addAll(getConnectedOutNodesOfKind(ec, EquiEdge.Kind.SPLIT));
             }
         }
 
