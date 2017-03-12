@@ -12,11 +12,10 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 
-public class EufLattice<T> extends
+public class EufLattice<T extends Node> extends
         DirectedMultigraph<EquiClass, EquiEdge> implements Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(EufLattice.class);
@@ -202,7 +201,8 @@ public class EufLattice<T> extends
         // by analyzing nested equi classes
         split(mo);
 
-        //@TODO: Julian -- is this ok?
+        //@TODO: Julian -- this function might call this function recursively
+        //again
         mergeSplits(mo);
     }
 
@@ -214,34 +214,6 @@ public class EufLattice<T> extends
 
         LOGGER.debug("check param bw for {}", c.getDotLabel());
 
-        //Set<EquiEdge> isplit = incomingEdgesOfKind(c, EquiEdge.Kind.SPLIT);
-
-
-        // find equiclasses to merge
-        //Map<HashPair<Integer, String>, Set<EquiClass>> mmap = new HashMap<>();
-
-
-        // first collect potential equiclasses that could be merged
-        // by following edges with the same parameter sequence
-        // backwards
-        /**for(EquiEdge e : isplit) {
-            LOGGER.debug(">> {}",e.getSource().getDotLabel());
-            EquiClass src = e.getSource();
-
-
-            assert src.isNested();
-            assert src.getElements().size() == 1;
-
-            String kind = src.getElements().iterator().next().getAnnotation();
-
-            HashPair<Integer,String> key = new HashPair(e.getSequence(), kind);
-
-            if(!mmap.containsKey(key)) {
-                mmap.put(key, new HashSet<>());
-            }
-
-            mmap.get(key).add(src);
-        }**/
 
 
         Set<EquiClass> in = getConnectedInNodesOfKind(c, EquiEdge.Kind.SPLIT);
@@ -260,111 +232,73 @@ public class EufLattice<T> extends
                 eq = eq.union(n);
             }
 
-            toAdd.add(eq);
+            toAdd.add(removeRedundancies(eq));
 
         }
 
         //LOGGER.debug("TOADD {}", toAdd);
 
-        if(!toAdd.isEmpty())
+        if(!toAdd.isEmpty()) {
             addEquiClass(toAdd);
-
-
-        /**Set<Set<EquiClass>> tm = mmap.values().stream().filter(s -> s.size()
-                > 1).collect(Collectors.toSet());
-
-
-        for(Set<EquiClass> s : tm) {
-            mergeNestedSet(s);
-        }**/
+        }
 
     }
 
     /**
-     * s consists of equiclasses with the same annotion
-     * and the same amount of parameters
-     * @param s
+     * cleanup nested equi class by removing redundant
+     * elements
+     * @param n
+     * @return
      */
-    private void mergeNestedSet(Set<EquiClass> s) throws EUFInconsistencyException {
+    private EquiClass removeRedundancies(EquiClass n) {
 
-        Map<Integer, Map<EquiClass, Set<EquiClass>>> mmap = new HashMap<>();
+        EquiClass c = n;
+        if(!n.isNested()) {
+            //@TODO: Julian
+            Collection<EquiClass> split = n.split();
 
+            Map<String, TreeMap<Integer,EquiClass>> emap = new HashMap<>();
 
-        // group mergeable classes
+            // collect all equal nodes
+            for(EquiClass e : split) {
+                if(e.isNested()){
 
-        Set<EquiClass> un = new HashSet<>();
+                    LOGGER.debug("UUU {}", e);
 
-        int pnum = -1;
+                    Element ele = e.getElements().iterator().next();
 
-        for (EquiClass c : s) {
+                    String anno = ele.getAnnotation();
 
-            un.add(c);
+                    T mapped = (T)ele.getMappedElement();
 
-            LOGGER.debug("look at ec {}", c.getDotLabel());
-
-            Set<EquiEdge> out = outgoingEdgesOfKind(c, EquiEdge.Kind.SPLIT);
-
-            int on = out.size();
-
-            if(pnum < 0) {
-                pnum = on;
-            } else {
-                LOGGER.debug("pnum {} on {}", pnum, on);
-                if(pnum != on)
-                    return;
+                    if(!emap.containsKey(anno)) {
+                        emap.put(anno, new TreeMap<>());
+                    }
+                    emap.get(anno).put(mapped.getId(), e);
+                }
             }
 
-            assert pnum == on;
+            Set<TreeMap<Integer,EquiClass>> red = emap.values().stream()
+                    .filter(s -> s.size() > 1).collect(Collectors.toSet());
 
-            for(EquiEdge o : out) {
-
-                int seq = o.getSequence();
-                EquiClass src = o.getSource();
-                EquiClass dst = o.getTarget();
-
-                if(!mmap.containsKey(seq))
-                    mmap.put(seq, new HashMap<>());
-
-
-                if(!mmap.get(seq).containsKey(dst))
-                    mmap.get(seq).put(dst,new HashSet<>());
-
-
-                mmap.get(seq).get(dst).add(src);
-            }
-
-        }
-
-        LOGGER.debug("UN {}", un);
-
-        Set<Integer> iset = IntStream.rangeClosed(1, pnum).boxed().collect
-                (Collectors.toSet());
-
-
-        LOGGER.debug("PNUM {}", pnum);
-
-        LOGGER.debug("ISET {}", iset);
-
-
-        if(!mmap.keySet().equals(iset))
-          return;
-
-        LOGGER.debug("merge 1");
-
-
-
-        for(Map<EquiClass, Set<EquiClass>> r : mmap.values()) {
-            for(Set<EquiClass> rs : r.values()) {
-               un.retainAll(rs);
+            for(TreeMap<Integer,EquiClass> r : red) {
+                int k = 0;
+                for(EquiClass eq : r.values()) {
+                    if(k == 0) {
+                        k++;
+                        continue;
+                    }
+                    T ele = (T)eq.getElements().iterator().next()
+                            .getMappedElement();
+                    c = c.minus(eq);
+                    LOGGER.debug("remove {}", ele.getLabel());
+                    if(containsVertex(eq))
+                        removeEquiClass(eq);
+                    elementFact.remove(ele);
+                }
             }
         }
-
-
-        EquiClass ec = un.stream().reduce((x,y) -> x.union(y)).get();
-
-        addEquiClass(ec);
-
-        // if this point is reached all the parameter of two
+        return c;
     }
 
 
@@ -469,7 +403,6 @@ public class EufLattice<T> extends
         }
         return findSubsumptionPoint(eq);
     }
-
 
 
 
@@ -764,16 +697,6 @@ public class EufLattice<T> extends
 
         LOGGER.debug("chop {}", chop);
 
-
-        /**if(chop.size() == 1) {
-            ret.add
-            return chop.iterator().next();
-        } else {
-            LOGGER.debug("chop {}", chop);
-            LOGGER.debug("chop size {}", chop.size());
-            //assert chop.isEmpty();
-            return bottom;
-        }**/
 
         if(chop.isEmpty()){
             ret.add(e);

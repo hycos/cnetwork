@@ -294,7 +294,7 @@ public class TestMergeLattice {
             //Node caliasidxof = cn.addOperation(NodeKind.INDEXOF, c, one);
             cn.addConstraint(NodeKind.EQUALS, a, b);
             //cn.addConstraint(NodeKind.EQUALS, c, b);
-            //cn.addConstraint(NodeKind.EQUALS, aliasidxof, k);
+            cn.addConstraint(NodeKind.EQUALS, aliasidxof, k);
         } catch (EUFInconsistencyException e) {
             e.printStackTrace();
         }

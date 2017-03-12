@@ -129,6 +129,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return params;
     }
 
+
     protected Operand getAuxiliaryVariable(NodeKind kind) {
         Operand op = new Operand(variablePfx + (vidx++), kind);
         addNode(op);
