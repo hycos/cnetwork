@@ -48,7 +48,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return ret;
     }
 
-    protected Node getNodeById(int id) {
+    public Node getNodeById(int id) {
 
         Node ret = null;
 

@@ -137,8 +137,10 @@ public class ConstraintNetworkBuilder
     public Node getNodeByLabel(String lbl) {
 
         if (eufEnabled) {
-            if (!nf.getNodeCache().containsKey(lbl))
+            if (!nf.getNodeCache().containsKey(lbl)) {
+                LOGGER.debug("null");
                 return null;
+            }
 
             EquiClass ec = nf.getNodeCache().getValueByKey(lbl);
             Set<EquiClass> snen = euf.inferEquiClassFor(ec);
@@ -165,6 +167,11 @@ public class ConstraintNetworkBuilder
         } else {
             return cn.getNodeByLabel(lbl);
         }
+    }
+
+    public Node getNodeById(int id) {
+        // @TODO:Julian might have to change that
+        return cn.getNodeById(id);
     }
 
     public ConstraintNetwork getConstraintNetwork() {
@@ -213,8 +220,10 @@ public class ConstraintNetworkBuilder
         return cn.containsVertex(n);
     }
 
-    public Operand addOperand(NodeKind kind, String label) {
-        return cn.addOperand(kind, label);
+    public Node addOperand(NodeKind kind, String label) {
+        Node n = cn.addOperand(kind, label);
+        nf.createEquiClass(n);
+        return n;
     }
 
     public Set<Edge> incomingEdgesOf(Node n) {

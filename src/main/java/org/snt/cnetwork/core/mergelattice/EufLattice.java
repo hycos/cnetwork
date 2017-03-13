@@ -290,9 +290,6 @@ public class EufLattice<T extends Node> extends
                     if(containsVertex(eq)) {
                         tidyUp(eq);
                     }
-
-
-
                     elementFact.remove(ele);
                 }
             }

@@ -19,8 +19,8 @@ public class TestMergeLattice {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
         EufLattice<Node> mt = new EufLattice<>(new NodeElemFact(cn));
 
-        Operand a = cn.addOperand(NodeKind.STRLIT, "a");
-        Operand b = cn.addOperand(NodeKind.STRVAR, "b");
+        Node a = cn.addOperand(NodeKind.STRLIT, "a");
+        Node b = cn.addOperand(NodeKind.STRVAR, "b");
         try {
             mt.addEquiClass(a,b);
             mt.addEquiClass(a,b);
@@ -44,10 +44,10 @@ public class TestMergeLattice {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
         EufLattice<Node> mt = new EufLattice<>(new NodeElemFact(cn));
 
-        Operand a = cn.addOperand(NodeKind.STRLIT, "a");
-        Operand b = cn.addOperand(NodeKind.STRVAR, "b");
-        Operand d = cn.addOperand(NodeKind.STRVAR, "d");
-        Operand e = cn.addOperand(NodeKind.STRVAR, "e");
+        Node a = cn.addOperand(NodeKind.STRLIT, "a");
+        Node b = cn.addOperand(NodeKind.STRVAR, "b");
+        Node d = cn.addOperand(NodeKind.STRVAR, "d");
+        Node e = cn.addOperand(NodeKind.STRVAR, "e");
 
         try {
             mt.addEquiClass(a,b);
@@ -73,10 +73,10 @@ public class TestMergeLattice {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
         EufLattice<Node> mt = new EufLattice<>(new NodeElemFact(cn));
 
-        Operand a = cn.addOperand(NodeKind.STRLIT, "a");
-        Operand b = cn.addOperand(NodeKind.STRVAR, "b");
-        Operand d = cn.addOperand(NodeKind.STRVAR, "d");
-        Operand e = cn.addOperand(NodeKind.STRVAR, "e");
+        Node a = cn.addOperand(NodeKind.STRLIT, "a");
+        Node b = cn.addOperand(NodeKind.STRVAR, "b");
+        Node d = cn.addOperand(NodeKind.STRVAR, "d");
+        Node e = cn.addOperand(NodeKind.STRVAR, "e");
 
         EquiClass ab = null;
         try {
@@ -118,9 +118,9 @@ public class TestMergeLattice {
         EufLattice<Node> mt = cn.getEufLattice();
 
 
-        Operand a = cn.addOperand(NodeKind.STRLIT, "a");
-        Operand b = cn.addOperand(NodeKind.STRVAR, "b");
-        Operand k = cn.addOperand(NodeKind.STRVAR, "k");
+        Node a = cn.addOperand(NodeKind.STRLIT, "a");
+        Node b = cn.addOperand(NodeKind.STRVAR, "b");
+        Node k = cn.addOperand(NodeKind.STRVAR, "k");
 
         try {
             Node concat1 = cn.addOperation(NodeKind.CONCAT, a, b);
@@ -143,9 +143,9 @@ public class TestMergeLattice {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
         EufLattice<Node> mt = cn.getEufLattice();
 
-        Operand a = cn.addOperand(NodeKind.STRLIT, "a");
-        Operand b = cn.addOperand(NodeKind.STRVAR, "b");
-        Operand k = cn.addOperand(NodeKind.STRVAR, "k");
+        Node a = cn.addOperand(NodeKind.STRLIT, "a");
+        Node b = cn.addOperand(NodeKind.STRVAR, "b");
+        Node k = cn.addOperand(NodeKind.STRVAR, "k");
 
         try {
             Node concat1 = cn.addOperation(NodeKind.CONCAT, a, b);
@@ -165,12 +165,12 @@ public class TestMergeLattice {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
         EufLattice<Node> mt = cn.getEufLattice();
 
-        Operand a = cn.addOperand(NodeKind.STRLIT, "a");
-        Operand b = cn.addOperand(NodeKind.STRVAR, "b");
-        Operand d = cn.addOperand(NodeKind.STRVAR, "d");
-        Operand e = cn.addOperand(NodeKind.STRVAR, "e");
-        Operand f = cn.addOperand(NodeKind.STRVAR, "f");
-        Operand g = cn.addOperand(NodeKind.STRVAR, "g");
+        Node a = cn.addOperand(NodeKind.STRLIT, "a");
+        Node b = cn.addOperand(NodeKind.STRVAR, "b");
+        Node d = cn.addOperand(NodeKind.STRVAR, "d");
+        Node e = cn.addOperand(NodeKind.STRVAR, "e");
+        Node f = cn.addOperand(NodeKind.STRVAR, "f");
+        Node g = cn.addOperand(NodeKind.STRVAR, "g");
 
         boolean thrown = false;
 
@@ -208,12 +208,12 @@ public class TestMergeLattice {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(false);
         EufLattice<Node> mt = new EufLattice<>(new NodeElemFact(cn));
 
-        Operand a = cn.addOperand(NodeKind.STRLIT, "a");
-        Operand b = cn.addOperand(NodeKind.STRVAR, "b");
-        Operand d = cn.addOperand(NodeKind.STRVAR, "d");
-        Operand e = cn.addOperand(NodeKind.STRVAR, "e");
-        Operand f = cn.addOperand(NodeKind.STRVAR, "f");
-        Operand g = cn.addOperand(NodeKind.STRVAR, "g");
+        Node a = cn.addOperand(NodeKind.STRLIT, "a");
+        Node b = cn.addOperand(NodeKind.STRVAR, "b");
+        Node d = cn.addOperand(NodeKind.STRVAR, "d");
+        Node e = cn.addOperand(NodeKind.STRVAR, "e");
+        Node f = cn.addOperand(NodeKind.STRVAR, "f");
+        Node g = cn.addOperand(NodeKind.STRVAR, "g");
 
         boolean thrown = false;
 
@@ -248,12 +248,12 @@ public class TestMergeLattice {
     public void testInferenceCase1() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
 
-        Operand a = cn.addOperand(NodeKind.STRVAR, "a");
-        Operand b = cn.addOperand(NodeKind.STRVAR, "b");
-        Operand one = cn.addOperand(NodeKind.NUMLIT, "1");
-        Operand i = cn.addOperand(NodeKind.NUMVAR, "i");
-        Operand five = cn.addOperand(NodeKind.NUMVAR, "5");
-        Operand k = cn.addOperand(NodeKind.NUMVAR, "k");
+        Node a = cn.addOperand(NodeKind.STRVAR, "a");
+        Node b = cn.addOperand(NodeKind.STRVAR, "b");
+        Node one = cn.addOperand(NodeKind.NUMLIT, "1");
+        Node i = cn.addOperand(NodeKind.NUMVAR, "i");
+        Node five = cn.addOperand(NodeKind.NUMVAR, "5");
+        Node k = cn.addOperand(NodeKind.NUMVAR, "k");
 
         try {
             Node idxof = cn.addOperation(NodeKind.INDEXOF, a, one);
@@ -278,12 +278,12 @@ public class TestMergeLattice {
     public void testInferenceCase2() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
 
-        Operand a = cn.addOperand(NodeKind.STRVAR, "a");
-        Operand b = cn.addOperand(NodeKind.STRVAR, "b");
+        Node a = cn.addOperand(NodeKind.STRVAR, "a");
+        Node b = cn.addOperand(NodeKind.STRVAR, "b");
 
-        Operand one = cn.addOperand(NodeKind.NUMLIT, "1");
-        Operand i = cn.addOperand(NodeKind.NUMVAR, "i");
-        Operand k = cn.addOperand(NodeKind.NUMVAR, "k");
+        Node one = cn.addOperand(NodeKind.NUMLIT, "1");
+        Node i = cn.addOperand(NodeKind.NUMVAR, "i");
+        Node k = cn.addOperand(NodeKind.NUMVAR, "k");
 
         try {
             Node idxof = cn.addOperation(NodeKind.INDEXOF, a, one);
@@ -312,10 +312,10 @@ public class TestMergeLattice {
     public void testInferenceCase3() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
 
-        Operand a = cn.addOperand(NodeKind.STRVAR, "a");
-        Operand b = cn.addOperand(NodeKind.STRVAR, "b");
-        Operand c = cn.addOperand(NodeKind.STRVAR, "c");
-        Operand d = cn.addOperand(NodeKind.STRVAR, "d");
+        Node a = cn.addOperand(NodeKind.STRVAR, "a");
+        Node b = cn.addOperand(NodeKind.STRVAR, "b");
+        Node c = cn.addOperand(NodeKind.STRVAR, "c");
+        Node d = cn.addOperand(NodeKind.STRVAR, "d");
 
 
         try {
@@ -341,8 +341,8 @@ public class TestMergeLattice {
     public void testInferenceCase4() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
 
-        Operand a = cn.addOperand(NodeKind.STRVAR, "a");
-        Operand b = cn.addOperand(NodeKind.STRVAR, "b");
+        Node a = cn.addOperand(NodeKind.STRVAR, "a");
+        Node b = cn.addOperand(NodeKind.STRVAR, "b");
 
 
 
