@@ -120,21 +120,20 @@ public class TestMergeLattice {
 
         Operand a = cn.addOperand(NodeKind.STRLIT, "a");
         Operand b = cn.addOperand(NodeKind.STRVAR, "b");
-        Operand e = cn.addOperand(NodeKind.STRVAR, "e");
         Operand k = cn.addOperand(NodeKind.STRVAR, "k");
 
         try {
             Node concat1 = cn.addOperation(NodeKind.CONCAT, a, b);
             Node concat4 = cn.addOperation(NodeKind.CONCAT, k, k);
             mt.addEquiClass(concat1,concat4);
-            mt.addEquiClass(e);
+            mt.addEquiClass(a,k);
         } catch (EUFInconsistencyException e1) {
             Assert.assertFalse(true);
         }
 
         LOGGER.debug(mt.toDot());
 
-        Assert.assertEquals(mt.vertexSet().size(), 7);
+        Assert.assertEquals(mt.vertexSet().size(), 4);
     }
 
     @Test
@@ -232,7 +231,7 @@ public class TestMergeLattice {
 
         LOGGER.debug(mt.toDot());
 
-        /**try {
+        try {
             mt.addInequialityConstraint(b,f);
         } catch (EUFInconsistencyException e2) {
             LOGGER.debug("+++ " + e2.getMessage());
@@ -241,9 +240,7 @@ public class TestMergeLattice {
 
         Assert.assertTrue(thrown);
 
-
-        LOGGER.debug(mt.toDot());**/
-
+        LOGGER.debug(mt.toDot());
     }
 
 
@@ -262,11 +259,15 @@ public class TestMergeLattice {
             Node idxof = cn.addOperation(NodeKind.INDEXOF, a, one);
             cn.addConstraint(NodeKind.EQUALS, idxof, i);
             cn.addConstraint(NodeKind.EQUALS, a, b);
+            LOGGER.debug("=====================================================");
             Node aliasidxof = cn.addOperation(NodeKind.INDEXOF, b, one);
-            cn.addConstraint(NodeKind.EQUALS, aliasidxof, k);
+            //cn.addConstraint(NodeKind.EQUALS, aliasidxof, k);
+
+            Assert.assertEquals(aliasidxof, idxof);
 
         } catch (EUFInconsistencyException e) {
             e.printStackTrace();
+            Assert.assertFalse(true);
         }
 
         LOGGER.debug(cn.getEufLattice().toDot());
@@ -279,11 +280,9 @@ public class TestMergeLattice {
 
         Operand a = cn.addOperand(NodeKind.STRVAR, "a");
         Operand b = cn.addOperand(NodeKind.STRVAR, "b");
-        Operand c = cn.addOperand(NodeKind.STRVAR, "c");
 
         Operand one = cn.addOperand(NodeKind.NUMLIT, "1");
         Operand i = cn.addOperand(NodeKind.NUMVAR, "i");
-        Operand five = cn.addOperand(NodeKind.NUMVAR, "5");
         Operand k = cn.addOperand(NodeKind.NUMVAR, "k");
 
         try {
@@ -291,12 +290,17 @@ public class TestMergeLattice {
             cn.addConstraint(NodeKind.EQUALS, idxof, i);
             Node aliasidxof = cn.addOperation(NodeKind.INDEXOF, b, one);
             cn.addConstraint(NodeKind.EQUALS, aliasidxof, k);
-            //Node caliasidxof = cn.addOperation(NodeKind.INDEXOF, c, one);
             cn.addConstraint(NodeKind.EQUALS, a, b);
-            //cn.addConstraint(NodeKind.EQUALS, c, b);
-            cn.addConstraint(NodeKind.EQUALS, aliasidxof, k);
+            //cn.addConstraint(NodeKind.EQUALS, aliasidxof, one);
+
+
+            Node na = cn.getNodeByLabel(idxof.getLabel());
+            Node nb = cn.getNodeByLabel(aliasidxof.getLabel());
+
+            Assert.assertEquals(na, nb);
         } catch (EUFInconsistencyException e) {
             e.printStackTrace();
+            Assert.assertFalse(true);
         }
 
         LOGGER.debug(cn.getEufLattice().toDot());
@@ -311,31 +315,56 @@ public class TestMergeLattice {
         Operand a = cn.addOperand(NodeKind.STRVAR, "a");
         Operand b = cn.addOperand(NodeKind.STRVAR, "b");
         Operand c = cn.addOperand(NodeKind.STRVAR, "c");
+        Operand d = cn.addOperand(NodeKind.STRVAR, "d");
 
-        Operand one = cn.addOperand(NodeKind.NUMLIT, "1");
-        Operand i = cn.addOperand(NodeKind.NUMVAR, "i");
-        Operand five = cn.addOperand(NodeKind.NUMVAR, "5");
-        Operand k = cn.addOperand(NodeKind.NUMVAR, "k");
 
         try {
-            Node idxof = cn.addOperation(NodeKind.INDEXOF, a, one);
-            cn.addConstraint(NodeKind.EQUALS, idxof, i);
-            Node aliasidxof = cn.addOperation(NodeKind.INDEXOF, b, one);
-            cn.addConstraint(NodeKind.EQUALS, aliasidxof, k);
-            //Node caliasidxof = cn.addOperation(NodeKind.INDEXOF, c, one);
-            cn.addConstraint(NodeKind.EQUALS, a, b);
-            //cn.addConstraint(NodeKind.EQUALS, c, b);
+            Node concat = cn.addOperation(NodeKind.CONCAT,a,b);
+            Node concat2 = cn.addOperation(NodeKind.CONCAT,c,concat);
+            Node eq = cn.addConstraint(NodeKind.EQUALS,concat,d);
+            Node concat3 = cn.addOperation(NodeKind.CONCAT,c,d);
 
+            Assert.assertEquals(concat2, concat3);
+            LOGGER.debug("concat 3 {}", concat3.getLabel());
 
-
-            LOGGER.debug("alias {}" ,aliasidxof.getLabel());
-            cn.addConstraint(NodeKind.EQUALS, aliasidxof, k);
         } catch (EUFInconsistencyException e) {
             e.printStackTrace();
+            Assert.assertFalse(true);
         }
 
         LOGGER.debug(cn.getEufLattice().toDot());
-        LOGGER.debug(cn.getConstraintNetwork().toDot());
+
+    }
+
+
+    @Test
+    public void testInferenceCase4() {
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+
+        Operand a = cn.addOperand(NodeKind.STRVAR, "a");
+        Operand b = cn.addOperand(NodeKind.STRVAR, "b");
+
+
+
+        try {
+            Node concat1 = cn.addOperation(NodeKind.CONCAT,a,b);
+            Node concat2 = cn.addOperation(NodeKind.CONCAT, concat1, b);
+
+            Node eq0 = cn.addConstraint(NodeKind.EQUALS, concat1, a);
+            Node eq1 = cn.addConstraint(NodeKind.EQUALS, concat2, a);
+
+            Node na = cn.getNodeByLabel(concat1.getLabel());
+            Node nb = cn.getNodeByLabel(concat2.getLabel());
+
+            Assert.assertEquals(na, nb);
+
+        } catch (EUFInconsistencyException e) {
+            e.printStackTrace();
+            Assert.assertFalse(true);
+        }
+
+        LOGGER.debug(cn.getEufLattice().toDot());
+
     }
 
 

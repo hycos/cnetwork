@@ -23,6 +23,9 @@ public class EquiClass implements Cloneable {
         }
 
         @Override
+        public String getLabel() { return toString(); };
+
+        @Override
         public boolean subsumes(EquiClass other) {
             return true;
         }
@@ -63,6 +66,9 @@ public class EquiClass implements Cloneable {
         public String getDotLabel() {
             return toString();
         }
+
+        @Override
+        public String getLabel() { return toString(); };
 
         @Override
         public boolean subsumes(EquiClass other) {
@@ -135,6 +141,20 @@ public class EquiClass implements Cloneable {
         return sb.toString();
     }
 
+    public String getLabel() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("\\{");
+        for(Element n : set) {
+            if(sb.charAt(sb.length()-1) != '{') {
+                sb.append(",");
+            }
+            sb.append(EscapeUtils.escapeSpecialCharacters(n.getLabel()));
+        }
+        sb.append("\\}");
+        return sb.toString();
+    }
+
+
     protected Map<Element, EquiClass> convertElementoMap() {
         Map<Element, EquiClass> mp = new HashMap<>();
         for(Element n : set) {
@@ -174,7 +194,7 @@ public class EquiClass implements Cloneable {
 
     @Override
     public int hashCode() {
-        return getDotLabel().hashCode();
+        return getLabel().hashCode();
     }
 
     @Override
@@ -290,7 +310,7 @@ public class EquiClass implements Cloneable {
      */
     public Set<EquiClass> infer() {
 
-        LOGGER.debug("Infer additional facts for {} with set size {}", this,
+        LOGGER.debug("Infer additional facts for {} with set size {}", getDotLabel(),
                 set.size());
 
         Set<EquiClass> ret = new HashSet<>();

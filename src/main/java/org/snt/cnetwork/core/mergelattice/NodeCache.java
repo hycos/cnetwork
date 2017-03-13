@@ -1,12 +1,11 @@
 package org.snt.cnetwork.core.mergelattice;
 
-import org.snt.cnetwork.core.Node;
 import org.snt.cnetwork.utils.BiMap;
 
 import java.util.Map;
 
 
-public class NodeCache extends BiMap<Node, EquiClass> {
+public class NodeCache extends BiMap<String, EquiClass> {
 
     public NodeCache(){
         super();
@@ -23,8 +22,8 @@ public class NodeCache extends BiMap<Node, EquiClass> {
         StringBuilder sb = new StringBuilder();
 
         sb.append("\nkeytoval: =======\n");
-        for (Map.Entry<Node,EquiClass> e : keytoval.entrySet()) {
-            sb.append("Key " + e.getKey().getLabel() + "\n");
+        for (Map.Entry<String,EquiClass> e : keytoval.entrySet()) {
+            sb.append("Key " + e.getKey() + "\n");
             sb.append(e.getValue().getDotLabel());
             sb.append("\n--------------------\n");
         }
@@ -32,9 +31,9 @@ public class NodeCache extends BiMap<Node, EquiClass> {
         sb.append("\nvaltokey: =======\n");
 
 
-        for (Map.Entry<EquiClass,Node> e : valtokey.entrySet()) {
+        for (Map.Entry<EquiClass,String> e : valtokey.entrySet()) {
             sb.append("Key " + e.getKey().getDotLabel() + "\n");
-            sb.append(e.getValue().getLabel());
+            sb.append(e.getValue());
             sb.append("\n--------------------\n");
         }
 

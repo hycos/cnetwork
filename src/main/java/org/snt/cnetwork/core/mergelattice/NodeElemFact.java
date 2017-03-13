@@ -33,15 +33,15 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
     private void handleNode(Node n, Set<EquiClass> es) {
 
-        if (cache.containsKey(n)) {
-            es.add(cache.getValueByKey(n));
+        if (cache.containsKey(n.getLabel())) {
+            es.add(cache.getValueByKey(n.getLabel()));
             return;
         }
 
         if (n.isOperand()) {
             EquiClass eq = new EquiClass(new SingletonElement(n,n.getLabel
                     ()));
-            cache.put(n, eq);
+            cache.put(n.getLabel(), eq);
             es.add(eq);
         } else {
             assert n.isOperation();
@@ -60,7 +60,7 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
             LOGGER.debug("handle node {}", p);
             handleNode(p, es);
-            Set<Element> ess = cache.getValueByKey(p).getElements();
+            Set<Element> ess = cache.getValueByKey(p.getLabel()).getElements();
             LOGGER.debug("ESS {}", ess.toString());
             LOGGER.debug("SIZ " + ess.size());
             assert !ess.isEmpty();
@@ -93,7 +93,7 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
         //cache.put(n, eq);
 
-        cache.put(n, nst);
+        cache.put(n.getLabel(), nst);
         es.add(nst);
     }
 
@@ -119,9 +119,10 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
             handleNode(nod, s);
 
-            assert cache.containsKey(nod);
+            assert cache.containsKey(nod.getLabel());
 
-            Collection<Element> cele = cache.getValueByKey(nod).getElements();
+            Collection<Element> cele = cache.getValueByKey(nod.getLabel())
+                    .getElements();
 
             //LOGGER.debug("elements {}",cele.toString());
             //assert cele.size() == 1;
@@ -193,19 +194,20 @@ public final class NodeElemFact implements EquiClassFact<Node> {
     @Override
     public EquiClass getEquiClassFor(Node n) throws MissingItemException {
 
-        if (!cache.containsKey(n))
+        if (!cache.containsKey(n.getLabel()))
             throw new MissingItemException("Node " + n.getLabel() + " is " +
                     "not present");
 
-        assert cache.containsKey(n);
+        assert cache.containsKey(n.getLabel());
 
-        return cache.getValueByKey(n);
+        return cache.getValueByKey(n.getLabel());
     }
 
 
     @Override
     public boolean hasEquiClassFor(Node n) {
-        return this.cache.containsKey(n);
+        return this.cache.containsKey(n
+                .getLabel());
     }
 
     @Override

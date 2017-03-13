@@ -368,7 +368,9 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     @Override
     public boolean removeVertex(Node n) {
 
-        assert (this.containsVertex(n));
+        assert containsVertex(n);
+
+        LOGGER.debug("rempve {}", n.getLabel());
 
         nodeLookup.remove(n.getLabel());
 

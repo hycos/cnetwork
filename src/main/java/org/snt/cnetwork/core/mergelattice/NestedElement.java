@@ -63,7 +63,4 @@ public final class NestedElement<T> extends Element<T> {
         return Arrays.copyOf(tuple, tuple.length);
     }
 
-
-
-
 }
