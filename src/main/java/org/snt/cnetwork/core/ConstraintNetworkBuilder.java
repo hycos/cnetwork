@@ -131,6 +131,9 @@ public class ConstraintNetworkBuilder
     }
 
     public Node getNodeByLabel(String lbl) {
+
+
+
         return cn.getNodeByLabel(lbl);
     }
 
