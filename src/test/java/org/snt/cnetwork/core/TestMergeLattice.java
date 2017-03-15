@@ -205,7 +205,7 @@ public class TestMergeLattice {
 
     @Test
     public void testConsistency2() {
-        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(false);
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
         EufLattice<Node> mt = new EufLattice<>(new NodeElemFact(cn));
 
         Node a = cn.addOperand(NodeKind.STRLIT, "a");

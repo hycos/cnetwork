@@ -222,7 +222,8 @@ public class ConstraintNetworkBuilder
 
     public Node addOperand(NodeKind kind, String label) {
         Node n = cn.addOperand(kind, label);
-        nf.createEquiClass(n);
+        if(eufEnabled)
+            nf.createEquiClass(n);
         return n;
     }
 
