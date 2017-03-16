@@ -16,11 +16,9 @@ public class TestConstraintNetworkBuilder {
         try {
             ConstraintNetworkBuilder cb = new ConstraintNetworkBuilder(true);
 
-            Node x = new Operand("x", NodeKind.STRVAR);
             String sor = ".*' +[Oo][Rr] +'";
             Node or = new Operand(sor, NodeKind.STRREXP);
             Node v1 = new Operand("sv7", NodeKind.NUMVAR);
-            Node v3 = new Operand("xz9", NodeKind.NUMVAR);
             Node toStrV1 = cb.addOperation(NodeKind.TOSTR, v1);
             Node orv1 = cb.addOperation(NodeKind.CONCAT, or, toStrV1);
             Node eq = new Operand(" +\\>= +", NodeKind.STRREXP);
@@ -32,12 +30,12 @@ public class TestConstraintNetworkBuilder {
             Node comment = new Operand(scomment, NodeKind.STRREXP);
 
             cb.addOperation(NodeKind.CONCAT, orv1compv2, comment);
-            cb.addConstraint(NodeKind.NUM_EQUALS, v1, v2);
-            cb.addConstraint(NodeKind.MATCHES, x, orv1compv2);
-            cb.addConstraint(NodeKind.GREATER, v1, v3);
+            //cb.addConstraint(NodeKind.NUM_EQUALS, v1, v2);
+            //cb.addConstraint(NodeKind.MATCHES, x, orv1compv2);
+            //cb.addConstraint(NodeKind.GREATER, v1, v3);
 
 
-            cb.addConstraint(NodeKind.EQUALS, v3, v2);
+            //cb.addConstraint(NodeKind.EQUALS, v3, v2);
 
             //LOGGER.debug(cb.getConstraintNetwork().toDot());
             LOGGER.debug(cb.getEufLattice().toDot());

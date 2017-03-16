@@ -1,6 +1,7 @@
 package org.snt.cnetwork.core.mergelattice;
 
 
+import org.apache.commons.collections.CollectionUtils;
 import org.jgrapht.graph.DirectedPseudograph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -642,8 +643,13 @@ public class EufLattice<T extends Node> extends
         return findSubsumptionPoint(u);
     }
 
+    private Collection<EquiClass> getCoveringSplit(EquiClass e) {
+        return e.split().stream().map(v ->
+                getCoveringEquiClass(v)).collect(Collectors.toList());
+    }
+
     // given a nested equiclass infer the equivalent based on parameter
-    // equivalence (the parameter
+    // equivalence
     public Set<EquiClass> inferEquiClassFor(EquiClass e) {
         //assert e.isNested();
         //assert e.getElements().size() == 1;
@@ -651,18 +657,9 @@ public class EufLattice<T extends Node> extends
         if (!e.isNested())
             return Collections.singleton(e);
 
-        Predicate<EquiEdge> p = k -> k.getKind() == EquiEdge
-                .Kind.SPLIT;
-
+        Predicate<EquiEdge> p = k -> k.getKind() == EquiEdge.Kind.SPLIT;
 
         Set<EquiClass> ret = new HashSet<>();
-        EquiClass sp = null;
-
-        /**if((sp = findSubsumptionPoint(e)) != top) {
-         LOGGER.debug("find subsumption point for {} : {}", e, sp);
-         return Collections.singleton(e);
-         }**/
-
 
         LOGGER.debug("infer equivalence class for {}", e.getDotLabel());
 
@@ -694,58 +691,42 @@ public class EufLattice<T extends Node> extends
 
         LOGGER.debug("spl {}", e.split().size());
 
-        // get the paramters
-        Collection<EquiClass> ec = e.split();
 
-        assert ec.size() > 0;
+        // an ordered list of v's parameters
+        Collection<EquiClass> plist = getCoveringSplit(e);
 
-        LOGGER.debug("split is {}", ec);
+        assert plist.size() == e.split().size();
+
+        LOGGER.debug("plist {}", plist.size());
 
         Set<EquiClass> tcrit = new HashSet<>();
 
-        // get
-        int pidx = 1;
-        for (EquiClass eq : ec) {
-            EquiClass cov = getCoveringEquiClass(eq);
 
+        for(EquiClass par : plist) {
 
-            LOGGER.debug("covering {} for {}", cov.getDotLabel(), eq.getDotLabel
-                    ());
+            LOGGER.debug("check par {}:{}", par.getDotLabel(), par.getId());
 
-
-            // we can directly stop - param does not have aliases yet
-            if (!vertexSet().contains(cov)) {
-                LOGGER.debug("not there yet");
+            if(!containsVertex(par)) {
                 ret.add(e);
                 return ret;
             }
 
-            assert vertexSet().contains(cov);
-
-            final int idx = pidx;
-
-            LOGGER.debug("idx {} {}", idx, incomingEdgesOf(cov).stream()
+            Set<EquiClass> check = incomingEdgesOf(par).stream()
                     .filter(t -> t.getKind() == EquiEdge.Kind.SPLIT)
-                    .filter(t -> t.getSequence() == idx)
-                    .filter(t -> !t.getSource().equals(top)).count());
-
-            Set<EquiClass> inc = incomingEdgesOf(cov).stream()
-                    .filter(t -> t.getKind() == EquiEdge.Kind.SPLIT)
-                    .filter(t -> t.getSequence() == idx)
                     .filter(t -> !t.getSource().equals(top))
-                    .filter(t -> t.getSource().getElements().iterator().next
-                            ().getAnnotation().equals(anno))
-                    .map(t -> t.getTarget()).collect(Collectors.toSet());
+                    .filter(t -> !t.getSource().equals(e))
+                    .filter(t -> t.getSource().isNested())
+                    .filter(t ->
+                    CollectionUtils.isEqualCollection(getCoveringSplit(t.getSource()),
+                            plist))
+                    .map(EquiEdge::getTarget)
+                    .collect(Collectors.toSet());
 
-            if (inc.isEmpty()) {
-                LOGGER.debug("not covered: tcrit {}", tcrit);
-                ret.add(e);
-                return ret;
-            } else {
-                tcrit.addAll(inc);
-            }
-            pidx++;
+
+            tcrit.addAll(check);
         }
+
+
 
         LOGGER.debug("tcrit {}", tcrit);
 
@@ -865,6 +846,46 @@ public class EufLattice<T extends Node> extends
 
     }
 
+
+    private Set<EquiEdge> replace(EquiClass toReplace, EquiClass replacement) {
+
+        Set<EquiEdge> edges = new HashSet<>();
+
+
+
+        Set<EquiEdge> out = outgoingEdgesOf(toReplace);
+        Set<EquiEdge> in = incomingEdgesOf(toReplace);
+
+
+        if(toReplace.isNested()) {
+            // the replacement has to be split anyway so we do not consider
+            // split edges here
+            edges.addAll(in.stream()
+                    .filter(e -> e.getKind() == EquiEdge.Kind.SUB)
+                    .map(e -> new EquiEdge(e.getSource(), replacement, e.getKind(), e.getSequence())
+                    ).collect(Collectors.toSet()));
+
+            LOGGER.debug("OUT");
+            edges.addAll(out.stream()
+                    .filter(e -> e.getKind() == EquiEdge.Kind.SUB)
+                    .map(e -> new EquiEdge(replacement, e.getTarget(), e.getKind(), e.getSequence())
+                    ).collect(Collectors.toSet()));
+        } else {
+            // we consider all edges here
+            edges.addAll(in.stream()
+                    .map(e -> new EquiEdge(e.getSource(), replacement, e.getKind(), e.getSequence())
+                    ).collect(Collectors.toSet()));
+
+            LOGGER.debug("OUT");
+            edges.addAll(out.stream()
+                    .map(e -> new EquiEdge(replacement, e.getTarget(), e.getKind(), e.getSequence())
+                    ).collect(Collectors.toSet()));
+        }
+
+        return edges;
+
+    }
+
     private void replace(Set<EquiClass> toReplace, EquiClass replacement)
             throws EUFInconsistencyException {
 
@@ -883,34 +904,16 @@ public class EufLattice<T extends Node> extends
 
         Set<EquiEdge> edges = new HashSet<>();
 
-        Set<EquiEdge> out = toReplace.stream().map(v -> outgoingEdgesOf(v))
-                .flatMap(x -> x.stream()).collect(Collectors.toSet());
 
 
-        Set<EquiEdge> in = toReplace.stream().map(v -> incomingEdgesOf(v))
-                .flatMap(x -> x.stream()).collect(Collectors.toSet());
+        for(EquiClass torep : toReplace) {
+            edges.addAll(replace(torep, replacement));
+        }
 
         removeEquiClasses(toReplace);
 
-        LOGGER.debug("IN");
-        edges.addAll(in.stream()
-                .filter(e -> e.getKind() == EquiEdge.Kind.SUB)
-                //.filter(e -> !e.getSource().equals(replacement))
-                .map(e -> new EquiEdge(e.getSource(), replacement, e.getKind(), e.getSequence())
-                ).collect(Collectors.toSet()));
-
-        LOGGER.debug("OUT");
-        edges.addAll(out.stream()
-                .filter(e -> e.getKind() == EquiEdge.Kind.SUB)
-                //.filter(e -> !e.getTarget().equals(replacement))
-                .map(e -> new EquiEdge(replacement, e.getTarget(), e.getKind(), e.getSequence())
-                ).collect(Collectors.toSet()));
-
-        //removeEquiClasses(toReplace);
         addEdges(edges);
 
-
-        //addEquiClass(replacement);
         split(replacement);
         LOGGER.debug(this.toDot());
         LOGGER.debug("***********************");

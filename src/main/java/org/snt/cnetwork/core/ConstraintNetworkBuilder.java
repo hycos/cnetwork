@@ -70,6 +70,7 @@ public class ConstraintNetworkBuilder
 
 
     private List<Node> inferParam(List<Node> param) {
+        LOGGER.debug("infer parameters");
         if(eufEnabled) {
             List<Node> ret = new Vector<>();
             for (Node p : param) {
@@ -87,6 +88,8 @@ public class ConstraintNetworkBuilder
 
 
         Node op = cn.addOperation(kind, false, inferParam(params));
+
+        LOGGER.debug("check node {}:{}", op.getLabel(), op.getId());
 
         Node nop = infer(op);
 
@@ -329,7 +332,7 @@ public class ConstraintNetworkBuilder
 
     private Node inferEquivalentNode(Node n) {
 
-        LOGGER.debug("infer equivalent node {}", n.getLabel());
+        LOGGER.debug("infer equivalent node {}:{}", n.getLabel(), n.getId());
         if (n.isOperand()) {
             return n;
         } else {
@@ -340,7 +343,7 @@ public class ConstraintNetworkBuilder
 
             LOGGER.debug("ieq {}", snen);
 
-            LOGGER.debug(getEufLattice().toDot());
+            //LOGGER.debug(getEufLattice().toDot());
 
             assert snen.size() == 1;
 
