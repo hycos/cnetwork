@@ -1,7 +1,7 @@
 package org.snt.cnetwork.core.mergelattice;
 
 
-import org.jgrapht.graph.DirectedMultigraph;
+import org.jgrapht.graph.DirectedPseudograph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.Node;
@@ -14,9 +14,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-
+//@TODO: Julian simplify the implementation later on. Split the code in Model
+// and Controller
 public class EufLattice<T extends Node> extends
-        DirectedMultigraph<EquiClass, EquiEdge> implements Cloneable {
+        DirectedPseudograph<EquiClass, EquiEdge> implements Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(EufLattice.class);
 
@@ -151,7 +152,7 @@ public class EufLattice<T extends Node> extends
             return;
 
         EquiClass mo = e;
-        LOGGER.debug("insert {}", e.getDotLabel());
+        LOGGER.debug("insert {}:{}", e.getDotLabel(), e.getId());
 
 
         // 1. geneerate max overlap
@@ -228,6 +229,9 @@ public class EufLattice<T extends Node> extends
 
             toAdd.add(removeRedundancies(eq));
 
+            LOGGER.debug("inferred new equiclass {}:{}", eq.getDotLabel(),
+                    eq.getId());
+
         }
 
         //LOGGER.debug("TOADD {}", toAdd);
@@ -286,10 +290,11 @@ public class EufLattice<T extends Node> extends
                     T ele = (T) eq.getElements().iterator().next()
                             .getMappedElement();
                     c = c.minus(eq);
-                    LOGGER.debug("remove {}", ele.getLabel());
-                    if(containsVertex(eq)) {
+                    LOGGER.debug("GG REMOVE {}::{}", ele.getLabel(), ele.getId());
+                    if (containsVertex(eq)) {
                         tidyUp(eq);
                     }
+                    LOGGER.debug("GG DELETE{}::{}", ele.getLabel(), ele.getId());
                     elementFact.remove(ele);
                 }
             }
@@ -311,17 +316,17 @@ public class EufLattice<T extends Node> extends
         LOGGER.debug("RIP");
         LOGGER.debug(toDot());
 
-        for(EquiClass c : bw) {
+        for (EquiClass c : bw) {
 
-            if(c.equals(top))
+            if (c.equals(top))
                 continue;
 
-            if(c.equals(eq))
+            if (c.equals(eq))
                 continue;
 
             EquiClass nn = c.minus(eq);
 
-            if(containsVertex(nn)) {
+            if (containsVertex(nn)) {
                 // because we removed eq, nn is now
                 // equals to a child class
                 rip(c);
@@ -331,7 +336,7 @@ public class EufLattice<T extends Node> extends
             LOGGER.debug("REPLACE {} with {}", c.getLabel(), nn.getLabel());
 
             try {
-                replace(Collections.singleton(c),nn);
+                replace(Collections.singleton(c), nn);
             } catch (EUFInconsistencyException e) {
                 assert false;
             }
@@ -379,7 +384,7 @@ public class EufLattice<T extends Node> extends
     private void split(EquiClass n) throws EUFInconsistencyException {
 
         LinkedList<EquiClass> worklist = new LinkedList<>();
-        LOGGER.debug("split {}", n.getDotLabel());
+        LOGGER.debug("split {}:{}", n.getDotLabel(), n.getId());
 
 
         // n is a non-nested class
@@ -393,10 +398,21 @@ public class EufLattice<T extends Node> extends
                 return;
 
 
-            nsub.forEach(s -> addSubEdge(n, s));
+            for (EquiClass s : nsub) {
+                Set<EquiEdge> e = getAllEdges(n, s);
 
-            worklist.addAll(nsub);
+                if (e == null || e.isEmpty() || e.stream()
+                        .filter(x -> x.getKind() == EquiEdge.Kind.SUB).count
+                                () == 0) {
+                    LOGGER.debug("parent {}:{} -> child {}:{}", n.getDotLabel
+                            (), n.getId(), s.getDotLabel(), s.getId());
+                    addSubEdge(n, s);
+                    worklist.add(s);
+                }
+                //nsub.forEach(s -> addSubEdge(n, s));
+            }
 
+            //worklist.addAll(nsub);
 
         } else {
             worklist.add(n);
@@ -414,7 +430,9 @@ public class EufLattice<T extends Node> extends
     private Set<EquiClass> handleNestedElement(EquiClass parent) throws EUFInconsistencyException {
         int x = 0;
 
-        LOGGER.debug("handle nested element {}", parent.getDotLabel());
+
+        LOGGER.debug("handle nested element {}:{}", parent.getDotLabel(),
+                parent.getId());
         Set<EquiClass> ret = new HashSet<>();
 
         assert parent.isNested();
@@ -423,7 +441,8 @@ public class EufLattice<T extends Node> extends
         for (EquiClass n : parent.split()) {
             EquiClass alias = getCoveringEquiClass(n);
 
-            LOGGER.debug("Alias for {} is {}", n.getDotLabel(), alias.getDotLabel());
+            LOGGER.debug("Alias for {}:{} is {}:{}", n.getDotLabel(), n.getId(),
+                    alias.getDotLabel(), alias.getId());
 
             addSplitEdge(parent, alias, ++x);
 
@@ -453,11 +472,11 @@ public class EufLattice<T extends Node> extends
     public void addEquiClass(EquiClass n)
             throws EUFInconsistencyException {
 
-        LOGGER.debug("(+) add equi class {}", n.getDotLabel());
+        LOGGER.debug("add equi class {}:{}", n.getDotLabel(), n.getId());
 
 
         if (isAlreadySubsumed(n) || n.isEmpty()) {
-            LOGGER.debug("already subsumed");
+            LOGGER.debug("{}:{} already subsumed", n.getLabel(), n.getId());
             return;
         }
 
@@ -550,17 +569,19 @@ public class EufLattice<T extends Node> extends
 
     public EquiClass checkAndGet(EquiClass v) {
         if (!vertexSet().contains(v)) {
+            LOGGER.debug("add vertex {}:{}", v.getDotLabel(), v.getId());
             super.addVertex(v);
         }
         return v;
     }
 
-    public void addSplitEdge(EquiClass src, EquiClass dst, int idx) throws EUFInconsistencyException {
-        LOGGER.debug("add split edge {} -> {}", src.getDotLabel(), dst
-                .getDotLabel());
+    private void addSplitEdge(EquiClass src, EquiClass dst, int idx) throws
+            EUFInconsistencyException {
+        LOGGER.debug("add split edge {}:{} -> {}:{}",
+                src.getDotLabel(), src.getId(),
+                dst.getDotLabel(), dst.getId());
 
         assert src.isNested();
-
 
         addEdge(src, dst, EquiEdge.Kind.SPLIT, idx);
 
@@ -576,7 +597,7 @@ public class EufLattice<T extends Node> extends
     }
 
 
-    public void addSubEdge(EquiClass src, EquiClass dst) {
+    private void addSubEdge(EquiClass src, EquiClass dst) {
         LOGGER.debug("add sub edge {} -> {}", src.getDotLabel(), dst.getDotLabel());
 
         //assert  src.subsumes(dst);
@@ -594,7 +615,7 @@ public class EufLattice<T extends Node> extends
             linkToBottom(dst);
     }
 
-    public void addIneqEdge(EquiClass src, EquiClass dst) {
+    private void addIneqEdge(EquiClass src, EquiClass dst) {
         LOGGER.debug("add sub edge {} -> {}", src, dst);
         addEdge(src, dst, EquiEdge.Kind.INEQ, -1);
     }
@@ -835,8 +856,8 @@ public class EufLattice<T extends Node> extends
         assert in.size() == 1;
 
 
-        for(EquiClass i : in) {
-            for(EquiClass o : out) {
+        for (EquiClass i : in) {
+            for (EquiClass o : out) {
                 addSubEdge(i, o);
             }
         }
@@ -853,11 +874,12 @@ public class EufLattice<T extends Node> extends
 
         LOGGER.debug("REPLACE");
 
-        for(EquiClass t :toReplace) {
-            LOGGER.debug("to replace {}", t.getDotLabel());
+        for (EquiClass t : toReplace) {
+            LOGGER.debug("to replace {}:{}", t.getDotLabel(), t.getId());
         }
 
-        LOGGER.debug("replacement {}", replacement.getDotLabel());
+        LOGGER.debug("replacement {}:{}", replacement.getDotLabel(),
+                replacement.getId());
 
         Set<EquiEdge> edges = new HashSet<>();
 
@@ -868,20 +890,19 @@ public class EufLattice<T extends Node> extends
         Set<EquiEdge> in = toReplace.stream().map(v -> incomingEdgesOf(v))
                 .flatMap(x -> x.stream()).collect(Collectors.toSet());
 
-
         removeEquiClasses(toReplace);
 
         LOGGER.debug("IN");
         edges.addAll(in.stream()
-                //.filter(e -> e.getKind() == EquiEdge.Kind.SUB)
-                .filter(e -> !e.getSource().equals(replacement))
+                .filter(e -> e.getKind() == EquiEdge.Kind.SUB)
+                //.filter(e -> !e.getSource().equals(replacement))
                 .map(e -> new EquiEdge(e.getSource(), replacement, e.getKind(), e.getSequence())
                 ).collect(Collectors.toSet()));
 
         LOGGER.debug("OUT");
         edges.addAll(out.stream()
                 .filter(e -> e.getKind() == EquiEdge.Kind.SUB)
-                .filter(e -> !e.getTarget().equals(replacement))
+                //.filter(e -> !e.getTarget().equals(replacement))
                 .map(e -> new EquiEdge(replacement, e.getTarget(), e.getKind(), e.getSequence())
                 ).collect(Collectors.toSet()));
 
@@ -890,7 +911,7 @@ public class EufLattice<T extends Node> extends
 
 
         //addEquiClass(replacement);
-        //split(replacement);
+        split(replacement);
         LOGGER.debug(this.toDot());
         LOGGER.debug("***********************");
     }
@@ -901,7 +922,7 @@ public class EufLattice<T extends Node> extends
     }
 
     private void removeEquiClass(EquiClass v) {
-        LOGGER.debug("remove vertex {}", v);
+        LOGGER.debug("remove vertex {}:{}", v.getDotLabel(), v.getId());
         super.removeVertex(v);
     }
 
@@ -920,7 +941,8 @@ public class EufLattice<T extends Node> extends
         dst = checkAndGet(dst);
 
         EquiEdge e = new EquiEdge(src, dst, kind, idx);
-        LOGGER.debug("add edge {} -> {}", src.getDotLabel(), dst.getDotLabel());
+        LOGGER.debug("add edge {}:{} -> {}:{}", src.getDotLabel(), src.getId
+                (),dst.getDotLabel(), dst.getId());
 
         super.addEdge(e.getSource(), e.getTarget(), e);
     }

@@ -85,6 +85,7 @@ public class ConstraintNetworkBuilder
 
         LOGGER.debug("euf {}", eufEnabled);
 
+
         Node op = cn.addOperation(kind, false, inferParam(params));
 
         Node nop = infer(op);
@@ -93,6 +94,7 @@ public class ConstraintNetworkBuilder
         if (!op.equals(nop)) {
             // we can drop the vertex to be added
             cn.removeVertex(op);
+
             return nop;
         }
         attach(op);
@@ -113,6 +115,7 @@ public class ConstraintNetworkBuilder
         if (!op.equals(nop)) {
             // we can drop the vertex to be added
             cn.removeVertex(op);
+            LOGGER.debug("REMOVE {}", op.getDotLabel());
             return nop;
         }
 
@@ -120,7 +123,6 @@ public class ConstraintNetworkBuilder
         update(op);
         return op;
     }
-
 
     public Operation addExtOperation(String identifier, List<Node> params) {
         return cn.addExtOperation(identifier, params);
@@ -132,6 +134,10 @@ public class ConstraintNetworkBuilder
 
     public boolean removeAllEdges(Collection<? extends Edge> e) {
         return cn.removeAllEdges(e);
+    }
+
+    public Set<Edge> getAllEdges(Node n1, Node n2) {
+        return cn.getAllEdges(n1, n2);
     }
 
     public Node getNodeByLabel(String lbl) {
@@ -212,7 +218,12 @@ public class ConstraintNetworkBuilder
         return cn.getConnectedOutNodes(n);
     }
 
+    public void removeEdge(Node src, Node dst) {
+        this.cn.removeEdge(src,dst);
+    }
+
     public boolean removeVertex(Node n) {
+        LOGGER.debug("remove vertex {}", n.getId());
         return cn.removeVertex(n);
     }
 
@@ -302,10 +313,12 @@ public class ConstraintNetworkBuilder
 
         if(eufEnabled) {
             Node nn = inferEquivalentNode(n);
-            // is already present as nn
+            // is already present as nn1
             if (!nn.equals(n)) {
 
-                LOGGER.debug("inferred {}", nn.getDotLabel());
+                LOGGER.debug("inferred \nt:{}:{}\nf:{}:{}", nn.getLabel(),nn
+                        .getId(), n
+                        .getLabel(),n.getId());
                 return nn;
             }
         }
@@ -327,6 +340,8 @@ public class ConstraintNetworkBuilder
 
             LOGGER.debug("ieq {}", snen);
 
+            LOGGER.debug(getEufLattice().toDot());
+
             assert snen.size() == 1;
 
             EquiClass nen = snen.iterator().next();
@@ -341,12 +356,15 @@ public class ConstraintNetworkBuilder
             Element<Node> e = nen.getElements().iterator().next();
             Node emap = e.getMappedElement();
 
-            LOGGER.debug("mapped element is {}", emap.getLabel());
+            LOGGER.debug("mapped element is {}:{}", emap.getLabel(), emap.getId());
 
             return emap;
         }
     }
 
+    public void updateVertex(Node n) {
+        cn.updateVertex(n);
+    }
 
     @Override
     public void update(Node n) throws EUFInconsistencyException {

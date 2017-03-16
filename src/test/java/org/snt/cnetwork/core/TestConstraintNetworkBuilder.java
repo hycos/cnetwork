@@ -53,6 +53,31 @@ public class TestConstraintNetworkBuilder {
 
         Node zero = cn.addOperand(NodeKind.NUMLIT, "0");
         Node one = cn.addOperand(NodeKind.NUMLIT, "1");
+        Node three = cn.addOperand(NodeKind.NUMLIT, "3");
+        Node dot = cn.addOperand(NodeKind.STRLIT, ".");
+
+        try {
+            Node add = cn.addOperation(NodeKind.ADD, one, zero);
+            cn.addConstraint(NodeKind.EQUALS, add, zero);
+            //Node subone = cn.addOperation(NodeKind.SUBSTR, idxof, one);
+            //Node sub = cn.addOperation(NodeKind.SUBSTR,idxof, subone);
+            //cn.addConstraint(NodeKind.NUM_EQUALS, one, sub);
+        } catch (EUFInconsistencyException e) {
+            e.printStackTrace();
+        }
+
+        LOGGER.debug(cn.getEufLattice().toDot());
+
+
+    }
+
+
+    @Test
+    public void testDeleteNode() {
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+
+        Node zero = cn.addOperand(NodeKind.NUMLIT, "0");
+        Node one = cn.addOperand(NodeKind.NUMLIT, "1");
         Node filename_1 = cn.addOperand(NodeKind.NUMVAR, "filename_1");
         Node dot = cn.addOperand(NodeKind.STRLIT, ".");
 
@@ -62,6 +87,9 @@ public class TestConstraintNetworkBuilder {
             Node subone = cn.addOperation(NodeKind.SUBSTR, idxof, one);
             Node sub = cn.addOperation(NodeKind.SUBSTR,idxof, subone);
             cn.addConstraint(NodeKind.NUM_EQUALS, one, sub);
+
+            //cn.removeVertex(subone);
+            LOGGER.debug(cn.getConstraintNetwork().toDot());
         } catch (EUFInconsistencyException e) {
             e.printStackTrace();
         }

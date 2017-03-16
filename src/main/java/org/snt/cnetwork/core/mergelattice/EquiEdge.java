@@ -18,8 +18,6 @@ public class EquiEdge extends DefaultEdge implements
     public EquiEdge(EquiClass src, EquiClass dst, Kind kind,
                     int sequence) {
 
-        LOGGER.debug("trying to add {} {}", src.getDotLabel(), dst.getDotLabel());
-        assert !src.equals(dst);
         this.dst = dst;
         this.src = src;
         this.kind = kind;

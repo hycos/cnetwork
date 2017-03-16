@@ -41,6 +41,7 @@ public final class NodeElemFact implements EquiClassFact<Node> {
         if (n.isOperand()) {
             EquiClass eq = new EquiClass(new SingletonElement(n,n.getLabel
                     ()));
+            LOGGER.debug("create equiclass {}:{}", eq.getDotLabel(), eq.getId());
             cache.put(n.getLabel(), eq);
             es.add(eq);
         } else {
@@ -85,7 +86,8 @@ public final class NodeElemFact implements EquiClassFact<Node> {
         // the equiclass that represents this node
         EquiClass nst = new EquiClass(nested);
 
-        LOGGER.debug("nst {}", nst.getDotLabel());
+        LOGGER.debug("create new nested element {}:{}", nst.getDotLabel(), n
+                .getId());
         // check if there is already another equiclass for this particular
         // nested element
         //EquiClass eq = euf.inferEquiClassFor(nst);
@@ -212,8 +214,13 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
     @Override
     public void remove(Node n) {
-        if(cn.containsVertex(n))
+        int id = n.getId();
+        if(cn.containsVertex(n)) {
             cn.removeVertex(n);
+        }
+
+        assert cn.getConstraintNetwork().vertexSet().stream().filter(x -> x
+                .getId() == id).count() == 0;
     }
 
     @Override

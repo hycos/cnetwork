@@ -106,6 +106,7 @@ public class EquiClass implements Cloneable {
     public EquiClass(Element ... nods) {
         this.id = nid++;
         set.addAll(Arrays.asList(nods));
+
     }
 
 
@@ -136,6 +137,7 @@ public class EquiClass implements Cloneable {
             }
             sb.append(EscapeUtils.escapeSpecialCharacters(n.getLabel()));
             sb.append("[" + n.mappedElement.toString() + "]");
+            sb.append("(" + getId() + ")");
         }
         sb.append("\\}");
         return sb.toString();

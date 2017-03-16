@@ -291,12 +291,14 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
             else
                 op = new Constraint(label, kind);
 
+
+            assert !nodeLookup.containsKey(op.getLabel());
             addNode(op);
+            linkParams(op, params);
+            return op;
         } else {
             return op;
         }
-        linkParams(op, params);
-        return op;
     }
 
 
@@ -368,17 +370,31 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     @Override
     public boolean removeVertex(Node n) {
 
-        assert containsVertex(n);
 
-        LOGGER.debug("rempve {}", n.getLabel());
+        LOGGER.debug(toDot());
+        if(containsVertex(n)) {
+            boolean ok = false;
+            for(Node k : vertexSet()) {
 
-        nodeLookup.remove(n.getLabel());
+                if(k.getId() == n.getId()) {
+                    LOGGER.debug("k {}:{}", k.getLabel(), k.getId());
+                    LOGGER.debug("n {}:{}", n.getLabel(), n.getId());
+                    ok = true;
+                }
 
-        return super.removeVertex(n);
+            }
+
+            assert ok;
+            LOGGER.debug("remove V {}:{}", n.getLabel(), n.getId());
+            nodeLookup.remove(n.getLabel());
+            return super.removeVertex(n);
+        } else {
+            return false;
+        }
     }
 
 
-    private void updateVertex(Node n) {
+    public void updateVertex(Node n) {
         nodeLookup.remove(n.getLabel());
         String nl = getNewLabelFor(n);
         n.setLabel(nl);
