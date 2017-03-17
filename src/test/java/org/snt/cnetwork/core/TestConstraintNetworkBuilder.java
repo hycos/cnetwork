@@ -30,6 +30,9 @@ public class TestConstraintNetworkBuilder {
             Node comment = new Operand(scomment, NodeKind.STRREXP);
 
             cb.addOperation(NodeKind.CONCAT, orv1compv2, comment);
+
+            LOGGER.debug("REMOVE {}", orv1compv2.getId());
+            cb.removeVertex(orv1compv2);
             //cb.addConstraint(NodeKind.NUM_EQUALS, v1, v2);
             //cb.addConstraint(NodeKind.MATCHES, x, orv1compv2);
             //cb.addConstraint(NodeKind.GREATER, v1, v3);

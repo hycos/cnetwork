@@ -16,7 +16,8 @@ public class ConstraintNetworkBuilder
         implements Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(ConstraintNetworkBuilder.class);
-    boolean eufEnabled = false;
+
+    private boolean eufEnabled = false;
     private ConstraintNetwork cn;
     private NodeElemFact nf;
     private EufLattice<Node> euf;
@@ -84,9 +85,6 @@ public class ConstraintNetworkBuilder
     public Node addOperation(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
 
-        LOGGER.debug("euf {}", eufEnabled);
-
-
         Node op = cn.addOperation(kind, false, inferParam(params));
 
         LOGGER.debug("check node {}:{}", op.getLabel(), op.getId());
@@ -94,7 +92,7 @@ public class ConstraintNetworkBuilder
         Node nop = infer(op);
 
         // there is already an equivalent node present in the cn
-        if (!op.equals(nop)) {
+        if (!op.equals(nop) && !op.getLabel().equals(nop.getLabel())) {
             // we can drop the vertex to be added
             cn.removeVertex(op);
 
@@ -108,14 +106,12 @@ public class ConstraintNetworkBuilder
     public Node addConstraint(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
 
-        LOGGER.debug("euf {}", eufEnabled);
-
         Node op = cn.addOperation(kind, true, inferParam(params));
         LOGGER.debug(">> add constraint {}", op.getLabel());
         Node nop = infer(op);
 
         // there is already an equivalent node present in the cn
-        if (!op.equals(nop)) {
+        if (!op.equals(nop) && !op.getLabel().equals(nop.getLabel())) {
             // we can drop the vertex to be added
             cn.removeVertex(op);
             LOGGER.debug("REMOVE {}", op.getDotLabel());
