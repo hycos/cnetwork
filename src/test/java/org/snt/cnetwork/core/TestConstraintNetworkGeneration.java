@@ -15,7 +15,7 @@ public class TestConstraintNetworkGeneration {
     @Test
     public void testCnConstruction() {
 
-        ConstraintNetworkBuilder tm2 = new ConstraintNetworkBuilder();
+        ConstraintNetworkBuilder tm2 = new ConstraintNetworkBuilder(true);
         Node x = new Operand("x", NodeKind.STRVAR);
         String sor = ".*' +[Oo][Rr] +'";
         Node or = new Operand(sor, NodeKind.STRREXP);
@@ -38,13 +38,14 @@ public class TestConstraintNetworkGeneration {
         } catch (EUFInconsistencyException e) {
             Assert.assertTrue(false);
         }
+        LOGGER.debug(tm2.getEufLattice().toDot());
         LOGGER.info(tm2.getConstraintNetwork().toDot());
     }
 
 
     @Test
     public void testCNClone() {
-        ConstraintNetworkBuilder tm2 = new ConstraintNetworkBuilder();
+        ConstraintNetworkBuilder tm2 = new ConstraintNetworkBuilder(true);
         Node x = new Operand("x", NodeKind.STRVAR);
         String sor = ".*' +[Oo][Rr] +'";
         Node or = new Operand(sor, NodeKind.STRREXP);

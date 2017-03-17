@@ -3,6 +3,7 @@ package org.snt.cnetwork.core.euf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.ConstraintNetworkBuilder;
+import org.snt.cnetwork.core.Edge;
 import org.snt.cnetwork.core.Node;
 import org.snt.cnetwork.exception.MissingItemException;
 
@@ -213,11 +214,23 @@ public final class NodeElemFact implements EquiClassFact<Node> {
     }
 
     @Override
-    public void remove(Node n) {
-        int id = n.getId();
-        if(cn.containsVertex(n)) {
-            cn.removeVertex(n);
+    public void relink(Node toReplace, Node replacement) {
+        int id = toReplace.getId();
+
+        assert cn.containsVertex(toReplace);
+
+        Set<Edge> out = cn.outgoingEdgesOf(toReplace);
+        Set<Edge> toAdd = new HashSet<>();
+
+        for(Edge e : out) {
+            toAdd.add(new Edge(replacement, e.getTarget(), e.getSequence()));
         }
+
+        if(cn.containsVertex(toReplace)) {
+            cn.removeVertex(toReplace);
+        }
+
+        cn.addConnections(toAdd);
 
         assert cn.getConstraintNetwork().vertexSet().stream().filter(x -> x
                 .getId() == id).count() == 0;

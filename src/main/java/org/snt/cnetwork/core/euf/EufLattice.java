@@ -28,6 +28,16 @@ public class EufLattice<T extends Node> extends
     private EquiClassFact elementFact = null;
 
 
+    class IdComparator implements Comparator<Element> {
+        @Override
+        public int compare(Element o1, Element o2) {
+            int id1 = ((T) o1.getMappedElement()).getId();
+            int id2 = ((T) o2.getMappedElement()).getId();
+            return id1 - id2;
+        }
+    }
+
+
     public EufLattice(EquiClassFact<T> elementFact) {
         super(new EdgeFact());
         super.addVertex(top);
@@ -214,8 +224,8 @@ public class EufLattice<T extends Node> extends
 
         Set<EquiClass> in = getConnectedInNodesOfKind(c, EquiEdge.Kind.SPLIT);
 
-
         Set<EquiClass> toAdd = new HashSet<>();
+
 
         for (EquiClass i : in) {
 
@@ -228,128 +238,86 @@ public class EufLattice<T extends Node> extends
                 eq = eq.union(n);
             }
 
-            toAdd.add(removeRedundancies(eq));
+            toAdd.add(eq);
 
             LOGGER.debug("inferred new equiclass {}:{}", eq.getDotLabel(),
                     eq.getId());
 
         }
 
-        //LOGGER.debug("TOADD {}", toAdd);
-
-        if (!toAdd.isEmpty()) {
-            addEquiClass(toAdd);
+        for (EquiClass ta : toAdd) {
+            removeRendundancies(ta);
         }
 
     }
 
-    /**
-     * cleanup nested equi class by removing redundant
-     * elements
-     *
-     * @param n
-     * @return
-     */
-    private EquiClass removeRedundancies(EquiClass n) {
 
-        EquiClass c = n;
-        if (!n.isNested()) {
-            //@TODO: Julian
-            Collection<EquiClass> split = n.split();
+    private void removeRendundancies(EquiClass c) throws EUFInconsistencyException {
 
-            Map<String, TreeMap<Integer, EquiClass>> emap = new HashMap<>();
+        addEquiClass(c);
 
-            // collect all equal nodes
-            for (EquiClass e : split) {
-                if (e.isNested()) {
+        EquiClass covering = getCoveringEquiClass(c);
 
-                    LOGGER.debug("UUU {}", e);
 
-                    Element ele = e.getElements().iterator().next();
+        // group by annotation
+        Map<String, TreeSet<Element>> ngroup = new HashMap<>();
 
-                    String anno = ele.getAnnotation();
+        Set<Element> singleton = new TreeSet(new
+                IdComparator());
 
-                    T mapped = (T) ele.getMappedElement();
-
-                    if (!emap.containsKey(anno)) {
-                        emap.put(anno, new TreeMap<>());
-                    }
-                    emap.get(anno).put(mapped.getId(), e);
+        for (Element<Node> ta : covering.getElements()) {
+            if (ta.isNested()) {
+                if (!ngroup.containsKey(ta.getAnnotation())) {
+                    ngroup.put(ta.getAnnotation(), new TreeSet<>(new
+                            IdComparator()));
                 }
-            }
+                ngroup.get(ta.getAnnotation()).add(ta);
 
-            Set<TreeMap<Integer, EquiClass>> red = emap.values().stream()
-                    .filter(s -> s.size() > 1).collect(Collectors.toSet());
 
-            for (TreeMap<Integer, EquiClass> r : red) {
-                int k = 0;
-                for (EquiClass eq : r.values()) {
-                    if (k == 0) {
-                        k++;
-                        continue;
-                    }
-                    T ele = (T) eq.getElements().iterator().next()
-                            .getMappedElement();
-                    c = c.minus(eq);
-                    LOGGER.debug("GG REMOVE {}::{}", ele.getLabel(), ele.getId());
-                    if (containsVertex(eq)) {
-                        tidyUp(eq);
-                    }
-                    LOGGER.debug("GG DELETE{}::{}", ele.getLabel(), ele.getId());
-                    elementFact.remove(ele);
-                }
+                LOGGER.debug("add for {}", ta.getAnnotation());
+                LOGGER.debug("SIZE {}", ngroup.get(ta.getAnnotation()));
+
+            } else if (ta.isSingleton()) {
+                singleton.add(ta);
             }
+            LOGGER.debug("class:{}, ta element {}", c.getDotLabel(), ta.getLabel());
         }
-        return c;
+
+        LOGGER.debug("ngroup to merge {}", ngroup.size());
+
+        Set<TreeSet<Element>> nestedToMerge = ngroup.values().stream().filter(
+                s -> s.size() > 1
+        ).collect(Collectors.toSet());
+
+        LOGGER.debug("nested to merge {}", nestedToMerge.size());
+
+
+        // remove redundant nodes in the CN
+        // 1. searching for equivalent functions of the same type (e.g.
+        // indexof(a,b,c), indexof (d,e,f)
+        // 2. remvoing the redundant node form the CN
+        // 3. remapping the corresponding EUF label to the remaining node
+        for (TreeSet<Element> ne : nestedToMerge) {
+            remap(ne);
+        }
+        remap(singleton);
     }
 
-    private void tidyUp(EquiClass eq) {
+    private void remap(Set<Element> toremap) {
+        T first = null;
+        for(Element e : toremap) {
+            if(first == null) {
+                first = (T)e.getMappedElement();
+            } else {
 
-        LOGGER.debug("tidy up for {}", eq.getDotLabel());
+                T mapped = (T)e.getMappedElement();
 
-
-        Set<EquiClass> bw = bwslice(Collections.singleton(eq), e -> e.getKind
-                () == EquiEdge.Kind.SUB);
-
-        // delete nested equi class
-        // must have a parent
-        removeEquiClass(eq);
-        LOGGER.debug("RIP");
-        LOGGER.debug(toDot());
-
-        for (EquiClass c : bw) {
-
-            if (c.equals(top))
-                continue;
-
-            if (c.equals(eq))
-                continue;
-
-            EquiClass nn = c.minus(eq);
-
-            if (containsVertex(nn)) {
-                // because we removed eq, nn is now
-                // equals to a child class
-                rip(c);
-                continue;
+                if(mapped.getId() != first.getId()){
+                    elementFact.relink(mapped, first);
+                    e.setMappedElement(first);
+                }
             }
-
-            LOGGER.debug("REPLACE {} with {}", c.getLabel(), nn.getLabel());
-
-            try {
-                replace(Collections.singleton(c), nn);
-            } catch (EUFInconsistencyException e) {
-                assert false;
-            }
-
-            LOGGER.debug("BW {}", c.getDotLabel());
         }
-
-        LOGGER.debug(toDot());
-
-        LOGGER.debug("lLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL");
-
-
     }
 
 
@@ -702,11 +670,11 @@ public class EufLattice<T extends Node> extends
         Set<EquiClass> tcrit = new HashSet<>();
 
 
-        for(EquiClass par : plist) {
+        for (EquiClass par : plist) {
 
             LOGGER.debug("check par {}:{}", par.getDotLabel(), par.getId());
 
-            if(!containsVertex(par)) {
+            if (!containsVertex(par)) {
                 ret.add(e);
                 return ret;
             }
@@ -717,15 +685,14 @@ public class EufLattice<T extends Node> extends
                     .filter(t -> !t.getSource().equals(e))
                     .filter(t -> t.getSource().isNested())
                     .filter(t ->
-                    CollectionUtils.isEqualCollection(getCoveringSplit(t.getSource()),
-                            plist))
+                            CollectionUtils.isEqualCollection(getCoveringSplit(t.getSource()),
+                                    plist))
                     .map(EquiEdge::getTarget)
                     .collect(Collectors.toSet());
 
 
             tcrit.addAll(check);
         }
-
 
 
         LOGGER.debug("tcrit {}", tcrit);
@@ -827,24 +794,25 @@ public class EufLattice<T extends Node> extends
     }
 
 
-    private void rip(EquiClass c) {
-        Set<EquiClass> out = getConnectedOutNodesOfKind(c, EquiEdge.Kind.SUB);
-        Set<EquiClass> in = getConnectedInNodesOfKind(c, EquiEdge.Kind.SUB);
-
-        removeEquiClass(c);
-
-        assert out.size() == 1;
-        assert in.size() == 1;
-
-
-        for (EquiClass i : in) {
-            for (EquiClass o : out) {
-                addSubEdge(i, o);
-            }
-        }
-
-
-    }
+    /**
+     * private void rip(EquiClass c) {
+     * Set<EquiClass> out = getConnectedOutNodesOfKind(c, EquiEdge.Kind.SUB);
+     * Set<EquiClass> in = getConnectedInNodesOfKind(c, EquiEdge.Kind.SUB);
+     * <p>
+     * removeEquiClass(c);
+     * <p>
+     * assert out.size() == 1;
+     * assert in.size() == 1;
+     * <p>
+     * <p>
+     * for (EquiClass i : in) {
+     * for (EquiClass o : out) {
+     * addSubEdge(i, o);
+     * }
+     * }
+     * <p>
+     * }
+     **/
 
 
     private Set<EquiEdge> replace(EquiClass toReplace, EquiClass replacement) {
@@ -852,12 +820,11 @@ public class EufLattice<T extends Node> extends
         Set<EquiEdge> edges = new HashSet<>();
 
 
-
         Set<EquiEdge> out = outgoingEdgesOf(toReplace);
         Set<EquiEdge> in = incomingEdgesOf(toReplace);
 
 
-        if(toReplace.isNested()) {
+        if (toReplace.isNested()) {
             // the replacement has to be split anyway so we do not consider
             // split edges here
             edges.addAll(in.stream()
@@ -896,7 +863,7 @@ public class EufLattice<T extends Node> extends
         LOGGER.debug("REPLACE");
 
         for (EquiClass t : toReplace) {
-            LOGGER.debug("to replace {}:{}", t.getDotLabel(), t.getId());
+            LOGGER.debug("to relink {}:{}", t.getDotLabel(), t.getId());
         }
 
         LOGGER.debug("replacement {}:{}", replacement.getDotLabel(),
@@ -905,8 +872,7 @@ public class EufLattice<T extends Node> extends
         Set<EquiEdge> edges = new HashSet<>();
 
 
-
-        for(EquiClass torep : toReplace) {
+        for (EquiClass torep : toReplace) {
             edges.addAll(replace(torep, replacement));
         }
 
@@ -945,7 +911,7 @@ public class EufLattice<T extends Node> extends
 
         EquiEdge e = new EquiEdge(src, dst, kind, idx);
         LOGGER.debug("add edge {}:{} -> {}:{}", src.getDotLabel(), src.getId
-                (),dst.getDotLabel(), dst.getId());
+                (), dst.getDotLabel(), dst.getId());
 
         super.addEdge(e.getSource(), e.getTarget(), e);
     }

@@ -130,16 +130,14 @@ public class EquiClass implements Cloneable {
 
     public String getDotLabel() {
         StringBuffer sb = new StringBuffer();
-        sb.append("\\{");
         for(Element n : set) {
-            if(sb.charAt(sb.length()-1) != '{') {
-                sb.append(",");
+            if(sb.length() > 0) {
+                sb.append("\\n");
             }
             sb.append(EscapeUtils.escapeSpecialCharacters(n.getLabel()));
             sb.append("[" + n.mappedElement.toString() + "]");
             sb.append("(" + getId() + ")");
         }
-        sb.append("\\}");
         return sb.toString();
     }
 

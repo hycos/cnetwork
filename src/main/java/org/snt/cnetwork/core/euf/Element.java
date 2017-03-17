@@ -13,9 +13,14 @@ public abstract class Element<T> implements Comparable, Cloneable{
     // used to map a 'real' object to this element
     protected T mappedElement;
 
+    public void setMappedElement(T mappedElement) {
+        this.mappedElement = mappedElement;
+    }
+
     public Element(T emap, String lbl, String annotation) {
         this.lbl = lbl;
         this.annotation = annotation;
+
         this.mappedElement = emap;
     }
 
@@ -26,6 +31,8 @@ public abstract class Element<T> implements Comparable, Cloneable{
     public abstract Element [] split();
 
     public abstract boolean isTuple();
+
+    public abstract boolean isSingleton();
 
     public String getLabel() {
         return lbl;

@@ -10,5 +10,5 @@ public interface EquiClassFact<T> {
     EquiClass[] getEquiClassesFor(T ... n) throws MissingItemException;
     EquiClass getEquiClassFor(T n) throws MissingItemException;
     boolean hasEquiClassFor(T n);
-    void remove(T n);
+    void relink(T toReplace, T replacement);
 }

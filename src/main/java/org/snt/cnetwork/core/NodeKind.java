@@ -65,7 +65,7 @@ public enum NodeKind {
     CONCAT("concat", DomainKind.STRING),
     TRIM("trim", DomainKind.STRING),
     LEN("len", DomainKind.NUMERIC_N),
-    REPLACE("replace", DomainKind.STRING),
+    REPLACE("relink", DomainKind.STRING),
     STRINV("strinv", DomainKind.STRING),
     CHARAT("charat", DomainKind.STRING),
 
@@ -161,7 +161,7 @@ public enum NodeKind {
             case "concat": return CONCAT;
             case "trim": return TRIM;
             case "len": return LEN;
-            case "replace": return REPLACE;
+            case "relink": return REPLACE;
             case "strinv": return STRINV;
             case "charat": return CHARAT;
 
