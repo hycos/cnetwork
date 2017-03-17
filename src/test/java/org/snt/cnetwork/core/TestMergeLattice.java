@@ -4,9 +4,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.mergelattice.EquiClass;
-import org.snt.cnetwork.core.mergelattice.EufLattice;
-import org.snt.cnetwork.core.mergelattice.NodeElemFact;
+import org.snt.cnetwork.core.euf.EquiClass;
+import org.snt.cnetwork.core.euf.EufLattice;
+import org.snt.cnetwork.core.euf.NodeElemFact;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.exception.MissingItemException;
 
@@ -260,6 +260,7 @@ public class TestMergeLattice {
             cn.addConstraint(NodeKind.EQUALS, idxof, i);
             cn.addConstraint(NodeKind.EQUALS, a, b);
             LOGGER.debug("=====================================================");
+            LOGGER.debug(cn.getConstraintNetwork().toDot());
             Node aliasidxof = cn.addOperation(NodeKind.INDEXOF, b, one);
             //cn.addConstraint(NodeKind.EQUALS, aliasidxof, k);
 

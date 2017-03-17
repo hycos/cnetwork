@@ -253,53 +253,32 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return ret;
     }
 
-    protected Operation addConstraint(NodeKind kind, Node... params) {
-        List<Node> lst = Arrays.asList(params);
-        return addConstraint(kind, lst);
-    }
-
-    protected Operation addConstraint(NodeKind kind, List<Node> params) {
-        return addOperation(kind, true, params);
-    }
 
     protected Operation addOperation(NodeKind kind, Node... params) {
         List<Node> lst = Arrays.asList(params);
-        return addOperation(kind, lst);
+        return createOperation(kind, lst);
     }
 
     protected Operation addOperation(NodeKind kind, List<Node> params) {
-        return addOperation(kind, false, params);
+        return createOperation(kind, params);
     }
 
 
-
-    protected Operation addOperation(NodeKind kind,
-                                     boolean isConstraint,
-                                     List<Node> params) {
+    private Operation createOperation(NodeKind kind, List<Node> params) {
         //LOGGER.info("PARAMS LEN " + params.size());
         Operation op;
-
         String label = getLabel(kind, params);
         //LOGGER.info("LABEL IS " + label);
-
         op = (Operation) getNodeByLabel(label);
-
         if (op == null) {
-
-            if (!isConstraint)
-                op = new Operation(label, kind);
-            else
-                op = new Constraint(label, kind);
-
-
-            assert !nodeLookup.containsKey(op.getLabel());
+            op = new Operation(label, kind);
             addNode(op);
             linkParams(op, params);
-            return op;
-        } else {
-            return op;
+            assert nodeLookup.containsKey(op.getLabel());
         }
+        return op;
     }
+
 
 
     protected Edge addConnection(Node src, Node target, EdgeKind kind, int priority) {
@@ -460,7 +439,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
 
         assert (this.vertexSet().contains(cpoint));
 
-        this.addConstraint(kind, cpoint, othercn.getStartNode());
+        this.addOperation(kind, cpoint, othercn.getStartNode());
     }
 
 

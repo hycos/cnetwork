@@ -1,4 +1,4 @@
-package org.snt.cnetwork.core.mergelattice;
+package org.snt.cnetwork.core.euf;
 
 
 public class SingletonElement<T> extends Element<T> {

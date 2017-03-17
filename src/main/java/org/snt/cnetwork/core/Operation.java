@@ -2,6 +2,7 @@ package org.snt.cnetwork.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.domain.BooleanRange;
 import org.snt.cnetwork.core.domain.DomainKind;
 import org.snt.cnetwork.core.domain.NodeDomainFactory;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
@@ -94,7 +95,7 @@ public class Operation extends Node {
 
     @Override
     public boolean isConstraint() {
-        return this instanceof Constraint;
+        return this.isBoolean() && !((BooleanRange)getRange()).isCatState();
     }
 
     @Override

@@ -17,7 +17,7 @@
 * limitations under the Licence.
 */
 
-package org.snt.cnetwork.core.mergelattice;
+package org.snt.cnetwork.core.euf;
 
 
 import org.jgrapht.EdgeFactory;

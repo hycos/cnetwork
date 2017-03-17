@@ -3,7 +3,8 @@ package org.snt.cnetwork.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.BooleanRange;
-import org.snt.cnetwork.core.mergelattice.*;
+import org.snt.cnetwork.core.domain.NodeDomainFactory;
+import org.snt.cnetwork.core.euf.*;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.exception.MissingItemException;
 
@@ -82,14 +83,19 @@ public class ConstraintNetworkBuilder
         return param;
     }
 
+
+
     public Node addOperation(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
 
-        Node op = cn.addOperation(kind, false, inferParam(params));
+        Node op = cn.addOperation(kind, inferParam(params));
 
         LOGGER.debug("check node {}:{}", op.getLabel(), op.getId());
 
         Node nop = infer(op);
+
+        LOGGER.debug("NOP {}", nop);
+        LOGGER.debug("OP {}", op);
 
         // there is already an equivalent node present in the cn
         if (!op.equals(nop) && !op.getLabel().equals(nop.getLabel())) {
@@ -106,20 +112,14 @@ public class ConstraintNetworkBuilder
     public Node addConstraint(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
 
-        Node op = cn.addOperation(kind, true, inferParam(params));
-        LOGGER.debug(">> add constraint {}", op.getLabel());
-        Node nop = infer(op);
+        Node op = addOperation(kind, params);
 
-        // there is already an equivalent node present in the cn
-        if (!op.equals(nop) && !op.getLabel().equals(nop.getLabel())) {
-            // we can drop the vertex to be added
-            cn.removeVertex(op);
-            LOGGER.debug("REMOVE {}", op.getDotLabel());
-            return nop;
-        }
+        // it seems to be redundant, byt we need this extra node in order to
+        // simplify the translation procedure
+        Node contraint = addOperation(NodeKind.EQUALS, op, new Operand("true",
+                NodeKind.BOOLLIT));
+        op.setDomain(NodeDomainFactory.DBTRUE.clone());
 
-        attach(op);
-        update(op);
         return op;
     }
 

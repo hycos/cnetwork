@@ -1,4 +1,4 @@
-package org.snt.cnetwork.core.mergelattice;
+package org.snt.cnetwork.core.euf;
 
 
 import org.apache.commons.collections.CollectionUtils;

@@ -1,4 +1,4 @@
-package org.snt.cnetwork.core.mergelattice;
+package org.snt.cnetwork.core.euf;
 
 import org.jgrapht.graph.DefaultEdge;
 import org.slf4j.Logger;
