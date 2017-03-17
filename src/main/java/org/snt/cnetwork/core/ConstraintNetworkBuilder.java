@@ -326,6 +326,31 @@ public class ConstraintNetworkBuilder
     }
 
 
+    public Node relink(Node toReplace, Node replacement) {
+        int id = toReplace.getId();
+
+        assert cn.containsVertex(toReplace);
+
+        Set<Edge> out = cn.outgoingEdgesOf(toReplace);
+        Set<Edge> toAdd = new HashSet<>();
+
+        for(Edge e : out) {
+            toAdd.add(new Edge(replacement, e.getTarget(), e.getSequence()));
+        }
+
+        if(containsVertex(toReplace)) {
+            removeVertex(toReplace);
+        }
+
+        addConnections(toAdd);
+
+        assert vertexSet().stream().filter(x -> x
+                .getId() == id).count() == 0;
+
+        return replacement;
+    }
+
+
     private Node inferEquivalentNode(Node n) {
 
         LOGGER.debug("infer equivalent node {}:{}", n.getLabel(), n.getId());
