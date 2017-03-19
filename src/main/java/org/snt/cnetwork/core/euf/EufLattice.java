@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.Node;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.exception.MissingItemException;
+import org.snt.cnetwork.utils.BiMap;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
@@ -27,6 +28,8 @@ public class EufLattice extends
     private EquiEdge init = new EquiEdge(top, bottom, EquiEdge.Kind.SUB, -1);
     private EquiClassFact elementFact = null;
 
+    private BiMap<Element, Node> emap = new BiMap<>();
+    private BiMap<String, Element> smap = new BiMap<>();
 
 
     class IdComparator implements Comparator<Element> {
@@ -308,17 +311,29 @@ public class EufLattice extends
         Node first = null;
         for(Element e : toremap) {
             if(first == null) {
-                first = (Node)e.getMappedNode();
+                first = e.getMappedNode();
             } else {
 
-                Node mapped = (Node)e.getMappedNode();
+                Node mapped = e.getMappedNode();
 
                 if(mapped.getId() != first.getId()){
                     elementFact.relink(mapped, first);
                     e.setMappedNode(first);
+                    emap.put(e, first);
+                    smap.put(e.getLabel(), e);
                 }
             }
         }
+    }
+
+    public String getElementLabelByNode(Node n) {
+        assert emap.containsValue(n);
+        return emap.getKeyByValue(n).getLabel();
+    }
+
+    public Element getElementByLabel(String lbl) {
+        assert smap.containsKey(lbl);
+        return smap.getValueByKey(lbl);
     }
 
 
@@ -541,7 +556,12 @@ public class EufLattice extends
         if (!vertexSet().contains(v)) {
             LOGGER.debug("add vertex {}:{}", v.getDotLabel(), v.getId());
             super.addVertex(v);
+            for(Element ele: v.getElements()) {
+                emap.put(ele, ele.getMappedNode());
+                smap.put(ele.getLabel(), ele);
+            }
         }
+
         return v;
     }
 

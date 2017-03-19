@@ -4,7 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.ConstraintNetworkBuilder;
 import org.snt.cnetwork.core.Node;
+import org.snt.cnetwork.core.NodeKind;
+import org.snt.cnetwork.core.Operand;
 import org.snt.cnetwork.exception.MissingItemException;
+import org.snt.cnetwork.utils.BiMap;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,13 +21,31 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
     private ConstraintNetworkBuilder cn;
 
-    private NodeCache cache = new NodeCache();
+    private BiMap<Node, EquiClass> ncache = new BiMap<>();
+    private BiMap<String, Node> scache = new BiMap<>();
 
-    public NodeElemFact(ConstraintNetworkBuilder cn, NodeElemFact ne) {
+    public String getLabelForNode(Node n) {
+        assert ncache.containsKey(n);
+        return ncache.getValueByKey(n).getLabel();
+    }
+
+    public Node getNodeForLabel(String lbl) {
+        assert scache.containsKey(lbl);
+        return scache.getValueByKey(lbl);
+    }
+
+    public EquiClass getEquiClassForLabel(String lbl) {
+        Node n = getNodeForLabel(lbl);
+        assert ncache.containsKey(n);
+        return ncache.getValueByKey(n);
+    }
+
+    public NodeElemFact(ConstraintNetworkBuilder cn,
+                        NodeElemFact ne) {
         this(cn);
         // clone cache
-        this.cache = new NodeCache(ne.cache);
-
+        this.ncache = new BiMap<>(ne.ncache);
+        this.scache = new BiMap<>(ne.scache);
     }
 
     public NodeElemFact(ConstraintNetworkBuilder cn) {
@@ -33,16 +54,16 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
     private void handleNode(Node n, Set<EquiClass> es) {
 
-        if (cache.containsKey(n.getLabel())) {
-            es.add(cache.getValueByKey(n.getLabel()));
+        if (ncache.containsKey(n)) {
+            es.add(ncache.getValueByKey(n));
             return;
         }
 
         if (n.isOperand()) {
-            EquiClass eq = new EquiClass(new SingletonElement(n,n.getLabel
-                    ()));
+            EquiClass eq = new EquiClass(new SingletonElement(n,n.getLabel()));
             LOGGER.debug("create equiclass {}:{}", eq.getDotLabel(), eq.getId());
-            cache.put(n.getLabel(), eq);
+            ncache.put(n, eq);
+            scache.put(eq.getLabel(), n);
             es.add(eq);
         } else {
             assert n.isOperation();
@@ -50,6 +71,31 @@ public final class NodeElemFact implements EquiClassFact<Node> {
         }
     }
 
+
+    public String getLabel(NodeKind kind, List<Node> params) {
+        return kind.toString() + "(" + getParameterList(params) + ")";
+    }
+
+    private String getParameterList(List<Node> params) {
+
+        String label = "";
+
+        for (int i = 0; i < params.size(); i++) {
+            Node par = params.get(i);
+            assert (par != null);
+            //LOGGER.info("Par " + par.getKind());
+            //LOGGER.info("Par" + par.getId());
+            //LOGGER.info("+SPLIT " + par.getLabel());
+            String plbl = par.getLabel();
+            if (par instanceof Operand && par.isLiteral() && par.isString()) {
+                plbl = par.getLabel();
+            }
+
+            label += plbl + (i < params.size() - 1 ? "," : "");
+        }
+
+        return label;
+    }
 
     private void createNestedElement(Node n, Set<EquiClass> es) {
         LOGGER.debug("create nested element {} params {}", n, cn
@@ -61,7 +107,7 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
             LOGGER.debug("handle node {}", p);
             handleNode(p, es);
-            Set<Element> ess = cache.getValueByKey(p.getLabel()).getElements();
+            Set<Element> ess = ncache.getValueByKey(p).getElements();
             LOGGER.debug("ESS {}", ess.toString());
             LOGGER.debug("SIZ " + ess.size());
             assert !ess.isEmpty();
@@ -72,16 +118,20 @@ public final class NodeElemFact implements EquiClassFact<Node> {
             elems.add(ess.iterator().next());
         }
 
-        LOGGER.debug("elements");
+        LOGGER.debug("elements {}", elems);
 
         assert !n.getKind().toString().isEmpty();
 
-        NestedElement nested = new NestedElement(n, n.getLabel(), n
+        LOGGER.debug("compute label {}", computeParList(elems));
+
+        String label = n.getKind().getDesc() + computeParList(elems);
+
+        NestedElement nested = new NestedElement(n, label, n
                 .getKind()
                 .toString(),
                 elems.toArray(new Element[elems.size()]));
 
-        nested.setAnnotation(n.getKind().getDesc());
+        //nested.setAnnotation(n.getKind().getDesc());
 
         // the equiclass that represents this node
         EquiClass nst = new EquiClass(nested);
@@ -95,7 +145,8 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
         //cache.put(n, eq);
 
-        cache.put(n.getLabel(), nst);
+        ncache.put(n, nst);
+        scache.put(nst.getLabel(), n);
         es.add(nst);
     }
 
@@ -121,9 +172,9 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
             handleNode(nod, s);
 
-            assert cache.containsKey(nod.getLabel());
+            assert ncache.containsKey(nod);
 
-            Collection<Element> cele = cache.getValueByKey(nod.getLabel())
+            Collection<Element> cele = ncache.getValueByKey(nod)
                     .getElements();
 
             //LOGGER.debug("elements {}",cele.toString());
@@ -158,16 +209,20 @@ public final class NodeElemFact implements EquiClassFact<Node> {
     }
 
 
-    public String computeLabel(Element... s) {
+    public String computeParList(Collection<Element> s) {
+        return computeParList(s.toArray(new Element[s.size()]));
+    }
+
+    public String computeParList(Element... s) {
 
         StringBuffer sb = new StringBuffer();
 
         if (s.length == 1) {
             sb.append(s[0].getLabel());
         } else {
-            sb.append(s[0].getAnnotation());
+            //sb.append(s[0].getAnnotation());
             sb.append("(");
-            for (int i = 1; i < s.length; i++) {
+            for (int i = 0; i < s.length; i++) {
                 sb.append(s[i].getLabel());
                 if (i < s.length - 1)
                     sb.append(",");
@@ -196,20 +251,19 @@ public final class NodeElemFact implements EquiClassFact<Node> {
     @Override
     public EquiClass getEquiClassFor(Node n) throws MissingItemException {
 
-        if (!cache.containsKey(n.getLabel()))
+        if (!ncache.containsKey(n))
             throw new MissingItemException("Node " + n.getLabel() + " is " +
                     "not present");
 
-        assert cache.containsKey(n.getLabel());
+        assert ncache.containsKey(n);
 
-        return cache.getValueByKey(n.getLabel());
+        return ncache.getValueByKey(n);
     }
 
 
     @Override
     public boolean hasEquiClassFor(Node n) {
-        return this.cache.containsKey(n
-                .getLabel());
+        return ncache.containsKey(n);
     }
 
     @Override
@@ -219,13 +273,13 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
     @Override
     public String toString() {
-        return this.cache.toString();
+        return ncache.toString();
     }
 
 
 
 
-    public NodeCache getNodeCache() {
-        return cache;
+    public BiMap<Node, EquiClass> getNodeCache() {
+        return ncache;
     }
 }

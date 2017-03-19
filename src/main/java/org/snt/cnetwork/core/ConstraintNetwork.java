@@ -15,7 +15,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     private HashSet<Edge> unsat = new HashSet<>();
 
     // just used during construction
-    private HashMap<String, Node> nodeLookup = new HashMap<>();
+    //private HashMap<String, Node> nodeLookup = new HashMap<>();
     private HashMap<String, Operation> opLookup = new HashMap<>();
 
     // this is usually null - we just use it for thread models
@@ -36,7 +36,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
             Edge ne = new Edge(src,dest,e.getSequence());
             this.addConnection(ne);
         }
-        buildNodeIdx();
+        //buildNodeIdx();
     }
 
     protected Set<Edge> getAllConnectedEdges(Node n) {
@@ -136,15 +136,12 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return op;
     }
 
-    protected Operand addOperand(NodeKind kind, String label) {
-        Node n = this.getNodeByLabel(label);
-        if (n == null) {
-            n = new Operand(label, kind);
-            this.addNode(n);
-        }
-        assert (n instanceof Operand);
-        Operand op = (Operand) n;
-        return op;
+    protected Node addOperand(NodeKind kind, String label) {
+        //Node n = this.getNodeByLabel(label);
+        //if (n == null) {
+        Node n = new Operand(label, kind);
+        addNode(n);
+        return n;
     }
 
     protected Operation registerExtOperation(String bytecodesig, String label) {
@@ -179,16 +176,16 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         if (ext == null)
             return null;
 
-        String label = ext.getLabel() + "(" + getParameterList(params) + ")";
+        //String label = ext.getLabel() + "(" + getParameterList(params) + ")";
 
-        Operation op = (Operation) getNodeByLabel(label);
+        //Operation op = (Operation) getNodeByLabel(label);
 
-        if (op == null) {
-            op = new Operation(ext);
-            op.setLabel(label);
-        } else {
-            return op;
-        }
+        //if (op == null) {
+        Operation  op = new Operation(ext);
+         //   op.setLabel(label);
+        //} else {
+        //    return op;
+        //}
 
         linkParams(op, params);
         addNode(op);
@@ -196,7 +193,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     }
 
 
-    public String getLabel(NodeKind kind, List<Node> params) {
+    /**public String getLabel(NodeKind kind, List<Node> params) {
         return kind.toString() + "(" + getParameterList(params) + ")";
     }
 
@@ -219,14 +216,18 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         }
 
         return label;
-    }
+    }**/
 
-    private void linkParams(Operation op, List<Node> params) {
+    private void linkParams(Node op, List<Node> params) {
         for (int i = 0; i < params.size(); i++) {
-            Node par = this.getNodeByLabel(params.get(i).getLabel());
-            if (par == null) {
-                par = addNode(params.get(i));
-            }
+
+            //assert vertexSet().contains(params.get(i));
+
+            Node par = params.get(i);
+            //Node par = this.getNodeByLabel(params.get(i).getLabel());
+            //if (par == null) {
+            //    par = addNode(params.get(i));
+            //}
             this.addConnection(par, op, EdgeKind.PAR_IN, i);
         }
     }
@@ -254,28 +255,28 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     }
 
 
-    protected Operation addOperation(NodeKind kind, Node... params) {
+    protected Node addOperation(NodeKind kind, Node... params) {
         List<Node> lst = Arrays.asList(params);
         return createOperation(kind, lst);
     }
 
-    protected Operation addOperation(NodeKind kind, List<Node> params) {
+    protected Node addOperation(NodeKind kind, List<Node> params) {
         return createOperation(kind, params);
     }
 
 
-    private Operation createOperation(NodeKind kind, List<Node> params) {
+    private Node createOperation(NodeKind kind, List<Node> params) {
         //LOGGER.info("PARAMS LEN " + params.size());
-        Operation op;
-        String label = getLabel(kind, params);
+        //Operation op;
+        //String label = getLabel(kind, params);
         //LOGGER.info("LABEL IS " + label);
-        op = (Operation) getNodeByLabel(label);
-        if (op == null) {
-            op = new Operation(label, kind);
-            addNode(op);
-            linkParams(op, params);
-            assert nodeLookup.containsKey(op.getLabel());
-        }
+        //op = (Operation) getNodeByLabel(label);
+        //if (op == null) {
+        Node op = new Operation(kind);
+        addNode(op);
+        linkParams(op, params);
+         //   assert nodeLookup.containsKey(op.getLabel());
+        //}
         return op;
     }
 
@@ -287,41 +288,41 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return e;
     }
 
-    private String getNewLabelFor(Node n) {
-        List<Node> pars = getParametersFor(n);
-        String label = n.getKind().toString() + "(" + getParameterList(pars) +
-                ")";
-        return label;
-    }
+//    private String getNewLabelFor(Node n) {
+//        List<Node> pars = getParametersFor(n);
+//        String label = n.getKind().toString() + "(" + getParameterList(pars) +
+//                ")";
+//        return label;
+//    }
 
 
-    protected Edge addConnection(Edge e, boolean updateLbl) {
-
-        Edge r = addConnection(e);
-        if(!updateLbl) {
-            return r;
-        } else {
-            LOGGER.debug("{} -> {}", r.getSrcNode().getLabel(), r.getDestNode().getLabel());
-            LinkedList<Node> worklist = new LinkedList<>();
-            worklist.add(r.getDestNode());
-            Set<Node> visited = new HashSet<>();
-
-            while (!worklist.isEmpty()) {
-                Node n = worklist.pollFirst();
-
-                if(!visited.contains(n))
-                    visited.add(n);
-                else
-                    continue;
-
-                updateVertex(n);
-
-                worklist.addAll(getConnectedOutNodes(n));
-            }
-        }
-        return e;
-
-    }
+//    protected Edge addConnection(Edge e) {
+//
+//        Edge r = addConnection(e);
+//        if(!updateLbl) {
+//            return r;
+//        } else {
+//            LOGGER.debug("{} -> {}", r.getSrcNode().getLabel(), r.getDestNode().getLabel());
+//            LinkedList<Node> worklist = new LinkedList<>();
+//            worklist.add(r.getDestNode());
+//            Set<Node> visited = new HashSet<>();
+//
+//            while (!worklist.isEmpty()) {
+//                Node n = worklist.pollFirst();
+//
+//                if(!visited.contains(n))
+//                    visited.add(n);
+//                else
+//                    continue;
+//
+//                updateVertex(n);
+//
+//                worklist.addAll(getConnectedOutNodes(n));
+//            }
+//        }
+//        return e;
+//
+//    }
 
     protected Edge addConnection(Edge e) {
         addVertex(e.getSrcNode());
@@ -365,33 +366,33 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
 
             assert ok;
             LOGGER.debug("remove V {}:{}", n.getLabel(), n.getId());
-            nodeLookup.remove(n.getLabel());
+            //nodeLookup.remove(n.getLabel());
             return super.removeVertex(n);
         } else {
             return false;
         }
     }
 
-
-    public void updateVertex(Node n) {
-        nodeLookup.remove(n.getLabel());
-        String nl = getNewLabelFor(n);
-        n.setLabel(nl);
-        nodeLookup.put(nl, n);
-    }
+//
+//    public void updateVertex(Node n) {
+//        //nodeLookup.remove(n.getLabel());
+//        String nl = getNewLabelFor(n);
+//        n.setLabel(nl);
+//        //nodeLookup.put(nl, n);
+//    }
 
     @Override
     public boolean addVertex(Node n) {
         //LOGGER.info("ADD NODE " + n.getLabel());
 
         // never add a node twice
-        if ((getNodeByLabel(n.getLabel())) != null) {
-            return false;
-        } else {
-            super.addVertex(n);
-            nodeLookup.put(n.getLabel(),n);
-            return true;
-        }
+        //if ((getNodeByLabel(n.getLabel())) != null) {
+        //    return false;
+        //} else {
+            return super.addVertex(n);
+           // nodeLookup.put(n.getLabel(),n);
+            //return true;
+        //}
     }
 
     protected Node addNode(Node n) {
@@ -399,16 +400,16 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return n;
     }
 
-    protected void buildNodeIdx() {
-        this.nodeLookup.clear();
-        for (Node n : this.vertexSet()) {
-            this.nodeLookup.put(n.getLabel(), n);
-        }
-    }
+//    protected void buildNodeIdx() {
+//        this.nodeLookup.clear();
+//        for (Node n : this.vertexSet()) {
+//            this.nodeLookup.put(n.getLabel(), n);
+//        }
+//    }
 
-    protected Node getNodeByLabel(String label) {
-        return this.nodeLookup.get(label);
-    }
+    //protected Node getNodeByLabel(String label) {
+    //    return this.nodeLookup.get(label);
+    //}
 
 
     protected Collection<Node> getAllVariables() {
@@ -529,11 +530,11 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return sb.toString();
     }
 
-    protected void debug() {
-        for (Map.Entry<String, Node> e : this.nodeLookup.entrySet()) {
-            LOGGER.info(e.getKey());
-        }
-    }
+//    protected void debug() {
+//        for (Map.Entry<String, Node> e : this.nodeLookup.entrySet()) {
+//            LOGGER.info(e.getKey());
+//        }
+//    }
 
     public String toConfig() {
 

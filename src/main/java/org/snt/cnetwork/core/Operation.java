@@ -20,12 +20,8 @@ public class Operation extends Node {
         super(op);
     }
 
-    public Operation(String name, String kind) {
-        this(name,NodeKind.KindFromString(kind));
-    }
-
-    public Operation(String name, NodeKind kind) {
-        super(name, kind);
+    public Operation(NodeKind kind) {
+        super(kind.toString(), kind);
         LOGGER.debug("Node kind {}", kind);
         assert kind.isOperation() || kind.isComparative() || kind.isBranch();
         this.sig = StandardWrappers.getSigForOperation(this.kind);

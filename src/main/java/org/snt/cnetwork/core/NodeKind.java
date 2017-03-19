@@ -298,6 +298,10 @@ public enum NodeKind {
 
     public boolean isVariable() { return !isLiteral(); }
 
+    public boolean isOperand() {
+        return !isOperation();
+    }
+
     public DomainKind getDomainKind() {
         return this.dkind;
     }

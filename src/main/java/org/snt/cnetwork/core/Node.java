@@ -35,7 +35,7 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
         this.id = nid++;
         this.kind = kind;
         this.label = label;
-        LOGGER.debug(".. " + label + " " + kind.toString());
+        //LOGGER.debug(".. " + label + " " + kind.toString());
         // compute the appropriate domain automatically
         this.dom = NodeDomainFactory.INSTANCE.getDomain(this);
     }

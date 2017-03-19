@@ -39,11 +39,11 @@ public class ConstraintNetworkBuilder
     public ConstraintNetworkBuilder(boolean eufEnabled) {
         this.eufEnabled = eufEnabled;
         this.cn = new ConstraintNetwork();
-        if (this.eufEnabled) {
+        //if (this.eufEnabled) {
             // EUF has to e assigned first here
             this.nf = new NodeElemFact(this);
             this.euf = new EufLattice(nf);
-        }
+        //}
     }
 
 
@@ -67,8 +67,8 @@ public class ConstraintNetworkBuilder
         return addOperation(kind, lst);
     }
 
-    public Edge addConnection(Edge e, boolean updateLbl) {
-        return cn.addConnection(e, updateLbl);
+    public Edge addConnection(Edge e) {
+        return cn.addConnection(e);
     }
 
 
@@ -99,15 +99,27 @@ public class ConstraintNetworkBuilder
         LOGGER.debug("OP {}", op);
 
         // there is already an equivalent node present in the cn
-        if (!op.equals(nop) && !op.getLabel().equals(nop.getLabel())) {
+
+        if(nop.equals(op)) {
+
+            attach(op);
+            update(op);
+            return op;
+
+        } else {
             // we can drop the vertex to be added
-            cn.removeVertex(op);
+
+            String lbl1 = nf.getLabelForNode(op);
+            String lbl2 = nf.getLabelForNode(nop);
+
+
+            if(!lbl1.equals(lbl2)) {
+                cn.removeVertex(op);
+            }
 
             return nop;
         }
-        attach(op);
-        update(op);
-        return op;
+
     }
 
     public Node addConstraint(NodeKind kind, List<Node> params) throws
@@ -142,13 +154,16 @@ public class ConstraintNetworkBuilder
 
     public Node getNodeByLabel(String lbl) {
 
-        if (eufEnabled) {
-            if (!nf.getNodeCache().containsKey(lbl)) {
-                LOGGER.debug("null");
-                return null;
-            }
 
-            EquiClass ec = nf.getNodeCache().getValueByKey(lbl);
+        //if (eufEnabled) {
+            //if (!nf.getNodeForLabel(lbl)) {
+            //    LOGGER.debug("null");
+            //    return null;
+            //}
+
+
+
+            EquiClass ec = nf.getEquiClassForLabel(lbl);
             Set<EquiClass> snen = euf.inferEquiClassFor(ec);
 
             LOGGER.debug("ieq {}", snen);
@@ -170,9 +185,9 @@ public class ConstraintNetworkBuilder
             LOGGER.debug("mapped element is {}", emap.getLabel());
 
             return emap;
-        } else {
-            return cn.getNodeByLabel(lbl);
-        }
+        //} else {
+        //    return cn.getNodeByLabel(lbl);
+        //}
     }
 
     public Node getNodeById(int id) {
@@ -233,8 +248,8 @@ public class ConstraintNetworkBuilder
 
     public Node addOperand(NodeKind kind, String label) {
         Node n = cn.addOperand(kind, label);
-        if(eufEnabled)
-            nf.createEquiClass(n);
+        //if(eufEnabled)
+        nf.createEquiClass(n);
         return n;
     }
 
@@ -309,9 +324,9 @@ public class ConstraintNetworkBuilder
         }
     }
 
-    private Node infer(Node n) {
+    public Node infer(Node n) {
 
-        if(eufEnabled) {
+        //if(eufEnabled) {
             Node nn = inferEquivalentNode(n);
             // is already present as nn1
             if (!nn.equals(n)) {
@@ -321,9 +336,10 @@ public class ConstraintNetworkBuilder
                         .getLabel(),n.getId());
                 return nn;
             }
-        }
+            return n;
+        //}
         // n is the first of its kind
-        return n;
+        //return n;
     }
 
 
@@ -355,12 +371,12 @@ public class ConstraintNetworkBuilder
     private Node inferEquivalentNode(Node n) {
 
         LOGGER.debug("infer equivalent node {}:{}", n.getLabel(), n.getId());
-        if (n.isOperand()) {
-            return n;
-        } else {
+        //if (n.isOperand()) {
+        //    return n;
+        //} else {
             // create temporary equi class
             nf.createEquiClass(n);
-            EquiClass en = nf.getNodeCache().getValueByKey(n.getLabel());
+            EquiClass en = nf.getNodeCache().getValueByKey(n);
             Set<EquiClass> snen = euf.inferEquiClassFor(en);
 
             LOGGER.debug("ieq {}", snen);
@@ -384,12 +400,12 @@ public class ConstraintNetworkBuilder
             LOGGER.debug("mapped element is {}:{}", emap.getLabel(), emap.getId());
 
             return emap;
-        }
+        //}
     }
 
-    public void updateVertex(Node n) {
-        cn.updateVertex(n);
-    }
+//    public void updateVertex(Node n) {
+//        cn.updateVertex(n);
+//    }
 
     @Override
     public void update(Node n) throws EUFInconsistencyException {
