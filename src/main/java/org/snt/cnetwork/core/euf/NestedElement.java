@@ -1,9 +1,11 @@
 package org.snt.cnetwork.core.euf;
 
 
-import java.util.*;
+import org.snt.cnetwork.core.Node;
 
-public final class NestedElement<T> extends Element<T> {
+import java.util.Arrays;
+
+public final class NestedElement extends Element {
 
     protected final Element [] tuple;
 
@@ -14,11 +16,12 @@ public final class NestedElement<T> extends Element<T> {
      * @param ne
      */
     public NestedElement(NestedElement ne) {
-        this((T)ne.mappedElement,ne.lbl, ne.annotation, Arrays.copyOf(ne.tuple, ne.tuple
+        this(ne.mappedNode,ne.lbl, ne.annotation, Arrays.copyOf(ne.tuple, ne.tuple
                 .length));
     }
 
-    public NestedElement(T n, String label, String annotation, Element ... pars) {
+    public NestedElement(Node n, String label, String annotation, Element ...
+            pars) {
        super(n, label,annotation);
        tuple = new Element[pars.length];
 

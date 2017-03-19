@@ -17,7 +17,7 @@ public class TestMergeLattice {
     @Test
     public void testSimple0() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
-        EufLattice<Node> mt = new EufLattice<>(new NodeElemFact(cn));
+        EufLattice mt = new EufLattice(new NodeElemFact(cn));
 
         Node a = cn.addOperand(NodeKind.STRLIT, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -42,7 +42,7 @@ public class TestMergeLattice {
     public void testSimple1() {
 
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
-        EufLattice<Node> mt = new EufLattice<>(new NodeElemFact(cn));
+        EufLattice mt = new EufLattice(new NodeElemFact(cn));
 
         Node a = cn.addOperand(NodeKind.STRLIT, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -71,7 +71,7 @@ public class TestMergeLattice {
 
         LOGGER.debug("SIMPLE 2");
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
-        EufLattice<Node> mt = new EufLattice<>(new NodeElemFact(cn));
+        EufLattice mt = new EufLattice(new NodeElemFact(cn));
 
         Node a = cn.addOperand(NodeKind.STRLIT, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -115,7 +115,7 @@ public class TestMergeLattice {
     public void testOperation() {
 
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
-        EufLattice<Node> mt = cn.getEufLattice();
+        EufLattice mt = cn.getEufLattice();
 
 
         Node a = cn.addOperand(NodeKind.STRLIT, "a");
@@ -133,7 +133,7 @@ public class TestMergeLattice {
 
         LOGGER.debug(mt.toDot());
 
-        Assert.assertEquals(mt.vertexSet().size(), 4);
+        Assert.assertEquals(mt.vertexSet().size(), 6);
     }
 
     @Test
@@ -141,7 +141,7 @@ public class TestMergeLattice {
 
 
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
-        EufLattice<Node> mt = cn.getEufLattice();
+        EufLattice mt = cn.getEufLattice();
 
         Node a = cn.addOperand(NodeKind.STRLIT, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -163,7 +163,7 @@ public class TestMergeLattice {
     @Test
     public void testConsistency() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
-        EufLattice<Node> mt = cn.getEufLattice();
+        EufLattice mt = cn.getEufLattice();
 
         Node a = cn.addOperand(NodeKind.STRLIT, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -206,7 +206,7 @@ public class TestMergeLattice {
     @Test
     public void testConsistency2() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
-        EufLattice<Node> mt = new EufLattice<>(new NodeElemFact(cn));
+        EufLattice mt = new EufLattice(new NodeElemFact(cn));
 
         Node a = cn.addOperand(NodeKind.STRLIT, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");

@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 //@TODO: Julian simplify the implementation later on. Split the code in Model
 // and Controller
-public class EufLattice<T extends Node> extends
+public class EufLattice extends
         DirectedPseudograph<EquiClass, EquiEdge> implements Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(EufLattice.class);
@@ -28,17 +28,18 @@ public class EufLattice<T extends Node> extends
     private EquiClassFact elementFact = null;
 
 
+
     class IdComparator implements Comparator<Element> {
         @Override
         public int compare(Element o1, Element o2) {
-            int id1 = ((T) o1.getMappedElement()).getId();
-            int id2 = ((T) o2.getMappedElement()).getId();
+            int id1 = o1.getMappedNode().getId();
+            int id2 = o2.getMappedNode().getId();
             return id1 - id2;
         }
     }
 
 
-    public EufLattice(EquiClassFact<T> elementFact) {
+    public EufLattice(EquiClassFact elementFact) {
         super(new EdgeFact());
         super.addVertex(top);
         super.addVertex(bottom);
@@ -47,7 +48,7 @@ public class EufLattice<T extends Node> extends
     }
 
 
-    public EufLattice(EufLattice<T> other, EquiClassFact<T> elementFact) {
+    public EufLattice(EufLattice other, EquiClassFact elementFact) {
         this(elementFact);
 
         for (EquiClass e : other.vertexSet()) {
@@ -67,7 +68,7 @@ public class EufLattice<T extends Node> extends
     /**
      * API
      **/
-    public void addInequialityConstraint(T... e) throws EUFInconsistencyException {
+    public void addInequialityConstraint(Node... e) throws EUFInconsistencyException {
 
         //LOGGER.debug("add inequality constraint");
 
@@ -118,18 +119,18 @@ public class EufLattice<T extends Node> extends
         addIneqEdge(snd, fst);
     }
 
-    private EquiClass addEquiClass(T toadd)
+    private EquiClass addEquiClass(Node toadd)
             throws EUFInconsistencyException {
         return addEquiClass(elementFact.createEquiClass(toadd));
     }
 
-    public EquiClass addEquiClass(T... toadd)
+    public EquiClass addEquiClass(Node... toadd)
             throws EUFInconsistencyException {
         assert elementFact != null;
         return addEquiClass(elementFact.createEquiClasses(toadd));
     }
 
-    public EquiClass join(T... e) throws MissingItemException {
+    public EquiClass join(Node... e) throws MissingItemException {
         return join(elementFact.getEquiClassesFor(e));
     }
 
@@ -304,17 +305,17 @@ public class EufLattice<T extends Node> extends
     }
 
     private void remap(Set<Element> toremap) {
-        T first = null;
+        Node first = null;
         for(Element e : toremap) {
             if(first == null) {
-                first = (T)e.getMappedElement();
+                first = (Node)e.getMappedNode();
             } else {
 
-                T mapped = (T)e.getMappedElement();
+                Node mapped = (Node)e.getMappedNode();
 
                 if(mapped.getId() != first.getId()){
                     elementFact.relink(mapped, first);
-                    e.setMappedElement(first);
+                    e.setMappedNode(first);
                 }
             }
         }
@@ -332,7 +333,7 @@ public class EufLattice<T extends Node> extends
                         .map(EquiEdge::getSource).
                                 filter(s -> s.hasOverlap(e)).findFirst().get();
             } catch (NoSuchElementException ex) {
-                // if there is no overlap, we know that T has to be the parent
+                // if there is no overlap, we know that Node has to be the parent
                 return top;
             }
         }

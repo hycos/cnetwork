@@ -76,7 +76,7 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
         assert !n.getKind().toString().isEmpty();
 
-        NestedElement<Node> nested = new NestedElement(n, n.getLabel(), n
+        NestedElement nested = new NestedElement(n, n.getLabel(), n
                 .getKind()
                 .toString(),
                 elems.toArray(new Element[elems.size()]));

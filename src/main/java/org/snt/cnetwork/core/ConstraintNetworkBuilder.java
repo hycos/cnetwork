@@ -1,5 +1,6 @@
 package org.snt.cnetwork.core;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.BooleanRange;
@@ -21,7 +22,7 @@ public class ConstraintNetworkBuilder
     private boolean eufEnabled = false;
     private ConstraintNetwork cn;
     private NodeElemFact nf;
-    private EufLattice<Node> euf;
+    private EufLattice euf;
 
     public ConstraintNetworkBuilder(ConstraintNetworkBuilder cnb) {
         eufEnabled = cnb.eufEnabled;
@@ -41,7 +42,7 @@ public class ConstraintNetworkBuilder
         if (this.eufEnabled) {
             // EUF has to e assigned first here
             this.nf = new NodeElemFact(this);
-            this.euf = new EufLattice<>(nf);
+            this.euf = new EufLattice(nf);
         }
     }
 
@@ -164,7 +165,7 @@ public class ConstraintNetworkBuilder
             assert nen.isSingleton();
 
             Element<Node> e = nen.getElements().iterator().next();
-            Node emap = e.getMappedElement();
+            Node emap = e.getMappedNode();
 
             LOGGER.debug("mapped element is {}", emap.getLabel());
 
@@ -378,7 +379,7 @@ public class ConstraintNetworkBuilder
             assert nen.isSingleton();
 
             Element<Node> e = nen.getElements().iterator().next();
-            Node emap = e.getMappedElement();
+            Node emap = e.getMappedNode();
 
             LOGGER.debug("mapped element is {}:{}", emap.getLabel(), emap.getId());
 

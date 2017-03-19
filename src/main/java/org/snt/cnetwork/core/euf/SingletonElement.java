@@ -1,20 +1,22 @@
 package org.snt.cnetwork.core.euf;
 
 
-public class SingletonElement<T> extends Element<T> {
+import org.snt.cnetwork.core.Node;
 
-    public SingletonElement(T n, String label, String annotation) {
+public class SingletonElement extends Element {
+
+    public SingletonElement(Node n, String label, String annotation) {
         super(n, label, annotation);
     }
 
-    public SingletonElement(T n, String label) {
+    public SingletonElement(Node n, String label) {
         super(n, label, "");
     }
 
 
 
     public SingletonElement(SingletonElement se) {
-        this((T)se.mappedElement, se.lbl, se.annotation);
+        this(se.mappedNode, se.lbl, se.annotation);
     }
 
     @Override

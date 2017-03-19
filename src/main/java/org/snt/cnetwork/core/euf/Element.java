@@ -2,6 +2,7 @@ package org.snt.cnetwork.core.euf;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.Node;
 
 public abstract class Element<T> implements Comparable, Cloneable{
 
@@ -11,21 +12,21 @@ public abstract class Element<T> implements Comparable, Cloneable{
     protected String annotation = "";
 
     // used to map a 'real' object to this element
-    protected T mappedElement;
+    protected Node mappedNode;
 
-    public void setMappedElement(T mappedElement) {
-        this.mappedElement = mappedElement;
+    public void setMappedNode(Node mappedNode) {
+        this.mappedNode = mappedNode;
     }
 
-    public Element(T emap, String lbl, String annotation) {
+    public Element(Node emap, String lbl, String annotation) {
         this.lbl = lbl;
         this.annotation = annotation;
 
-        this.mappedElement = emap;
+        this.mappedNode = emap;
     }
 
     public Element(Element e) {
-        this((T)e.mappedElement, e.lbl, e.annotation);
+        this(e.mappedNode, e.lbl, e.annotation);
     }
 
     public abstract Element [] split();
@@ -40,8 +41,8 @@ public abstract class Element<T> implements Comparable, Cloneable{
 
     public String getAnnotation() { return annotation ;}
 
-    public T getMappedElement() {
-        return mappedElement;
+    public Node getMappedNode() {
+        return mappedNode;
     }
 
     public void setAnnotation(String annotation) {
