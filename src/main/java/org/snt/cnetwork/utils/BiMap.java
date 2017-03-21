@@ -43,6 +43,12 @@ public class BiMap<K,V> {
         return this.valtokey.containsKey(v);
     }
 
+    public void removeEntry (K k) {
+        V val = keytoval.get(k);
+        keytoval.remove(k);
+        valtokey.remove(val);
+    }
+
 
     @Override
     public String toString() {
