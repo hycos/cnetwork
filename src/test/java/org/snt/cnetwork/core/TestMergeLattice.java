@@ -320,15 +320,17 @@ public class TestMergeLattice {
         Node c = cn.addOperand(NodeKind.STRVAR, "c");
         Node d = cn.addOperand(NodeKind.STRVAR, "d");
 
-
+        // concat (a,b)
+        // concat (c, concat(a,b)
+        // concat (a,b),d
+        // concat(c, concat(a,b)) = concat(c,d)
         try {
             Node concat = cn.addOperation(NodeKind.CONCAT,a,b);
             Node concat2 = cn.addOperation(NodeKind.CONCAT,c,concat);
             Node eq = cn.addConstraint(NodeKind.EQUALS,concat,d);
             Node concat3 = cn.addOperation(NodeKind.CONCAT,c,d);
-
             Assert.assertEquals(concat2, concat3);
-            LOGGER.debug("concat 3 {}", concat3.getLabel());
+            //LOGGER.debug("concat 3 {}", concat3.getLabel());
 
         } catch (EUFInconsistencyException e) {
             e.printStackTrace();

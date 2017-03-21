@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.Node;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.exception.MissingItemException;
+import org.snt.cnetwork.utils.BiMap;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
@@ -27,6 +28,8 @@ public class EufLattice extends
     private EquiEdge init = new EquiEdge(top, bottom, EquiEdge.Kind.SUB, -1);
     private EquiClassFact elementFact = null;
 
+    private BiMap<String, EquiClass> lmap = new BiMap<>();
+
 
     class IdComparator implements Comparator<Element> {
         @Override
@@ -44,6 +47,8 @@ public class EufLattice extends
         super.addVertex(bottom);
         super.addEdge(top, bottom, init);
         this.elementFact = elementFact;
+        lmap.put(bottom.toString(), bottom);
+        lmap.put(top.toString(), top);
     }
 
 
@@ -417,13 +422,15 @@ public class EufLattice extends
                     alias.getDotLabel(), alias.getId());
 
             assert !parent.equals(alias);
+
             addSplitEdge(parent, alias, ++x);
 
-            if (n.isNested() && alias.equals(n)) {
+            if (n.isNested() ) {
                 ret.add(n);
             }
 
         }
+        assert x == parent.split().size();
         return ret;
     }
 
@@ -541,12 +548,19 @@ public class EufLattice extends
     }
 
     public EquiClass checkAndGet(EquiClass v) {
-        if (!vertexSet().contains(v)) {
-            LOGGER.debug("add vertex {}:{}", v.getDotLabel(), v.getId());
+
+        if(!lmap.containsKey(v.getLabel())) {
+            lmap.put(v.getLabel(), v);
             super.addVertex(v);
         }
 
-        return v;
+        assert lmap.containsKey(v.getLabel());
+        assert super.containsVertex(v);
+
+
+        lmap.put(v.getLabel(), v);
+
+        return lmap.getValueByKey(v.getLabel());
     }
 
     private void addSplitEdge(EquiClass src, EquiClass dst, int idx) throws
@@ -833,7 +847,8 @@ public class EufLattice extends
             // the replacement has to be split anyway so we do not consider
             // split edges here
             edges.addAll(in.stream()
-                    .filter(e -> e.getKind() == EquiEdge.Kind.SUB)
+                    //.filter(e -> e.getKind() == EquiEdge.Kind.SUB)
+
                     .map(e -> new EquiEdge(e.getSource(), replacement, e.getKind(), e.getSequence())
                     ).collect(Collectors.toSet()));
 
@@ -897,6 +912,7 @@ public class EufLattice extends
 
     private void removeEquiClass(EquiClass v) {
         LOGGER.debug("remove vertex {}:{}", v.getDotLabel(), v.getId());
+        lmap.removeEntry(v.getLabel());
         super.removeVertex(v);
     }
 
