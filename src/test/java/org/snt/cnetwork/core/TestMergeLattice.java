@@ -148,16 +148,17 @@ public class TestMergeLattice {
         Node k = cn.addOperand(NodeKind.STRVAR, "k");
 
         try {
-            Node concat1 = cn.addOperation(NodeKind.CONCAT, a, b);
-            Node concat2 = cn.addOperation(NodeKind.CONCAT, a, k);
+            //Node concat1 = cn.addOperation(NodeKind.CONCAT, a, b);
+            Node concat1 = cn.addOperation(NodeKind.CONCAT, a, k);
 
             mt.addEquiClass(concat1, k);
-            mt.addEquiClass(concat2, k);
+            //mt.addEquiClass(concat2, k);
         } catch (EUFInconsistencyException e) {
             Assert.assertFalse(true);
         }
 
         LOGGER.debug(mt.toDot());
+        LOGGER.debug(cn.getConstraintNetwork().toDot());
     }
 
     @Test

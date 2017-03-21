@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.Node;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.exception.MissingItemException;
-import org.snt.cnetwork.utils.BiMap;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
@@ -27,9 +26,6 @@ public class EufLattice extends
     private EquiClass bottom = new EquiClass.Bottom();
     private EquiEdge init = new EquiEdge(top, bottom, EquiEdge.Kind.SUB, -1);
     private EquiClassFact elementFact = null;
-
-    private BiMap<Element, Node> emap = new BiMap<>();
-    private BiMap<String, Element> smap = new BiMap<>();
 
 
     class IdComparator implements Comparator<Element> {
@@ -203,14 +199,16 @@ public class EufLattice extends
         }
 
 
+
+        // split the equi class in order to learn interesting facts
+        // by analyzing nested equi classes
+
         if (sub.isEmpty()) {
+            LOGGER.debug("SUB IS EMPTY");
             linkToTop(mo);
         } else {
             replace(sub, mo);
         }
-
-        // split the equi class in order to learn interesting facts
-        // by analyzing nested equi classes
         split(mo);
 
         //@TODO: Julian -- this function might call this function recursively
@@ -319,23 +317,10 @@ public class EufLattice extends
                 if(mapped.getId() != first.getId()){
                     elementFact.relink(mapped, first);
                     e.setMappedNode(first);
-                    emap.put(e, first);
-                    smap.put(e.getLabel(), e);
                 }
             }
         }
     }
-
-    public String getElementLabelByNode(Node n) {
-        assert emap.containsValue(n);
-        return emap.getKeyByValue(n).getLabel();
-    }
-
-    public Element getElementByLabel(String lbl) {
-        assert smap.containsKey(lbl);
-        return smap.getValueByKey(lbl);
-    }
-
 
     private EquiClass findSubsumptionPoint(EquiClass e) {
 
@@ -384,16 +369,16 @@ public class EufLattice extends
 
 
             for (EquiClass s : nsub) {
-                Set<EquiEdge> e = getAllEdges(n, s);
+                //Set<EquiEdge> e = getAllEdges(n, s);
 
-                if (e == null || e.isEmpty() || e.stream()
-                        .filter(x -> x.getKind() == EquiEdge.Kind.SUB).count
-                                () == 0) {
+                //if (e == null || e.isEmpty() || e.stream()
+                //        .filter(x -> x.getKind() == EquiEdge.Kind.SUB).count
+                //                () == 0) {
                     LOGGER.debug("parent {}:{} -> child {}:{}", n.getDotLabel
                             (), n.getId(), s.getDotLabel(), s.getId());
                     addSubEdge(n, s);
                     worklist.add(s);
-                }
+                //}
                 //nsub.forEach(s -> addSubEdge(n, s));
             }
 
@@ -409,18 +394,20 @@ public class EufLattice extends
             worklist.addAll(handleNestedElement(next));
         }
         LOGGER.debug(toDot());
+
     }
 
 
     private Set<EquiClass> handleNestedElement(EquiClass parent) throws EUFInconsistencyException {
         int x = 0;
 
-
+        LOGGER.debug(this.toDot());
         LOGGER.debug("handle nested element {}:{}", parent.getDotLabel(),
                 parent.getId());
         Set<EquiClass> ret = new HashSet<>();
 
         assert parent.isNested();
+
 
         // this is all the parameters
         for (EquiClass n : parent.split()) {
@@ -429,9 +416,10 @@ public class EufLattice extends
             LOGGER.debug("Alias for {}:{} is {}:{}", n.getDotLabel(), n.getId(),
                     alias.getDotLabel(), alias.getId());
 
+            assert !parent.equals(alias);
             addSplitEdge(parent, alias, ++x);
 
-            if (n.isNested()) {
+            if (n.isNested() && alias.equals(n)) {
                 ret.add(n);
             }
 
@@ -556,10 +544,6 @@ public class EufLattice extends
         if (!vertexSet().contains(v)) {
             LOGGER.debug("add vertex {}:{}", v.getDotLabel(), v.getId());
             super.addVertex(v);
-            for(Element ele: v.getElements()) {
-                emap.put(ele, ele.getMappedNode());
-                smap.put(ele.getLabel(), ele);
-            }
         }
 
         return v;
@@ -901,9 +885,9 @@ public class EufLattice extends
 
         addEdges(edges);
 
-        split(replacement);
-        LOGGER.debug(this.toDot());
-        LOGGER.debug("***********************");
+        //split(replacement);
+        //LOGGER.debug(this.toDot());
+        //LOGGER.debug("***********************");
     }
 
 

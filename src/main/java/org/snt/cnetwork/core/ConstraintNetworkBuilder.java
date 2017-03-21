@@ -40,9 +40,9 @@ public class ConstraintNetworkBuilder
         this.eufEnabled = eufEnabled;
         this.cn = new ConstraintNetwork();
         //if (this.eufEnabled) {
-            // EUF has to e assigned first here
-            this.nf = new NodeElemFact(this);
-            this.euf = new EufLattice(nf);
+        // EUF has to e assigned first here
+        this.nf = new NodeElemFact(this);
+        this.euf = new EufLattice(nf);
         //}
     }
 
@@ -74,7 +74,7 @@ public class ConstraintNetworkBuilder
 
     private List<Node> inferParam(List<Node> param) {
         LOGGER.debug("infer parameters");
-        if(eufEnabled) {
+        if (eufEnabled) {
             List<Node> ret = new Vector<>();
             for (Node p : param) {
                 ret.add(infer(p));
@@ -83,7 +83,6 @@ public class ConstraintNetworkBuilder
         }
         return param;
     }
-
 
 
     public Node addOperation(NodeKind kind, List<Node> params) throws
@@ -100,7 +99,7 @@ public class ConstraintNetworkBuilder
 
         // there is already an equivalent node present in the cn
 
-        if(nop.equals(op)) {
+        if (nop.equals(op)) {
 
             attach(op);
             update(op);
@@ -113,7 +112,7 @@ public class ConstraintNetworkBuilder
             String lbl2 = nf.getLabelForNode(nop);
 
 
-            if(!lbl1.equals(lbl2)) {
+            if (!lbl1.equals(lbl2)) {
                 cn.removeVertex(op);
             }
 
@@ -156,35 +155,34 @@ public class ConstraintNetworkBuilder
 
 
         //if (eufEnabled) {
-            //if (!nf.getNodeForLabel(lbl)) {
-            //    LOGGER.debug("null");
-            //    return null;
-            //}
+        //if (!nf.getNodeForLabel(lbl)) {
+        //    LOGGER.debug("null");
+        //    return null;
+        //}
 
 
+        EquiClass ec = nf.getEquiClassForLabel(lbl);
+        Set<EquiClass> snen = euf.inferEquiClassFor(ec);
 
-            EquiClass ec = nf.getEquiClassForLabel(lbl);
-            Set<EquiClass> snen = euf.inferEquiClassFor(ec);
+        LOGGER.debug("ieq {}", snen);
 
-            LOGGER.debug("ieq {}", snen);
+        assert snen.size() == 1;
 
-            assert snen.size() == 1;
+        EquiClass nen = snen.iterator().next();
 
-            EquiClass nen = snen.iterator().next();
+        if (nen == null || nen == euf.getBottom() || nen == euf.getTop()) {
+            return null;
+        }
 
-            if (nen == null || nen == euf.getBottom() || nen == euf.getTop()) {
-                return null;
-            }
+        LOGGER.debug("equivalent class {}", nen.getDotLabel());
+        assert nen.isSingleton();
 
-            LOGGER.debug("equivalent class {}", nen.getDotLabel());
-            assert nen.isSingleton();
+        Element<Node> e = nen.getElements().iterator().next();
+        Node emap = e.getMappedNode();
 
-            Element<Node> e = nen.getElements().iterator().next();
-            Node emap = e.getMappedNode();
+        LOGGER.debug("mapped element is {}", emap.getLabel());
 
-            LOGGER.debug("mapped element is {}", emap.getLabel());
-
-            return emap;
+        return emap;
         //} else {
         //    return cn.getNodeByLabel(lbl);
         //}
@@ -234,7 +232,7 @@ public class ConstraintNetworkBuilder
     }
 
     public void removeEdge(Node src, Node dst) {
-        this.cn.removeEdge(src,dst);
+        this.cn.removeEdge(src, dst);
     }
 
     public boolean removeVertex(Node n) {
@@ -327,16 +325,16 @@ public class ConstraintNetworkBuilder
     public Node infer(Node n) {
 
         //if(eufEnabled) {
-            Node nn = inferEquivalentNode(n);
-            // is already present as nn1
-            if (!nn.equals(n)) {
+        Node nn = inferEquivalentNode(n);
+        // is already present as nn1
+        if (!nn.equals(n)) {
 
-                LOGGER.debug("inferred \nt:{}:{}\nf:{}:{}", nn.getLabel(),nn
-                        .getId(), n
-                        .getLabel(),n.getId());
-                return nn;
-            }
-            return n;
+            LOGGER.debug("inferred \nt:{}:{}\nf:{}:{}", nn.getLabel(), nn
+                    .getId(), n
+                    .getLabel(), n.getId());
+            return nn;
+        }
+        return n;
         //}
         // n is the first of its kind
         //return n;
@@ -351,11 +349,11 @@ public class ConstraintNetworkBuilder
         Set<Edge> out = cn.outgoingEdgesOf(toReplace);
         Set<Edge> toAdd = new HashSet<>();
 
-        for(Edge e : out) {
+        for (Edge e : out) {
             toAdd.add(new Edge(replacement, e.getTarget(), e.getSequence()));
         }
 
-        if(containsVertex(toReplace)) {
+        if (containsVertex(toReplace)) {
             removeVertex(toReplace);
         }
 
@@ -374,38 +372,40 @@ public class ConstraintNetworkBuilder
         //if (n.isOperand()) {
         //    return n;
         //} else {
-            // create temporary equi class
-            nf.createEquiClass(n);
-            EquiClass en = nf.getNodeCache().getValueByKey(n);
-            Set<EquiClass> snen = euf.inferEquiClassFor(en);
+        // create temporary equi class
+        nf.createEquiClass(n);
 
-            LOGGER.debug("ieq {}", snen);
+        EquiClass en = null;
+        try {
+            en = nf.getEquiClassFor(n);
+        } catch (MissingItemException e) {
+            assert false;
+        }
+        Set<EquiClass> snen = euf.inferEquiClassFor(en);
 
-            //LOGGER.debug(getEufLattice().toDot());
+        LOGGER.debug("ieq {}", snen);
 
-            assert snen.size() == 1;
+        //LOGGER.debug(getEufLattice().toDot());
 
-            EquiClass nen = snen.iterator().next();
+        assert snen.size() == 1;
 
-            if (nen == null || nen == euf.getBottom() || nen == euf.getTop()) {
-                return n;
-            }
+        EquiClass nen = snen.iterator().next();
 
-            LOGGER.debug("equivalent class {}", nen.getDotLabel());
-            assert nen.isSingleton();
+        if (nen == null || nen == euf.getBottom() || nen == euf.getTop()) {
+            return n;
+        }
 
-            Element<Node> e = nen.getElements().iterator().next();
-            Node emap = e.getMappedNode();
+        LOGGER.debug("equivalent class {}", nen.getDotLabel());
+        assert nen.isSingleton();
 
-            LOGGER.debug("mapped element is {}:{}", emap.getLabel(), emap.getId());
+        Element<Node> e = nen.getElements().iterator().next();
+        Node emap = e.getMappedNode();
 
-            return emap;
-        //}
+        LOGGER.debug("mapped element is {}:{}", emap.getLabel(), emap.getId());
+
+        return emap;
     }
 
-//    public void updateVertex(Node n) {
-//        cn.updateVertex(n);
-//    }
 
     @Override
     public void update(Node n) throws EUFInconsistencyException {

@@ -7,7 +7,6 @@ import org.snt.cnetwork.core.Node;
 import org.snt.cnetwork.core.NodeKind;
 import org.snt.cnetwork.core.Operand;
 import org.snt.cnetwork.exception.MissingItemException;
-import org.snt.cnetwork.utils.BiMap;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -15,37 +14,35 @@ import java.util.stream.Collectors;
 /**
  * Generate Equivalence Classes from Nodes
  */
-public final class NodeElemFact implements EquiClassFact<Node> {
+public final class NodeElemFact implements EquiClassFact {
 
     final static Logger LOGGER = LoggerFactory.getLogger(NodeElemFact.class);
 
     private ConstraintNetworkBuilder cn;
 
-    private BiMap<Node, EquiClass> ncache = new BiMap<>();
-    private BiMap<String, Node> scache = new BiMap<>();
+    private NodeCache nc = new NodeCache();
+
 
     public String getLabelForNode(Node n) {
-        assert ncache.containsKey(n);
-        return ncache.getValueByKey(n).getLabel();
+        assert nc.hasEquiClass(n);
+        return nc.getLabel(n);
     }
 
     public Node getNodeForLabel(String lbl) {
-        assert scache.containsKey(lbl);
-        return scache.getValueByKey(lbl);
+        assert nc.hasNode(lbl);
+        return nc.getNode(lbl);
     }
 
     public EquiClass getEquiClassForLabel(String lbl) {
-        Node n = getNodeForLabel(lbl);
-        assert ncache.containsKey(n);
-        return ncache.getValueByKey(n);
+        assert nc.hasNode(lbl);
+        return nc.getEquiClass(lbl);
     }
 
     public NodeElemFact(ConstraintNetworkBuilder cn,
                         NodeElemFact ne) {
         this(cn);
         // clone cache
-        this.ncache = new BiMap<>(ne.ncache);
-        this.scache = new BiMap<>(ne.scache);
+        nc = new NodeCache(ne.nc);
     }
 
     public NodeElemFact(ConstraintNetworkBuilder cn) {
@@ -54,16 +51,17 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
     private void handleNode(Node n, Set<EquiClass> es) {
 
-        if (ncache.containsKey(n)) {
-            es.add(ncache.getValueByKey(n));
+        if (nc.hasEquiClass(n)) {
+            es.add(nc.getEquiClass(n));
             return;
         }
 
         if (n.isOperand()) {
             EquiClass eq = new EquiClass(new SingletonElement(n,n.getLabel()));
             LOGGER.debug("create equiclass {}:{}", eq.getDotLabel(), eq.getId());
-            ncache.put(n, eq);
-            scache.put(eq.getLabel(), n);
+
+            nc.put(n, eq);
+
             es.add(eq);
         } else {
             assert n.isOperation();
@@ -107,7 +105,7 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
             LOGGER.debug("handle node {}", p);
             handleNode(p, es);
-            Set<Element> ess = ncache.getValueByKey(p).getElements();
+            Set<Element> ess = nc.getEquiClass(p).getElements();
             LOGGER.debug("ESS {}", ess.toString());
             LOGGER.debug("SIZ " + ess.size());
             assert !ess.isEmpty();
@@ -145,8 +143,7 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
         //cache.put(n, eq);
 
-        ncache.put(n, nst);
-        scache.put(nst.getLabel(), n);
+        nc.put(n, nst);
         es.add(nst);
     }
 
@@ -172,10 +169,13 @@ public final class NodeElemFact implements EquiClassFact<Node> {
 
             handleNode(nod, s);
 
-            assert ncache.containsKey(nod);
+            assert nc.hasEquiClass(nod);
 
-            Collection<Element> cele = ncache.getValueByKey(nod)
-                    .getElements();
+            EquiClass e = nc.getEquiClass(nod);
+
+            assert e != null;
+
+            Collection<Element> cele = e .getElements();
 
             //LOGGER.debug("elements {}",cele.toString());
             //assert cele.size() == 1;
@@ -251,35 +251,30 @@ public final class NodeElemFact implements EquiClassFact<Node> {
     @Override
     public EquiClass getEquiClassFor(Node n) throws MissingItemException {
 
-        if (!ncache.containsKey(n))
+        if (!nc.hasEquiClass(n))
             throw new MissingItemException("Node " + n.getLabel() + " is " +
                     "not present");
 
-        assert ncache.containsKey(n);
+        assert nc.hasEquiClass(n);
 
-        return ncache.getValueByKey(n);
+        return nc.getEquiClass(n);
     }
 
 
     @Override
     public boolean hasEquiClassFor(Node n) {
-        return ncache.containsKey(n);
+        return nc.hasEquiClass(n);
     }
 
+    /**
+     * Remove a node and transfer all outgoing connections to another node
+     * @param toReplace
+     * @param replacement
+     */
     @Override
     public void relink(Node toReplace, Node replacement) {
         cn.relink(toReplace, replacement);
     }
 
-    @Override
-    public String toString() {
-        return ncache.toString();
-    }
 
-
-
-
-    public BiMap<Node, EquiClass> getNodeCache() {
-        return ncache;
-    }
 }
