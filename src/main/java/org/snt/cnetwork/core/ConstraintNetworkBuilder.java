@@ -342,6 +342,10 @@ public class ConstraintNetworkBuilder
 
 
     public Node relink(Node toReplace, Node replacement) {
+
+        if(!cn.containsVertex(toReplace) && cn.containsVertex(replacement))
+            return replacement;
+
         int id = toReplace.getId();
 
         assert cn.containsVertex(toReplace);

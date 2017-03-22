@@ -57,6 +57,7 @@ public class TestMergeLattice {
             mt.addEquiClass(e,b);
             mt.addEquiClass(d,b);
         } catch (EUFInconsistencyException e1) {
+            LOGGER.debug("ERROR {}", e1.getMessage());
             Assert.assertTrue(false);
         }
 
@@ -296,7 +297,8 @@ public class TestMergeLattice {
             cn.addConstraint(NodeKind.EQUALS, a, b);
             cn.addConstraint(NodeKind.GREATER, k, one);
 
-
+            LOGGER.debug(cn.getEufLattice().toDot());
+            LOGGER.debug(cn.getConstraintNetwork().toDot());
             Node na = cn.infer(idxof);
             Node nb = cn.infer(aliasidxof);
 
@@ -372,6 +374,30 @@ public class TestMergeLattice {
 
     }
 
+
+
+    @Test
+    public void testInferenceCase5() {
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+
+        Node a = cn.addOperand(NodeKind.STRVAR, "a");
+        Node b = cn.addOperand(NodeKind.STRVAR, "b");
+        Node five = cn.addOperand(NodeKind.STRLIT, "5");
+
+
+
+        try {
+            cn.addConstraint(NodeKind.EQUALS, a, b);
+            cn.addConstraint(NodeKind.EQUALS, b, five);
+        } catch (EUFInconsistencyException e) {
+            e.printStackTrace();
+        }
+
+        LOGGER.debug(cn.getEufLattice().toDot());
+        LOGGER.debug(cn.getConstraintNetwork().toDot());
+
+
+    }
 
 
 

@@ -31,16 +31,6 @@ public class EufLattice extends
     private BiMap<String, EquiClass> lmap = new BiMap<>();
 
 
-    class IdComparator implements Comparator<Element> {
-        @Override
-        public int compare(Element o1, Element o2) {
-            int id1 = o1.getMappedNode().getId();
-            int id2 = o2.getMappedNode().getId();
-            return id1 - id2;
-        }
-    }
-
-
     public EufLattice(EquiClassFact elementFact) {
         super(new EdgeFact());
         super.addVertex(top);
@@ -51,6 +41,15 @@ public class EufLattice extends
         lmap.put(top.toString(), top);
     }
 
+
+    class IdComparator implements Comparator<Element> {
+        @Override
+        public int compare(Element o1, Element o2) {
+            int id1 = o1.getMappedNode().getId();
+            int id2 = o2.getMappedNode().getId();
+            return id1 - id2;
+        }
+    }
 
     public EufLattice(EufLattice other, EquiClassFact elementFact) {
         this(elementFact);
@@ -204,9 +203,9 @@ public class EufLattice extends
         }
 
 
-
         // split the equi class in order to learn interesting facts
         // by analyzing nested equi classes
+
 
         if (sub.isEmpty()) {
             LOGGER.debug("SUB IS EMPTY");
@@ -216,9 +215,13 @@ public class EufLattice extends
         }
         split(mo);
 
+        //removeRendundancies(mo);
+
         //@TODO: Julian -- this function might call this function recursively
         //again
         mergeSplits(mo);
+        //removeRendundancies(mo);
+
     }
 
 
@@ -253,46 +256,62 @@ public class EufLattice extends
         }
 
         for (EquiClass ta : toAdd) {
+            addEquiClass(ta);
             removeRendundancies(ta);
         }
 
     }
 
 
-    private void removeRendundancies(EquiClass c) throws EUFInconsistencyException {
-
-        addEquiClass(c);
+    private void removeRendundancies(EquiClass c) throws
+            EUFInconsistencyException {
+        // @TODO:Julian important
+        //addEquiClass(c);
 
         EquiClass covering = getCoveringEquiClass(c);
 
 
         // group by annotation
-        Map<String, TreeSet<Element>> ngroup = new HashMap<>();
+        Map<String, LinkedList<Element>> ng = new HashMap<>();
 
-        Set<Element> singleton = new TreeSet(new
-                IdComparator());
+        LinkedList<Element> vars = new LinkedList<>();
+
+        LinkedList<Element> con = new LinkedList<>();
+
 
         for (Element<Node> ta : covering.getElements()) {
             if (ta.isNested()) {
-                if (!ngroup.containsKey(ta.getAnnotation())) {
-                    ngroup.put(ta.getAnnotation(), new TreeSet<>(new
-                            IdComparator()));
+                if (!ng.containsKey(ta.getAnnotation())) {
+                    ng.put(ta.getAnnotation(), new LinkedList<>());
                 }
-                ngroup.get(ta.getAnnotation()).add(ta);
+                ng.get(ta.getAnnotation()).add(ta);
 
 
                 LOGGER.debug("add for {}", ta.getAnnotation());
-                LOGGER.debug("SIZE {}", ngroup.get(ta.getAnnotation()));
+                LOGGER.debug("SIZE {}", ng.get(ta.getAnnotation()));
 
             } else if (ta.isSingleton()) {
-                singleton.add(ta);
+
+                if (ta.getMappedNode().isLiteral()) {
+
+                    if(con.size() == 0)
+                        con.add(ta);
+
+                    if(con.size() == 1)
+                        assert ta.getMappedNode().getId()
+                        == con.getFirst().getMappedNode().getId();
+
+                } else {
+                    vars.add(ta);
+                }
             }
-            LOGGER.debug("class:{}, ta element {}", c.getDotLabel(), ta.getLabel());
+            //LOGGER.debug("class:{}, ta element {}", c.getDotLabel(), ta
+            //        .getLabel());
         }
 
-        LOGGER.debug("ngroup to merge {}", ngroup.size());
+        LOGGER.debug("ngroup to merge {}", ng.size());
 
-        Set<TreeSet<Element>> nestedToMerge = ngroup.values().stream().filter(
+        Set<LinkedList<Element>> nestedToMerge = ng.values().stream().filter(
                 s -> s.size() > 1
         ).collect(Collectors.toSet());
 
@@ -304,26 +323,42 @@ public class EufLattice extends
         // indexof(a,b,c), indexof (d,e,f)
         // 2. remvoing the redundant node form the CN
         // 3. remapping the corresponding EUF label to the remaining node
-        for (TreeSet<Element> ne : nestedToMerge) {
-            remap(ne);
+        for (LinkedList<Element> ne : nestedToMerge) {
+            Element min = Collections.min(ne, new IdComparator());
+            ne.remove(min);
+            remap(min,ne);
         }
-        remap(singleton);
+
+        if (con.size() > 1) {
+            throw new EUFInconsistencyException("there cannot be two literals" +
+                    " belonging to the same equiclass " + con.toString());
+        } else if (con.size() == 1 && vars.size() > 0) {
+            remap(con.iterator().next(), vars);
+        } else if (vars.size() > 1){
+            Element min = Collections.min(vars, new IdComparator());
+            vars.remove(min);
+            remap(min,vars);
+        }
     }
 
-    private void remap(Set<Element> toremap) {
-        Node first = null;
-        for(Element e : toremap) {
-            if(first == null) {
-                first = e.getMappedNode();
-            } else {
 
-                Node mapped = e.getMappedNode();
+    // map all elements in list to the one at the first positon
+    private void remap(Element firste, Collection<Element> toremap) {
 
-                if(mapped.getId() != first.getId()){
-                    elementFact.relink(mapped, first);
-                    e.setMappedNode(first);
-                }
+        Node first = firste.getMappedNode();
+
+        assert !toremap.contains(first);
+
+        for (Element e : toremap) {
+            LOGGER.debug("REMAP {}", e.getLabel());
+
+            Node mapped = e.getMappedNode();
+
+            if (mapped.getId() != first.getId()) {
+                elementFact.relink(mapped, first);
+                e.setMappedNode(first);
             }
+
         }
     }
 
@@ -379,10 +414,10 @@ public class EufLattice extends
                 //if (e == null || e.isEmpty() || e.stream()
                 //        .filter(x -> x.getKind() == EquiEdge.Kind.SUB).count
                 //                () == 0) {
-                    LOGGER.debug("parent {}:{} -> child {}:{}", n.getDotLabel
-                            (), n.getId(), s.getDotLabel(), s.getId());
-                    addSubEdge(n, s);
-                    worklist.add(s);
+                LOGGER.debug("parent {}:{} -> child {}:{}", n.getDotLabel
+                        (), n.getId(), s.getDotLabel(), s.getId());
+                addSubEdge(n, s);
+                worklist.add(s);
                 //}
                 //nsub.forEach(s -> addSubEdge(n, s));
             }
@@ -425,7 +460,7 @@ public class EufLattice extends
 
             addSplitEdge(parent, alias, ++x);
 
-            if (n.isNested() ) {
+            if (n.isNested()) {
                 ret.add(n);
             }
 
@@ -549,16 +584,16 @@ public class EufLattice extends
 
     public EquiClass checkAndGet(EquiClass v) {
 
-        if(!lmap.containsKey(v.getLabel())) {
+
+        if (!lmap.containsKey(v.getLabel())) {
+
             lmap.put(v.getLabel(), v);
             super.addVertex(v);
         }
 
+
         assert lmap.containsKey(v.getLabel());
         assert super.containsVertex(v);
-
-
-        lmap.put(v.getLabel(), v);
 
         return lmap.getValueByKey(v.getLabel());
     }
@@ -811,7 +846,6 @@ public class EufLattice extends
         return outgoingEdgesOfKind(top, EquiEdge.Kind.SUB).stream().map
                 (EquiEdge::getTarget).filter(t -> t.subsumes(n)).count() > 0;
     }
-
 
 
     private Set<EquiEdge> replace(EquiClass toReplace, EquiClass replacement) {
