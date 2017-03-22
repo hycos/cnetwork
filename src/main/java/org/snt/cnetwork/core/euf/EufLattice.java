@@ -813,26 +813,6 @@ public class EufLattice extends
     }
 
 
-    /**
-     * private void rip(EquiClass c) {
-     * Set<EquiClass> out = getConnectedOutNodesOfKind(c, EquiEdge.Kind.SUB);
-     * Set<EquiClass> in = getConnectedInNodesOfKind(c, EquiEdge.Kind.SUB);
-     * <p>
-     * removeEquiClass(c);
-     * <p>
-     * assert out.size() == 1;
-     * assert in.size() == 1;
-     * <p>
-     * <p>
-     * for (EquiClass i : in) {
-     * for (EquiClass o : out) {
-     * addSubEdge(i, o);
-     * }
-     * }
-     * <p>
-     * }
-     **/
-
 
     private Set<EquiEdge> replace(EquiClass toReplace, EquiClass replacement) {
 
@@ -896,10 +876,10 @@ public class EufLattice extends
             edges.addAll(replace(torep, replacement));
         }
 
-        removeEquiClasses(toReplace);
-
         addEdges(edges);
 
+
+        removeEquiClasses(toReplace);
         //split(replacement);
         //LOGGER.debug(this.toDot());
         //LOGGER.debug("***********************");
