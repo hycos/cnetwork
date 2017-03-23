@@ -46,6 +46,10 @@ public class NodeCache {
         return null;
     }
 
+    public boolean hasLabel(Node n) {
+        return scache.containsValue(n);
+    }
+
     public String getLabel(Node n) {
         if(hasEquiClass(n)) {
             return ncache.getValueByKey(n).getLabel();

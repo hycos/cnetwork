@@ -5,9 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.BooleanRange;
 import org.snt.cnetwork.core.domain.NodeDomainFactory;
-import org.snt.cnetwork.core.euf.*;
+import org.snt.cnetwork.core.euf.EquiClass;
+import org.snt.cnetwork.core.euf.EufLattice;
+import org.snt.cnetwork.core.euf.NodeElemFact;
+import org.snt.cnetwork.core.euf.SingletonElement;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
-import org.snt.cnetwork.exception.MissingItemException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -86,7 +88,8 @@ public class ConstraintNetworkBuilder
     public Node addOperation(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
 
-        Node op = cn.addOperation(kind,params);
+
+        Node op = cn.addOperation(kind, params);
 
         LOGGER.debug("check node {}:{}", op.getLabel(), op.getId());
 
@@ -95,28 +98,10 @@ public class ConstraintNetworkBuilder
         LOGGER.debug("NOP {}", nop);
         LOGGER.debug("OP {}", op);
 
-        // there is already an equivalent node present in the cn
 
-        if (nop.equals(op)) {
-
-            attach(op);
-            update(op);
-            return op;
-
-        } else {
-            // we can drop the vertex to be added
-
-            String lbl1 = nf.getLabelForNode(op);
-            String lbl2 = nf.getLabelForNode(nop);
-
-
-            if (!lbl1.equals(lbl2)) {
-                cn.removeVertex(op);
-            }
-
-            return nop;
-        }
-
+        attach(nop);
+        update(nop);
+        return nop;
     }
 
     public Node addConstraint(NodeKind kind, List<Node> params) throws
@@ -149,38 +134,29 @@ public class ConstraintNetworkBuilder
         return cn.getAllEdges(n1, n2);
     }
 
-    public Node getNodeByLabel(String lbl) {
-
-        EquiClass ec = nf.getEquiClassForLabel(lbl);
+    /**
+     * infer the actual equiclass to which a node belongs to
+     *
+     * @param n
+     * @return
+     */
+    private EquiClass inferActualEquiClassForNode(Node n) {
+        EquiClass ec = nf.getEquiClassFor(n);
         Set<EquiClass> snen = euf.inferEquiClassFor(ec);
-
         LOGGER.debug("ieq {}", snen);
-
         assert snen.size() == 1;
-
         EquiClass nen = snen.iterator().next();
+        return nen;
+    }
+
+    public String getLabelForNode(Node n) {
+
+        EquiClass nen = inferActualEquiClassForNode(n);
 
         if (nen == null || nen == euf.getBottom() || nen == euf.getTop()) {
             return null;
         }
-
-        LOGGER.debug("equivalent class {}", nen.getDotLabel());
-        assert nen.isSingleton();
-
-        Element<Node> e = nen.getElements().iterator().next();
-        Node emap = e.getMappedNode();
-
-        LOGGER.debug("mapped element is {}", emap.getLabel());
-
-        return emap;
-        //} else {
-        //    return cn.getNodeByLabel(lbl);
-        //}
-    }
-
-    public Node getNodeById(int id) {
-        // @TODO:Julian might have to change that
-        return cn.getNodeById(id);
+        return nen.getCorrespondingElement(n).getLabel();
     }
 
     public ConstraintNetwork getConstraintNetwork() {
@@ -342,25 +318,21 @@ public class ConstraintNetworkBuilder
     }
 
 
+    // @TODO: make inference work properly for operands as well -- we need
+    // to ensure that the returned nodes are definetely present in the CN
     public Node inferEquivalentNode(Node n) {
 
+
         LOGGER.debug("infer equivalent node {}:{}", n.getLabel(), n.getId());
-        //if (n.isOperand()) {
-        //    return n;
-        //} else {
-        // create temporary equi class
+
 
         nf.createEquiClass(n);
 
         EquiClass en = null;
-        try {
-            en = nf.getEquiClassFor(n);
 
-            LOGGER.debug("infer equiclass {}", en.getDotLabel());
+        en = nf.getEquiClassFor(n);
 
-        } catch (MissingItemException e) {
-            assert false;
-        }
+        LOGGER.debug("infer equiclass {}", en.getDotLabel());
 
 
         Set<EquiClass> snen = euf.inferEquiClassFor(en);
@@ -373,36 +345,24 @@ public class ConstraintNetworkBuilder
 
         EquiClass nen = snen.iterator().next();
 
-        if (nen == null || nen == euf.getBottom() || nen == euf.getTop()) {
+        assert nen != null;
+        assert nen != euf.getBottom();
+        //assert nen != euf.getTop();
+
+        if (nen.equals(euf.getTop()))
             return n;
-        }
 
+        Node emap = nen.getCorrespondingElement(n).getMappedNode();
 
-        LOGGER.debug("equivalent class {}", nen.getDotLabel());
-        //assert nen.isSingleton();
-        Element ele = nen.getElements().iterator().next();
-        Node emap = ele.getMappedNode();
-
-        if (!ele.equals(emap)) {
+        if (!emap.equals(n)) {
+            EquiClass nemap = nen.union(en);
             try {
-                // we have to look for the annotation in order to ensure that
-                // a node of a similar kind is returned
-                // @TODO: Julian this logic should be put into the
-                // equiclass class
-                EquiClass c = euf.addEquiClass(nen.union(en));
-                //emap = c.getElements().stream().filter( e -> e.getAnnotation
-                //        ().equals(n.getLabel())).findFirst().get()
-                //        .getMappedNode();
-
-                emap = c.getFirstElement(e -> e.getAnnotation().equals(n
-                        .getLabel())).getMappedNode();
+                EquiClass nn = euf.addEquiClass(nemap);
+                return nn.getCorrespondingElement(n).getMappedNode();
             } catch (EUFInconsistencyException e) {
                 assert false;
             }
         }
-
-        LOGGER.debug("mapped element is {}:{}", emap.getLabel(), emap.getId());
-
 
         return emap;
     }
@@ -422,11 +382,9 @@ public class ConstraintNetworkBuilder
             nf.createEquiClass(n);
 
             EquiClass eq = null;
-            try {
-                eq = nf.getEquiClassFor(n).clone();
-            } catch (MissingItemException e) {
-                assert false;
-            }
+
+            eq = nf.getEquiClassFor(n).clone();
+
 
             eq.addElement(new SingletonElement(n, n.getRange().getMin()
                     .getEndpoint().toString()));
@@ -440,11 +398,9 @@ public class ConstraintNetworkBuilder
             nf.createEquiClass(n);
 
             EquiClass eq = null;
-            try {
-                eq = nf.getEquiClassFor(n).clone();
-            } catch (MissingItemException e) {
-                assert false;
-            }
+
+            eq = nf.getEquiClassFor(n).clone();
+
 
             eq.addElement(new SingletonElement(n, "\"" + n.getAutomaton
                     ().getShortestExample() + "\""));

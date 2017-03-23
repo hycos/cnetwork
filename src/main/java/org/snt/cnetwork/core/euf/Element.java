@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.Node;
 
-public abstract class Element<T> implements Comparable, Cloneable{
+public abstract class Element implements Comparable, Cloneable{
 
     final static Logger LOGGER = LoggerFactory.getLogger(Element.class);
 
@@ -75,6 +75,7 @@ public abstract class Element<T> implements Comparable, Cloneable{
             return -1;
         return getLabel().compareTo(((Element)o).getLabel());
     }
+
 
     @Override
     public abstract Element clone();

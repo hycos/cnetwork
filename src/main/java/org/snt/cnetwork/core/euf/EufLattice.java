@@ -215,56 +215,8 @@ public class EufLattice extends
         }
         split(mo);
 
-        //removeRendundancies(mo);
-
-        //@TODO: Julian -- this function might call this function recursively
-        //again
-        //mergeSplits(mo);
-        //removeRendundancies(mo);
-
     }
 
-
-    /**
-     * Search for un
-     */
-    private void mergeSplits(EquiClass c) throws EUFInconsistencyException {
-
-        LOGGER.debug("check param bw for {}", c.getDotLabel());
-
-        //addEquiClass(c);
-        //removeRendundancies(c);
-
-        Set<EquiClass> in = getConnectedInNodesOfKind(c, EquiEdge.Kind.SPLIT);
-
-        Set<EquiClass> toAdd = new HashSet<>();
-
-
-        for (EquiClass i : in) {
-
-            Set<EquiClass> ni = inferEquiClassFor(i);
-
-            EquiClass eq = new EquiClass();
-            eq = eq.union(i);
-
-            for (EquiClass n : ni) {
-                eq = eq.union(n);
-            }
-
-            toAdd.add(eq);
-
-            LOGGER.debug("inferred new equiclass {}:{}", eq.getDotLabel(),
-                    eq.getId());
-
-        }
-
-        for (EquiClass ta : toAdd) {
-            addEquiClass(ta);
-            removeRendundancies(ta);
-        }
-
-
-    }
 
 
     private void removeRendundancies(EquiClass c) throws
@@ -283,7 +235,7 @@ public class EufLattice extends
         LinkedList<Element> con = new LinkedList<>();
 
 
-        for (Element<Node> ta : covering.getElements()) {
+        for (Element ta : covering.getElements()) {
             if (ta.isNested()) {
                 if (!ng.containsKey(ta.getAnnotation())) {
                     ng.put(ta.getAnnotation(), new LinkedList<>());
@@ -348,7 +300,8 @@ public class EufLattice extends
 
 
     // map all elements in list to the one at the first positon
-    private void remap(Element firste, Collection<Element> toremap) {
+    private void remap(Element firste,
+                       Collection<Element> toremap) {
 
         Node first = firste.getMappedNode();
 
@@ -505,6 +458,7 @@ public class EufLattice extends
 
         LOGGER.debug("find max ov for {}", n.getDotLabel());
         insert(n);
+
         if (edgeSet().contains(init)) {
             removeEdge(init);
             //LOGGER.debug("rm init edge {}", init);

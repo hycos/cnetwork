@@ -4,8 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.ConstraintNetworkBuilder;
 import org.snt.cnetwork.core.Node;
-import org.snt.cnetwork.core.NodeKind;
-import org.snt.cnetwork.core.Operand;
 import org.snt.cnetwork.exception.MissingItemException;
 
 import java.util.*;
@@ -21,7 +19,6 @@ public final class NodeElemFact implements EquiClassFact {
     private ConstraintNetworkBuilder cn;
 
     private NodeCache nc = new NodeCache();
-
 
     public String getLabelForNode(Node n) {
         assert nc.hasEquiClass(n);
@@ -42,7 +39,7 @@ public final class NodeElemFact implements EquiClassFact {
                         NodeElemFact ne) {
         this(cn);
         // clone cache
-        nc = new NodeCache(ne.nc);
+        //nc = new NodeCache(ne.nc);
     }
 
     public NodeElemFact(ConstraintNetworkBuilder cn) {
@@ -55,6 +52,7 @@ public final class NodeElemFact implements EquiClassFact {
             es.add(nc.getEquiClass(n));
             return;
         }
+
 
         if (n.isOperand()) {
             EquiClass eq = new EquiClass(new SingletonElement(n,n.getLabel()));
@@ -70,30 +68,6 @@ public final class NodeElemFact implements EquiClassFact {
     }
 
 
-    public String getLabel(NodeKind kind, List<Node> params) {
-        return kind.toString() + "(" + getParameterList(params) + ")";
-    }
-
-    private String getParameterList(List<Node> params) {
-
-        String label = "";
-
-        for (int i = 0; i < params.size(); i++) {
-            Node par = params.get(i);
-            assert (par != null);
-            //LOGGER.info("Par " + par.getKind());
-            //LOGGER.info("Par" + par.getId());
-            //LOGGER.info("+SPLIT " + par.getLabel());
-            String plbl = par.getLabel();
-            if (par instanceof Operand && par.isLiteral() && par.isString()) {
-                plbl = par.getLabel();
-            }
-
-            label += plbl + (i < params.size() - 1 ? "," : "");
-        }
-
-        return label;
-    }
 
     private void createNestedElement(Node n, Set<EquiClass> es) {
         LOGGER.debug("create nested element {} params {}", n, cn
@@ -105,7 +79,7 @@ public final class NodeElemFact implements EquiClassFact {
 
             LOGGER.debug("handle node {}", p);
             handleNode(p, es);
-            Set<Element> ess = nc.getEquiClass(p).getElements();
+            Collection<Element> ess = nc.getEquiClass(p).getElements();
             LOGGER.debug("ESS {}", ess.toString());
             LOGGER.debug("SIZ " + ess.size());
             assert !ess.isEmpty();
@@ -249,14 +223,8 @@ public final class NodeElemFact implements EquiClassFact {
     }
 
     @Override
-    public EquiClass getEquiClassFor(Node n) throws MissingItemException {
-
-        if (!nc.hasEquiClass(n))
-            throw new MissingItemException("Node " + n.getLabel() + " is " +
-                    "not present");
-
+    public EquiClass getEquiClassFor(Node n) {
         assert nc.hasEquiClass(n);
-
         return nc.getEquiClass(n);
     }
 

@@ -2,6 +2,7 @@ package org.snt.cnetwork.core.euf;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.Node;
 import org.snt.cnetwork.utils.EscapeUtils;
 
 import java.util.*;
@@ -9,6 +10,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class EquiClass implements Cloneable {
+
 
     final static Logger LOGGER = LoggerFactory.getLogger(EquiClass.class);
 
@@ -102,6 +104,8 @@ public class EquiClass implements Cloneable {
 
     private static int nid = 0;
     private final int id;
+
+    // elements are ordered in alphabetical order
     protected final Set<Element> set = new TreeSet<>();
 
     public EquiClass(Element ... nods) {
@@ -109,8 +113,6 @@ public class EquiClass implements Cloneable {
         set.addAll(Arrays.asList(nods));
 
     }
-
-
 
     public EquiClass(EquiClass other) {
         this(other.getElements());
@@ -130,6 +132,7 @@ public class EquiClass implements Cloneable {
     }
 
     public Set<Element> getElement(Predicate<Element> p) {
+
         try {
             return this.set.stream().filter(p).collect(Collectors.toSet());
         } catch (NoSuchElementException e) {
@@ -172,24 +175,13 @@ public class EquiClass implements Cloneable {
     }
 
 
-    protected Map<Element, EquiClass> convertElementoMap() {
-        Map<Element, EquiClass> mp = new HashMap<>();
-        for(Element n : set) {
-            mp.put(n, this);
-        }
-        return mp;
-    }
 
-    public Set<Element> getElements() {
+    public Collection<Element> getElements() {
         return set;
     }
 
     public boolean isSingleton() {
         return set.size() == 1;
-    }
-
-    public void addElements(Set<Element> nodes) {
-        set.addAll(nodes);
     }
 
     public void addElement(Element n) {
@@ -315,6 +307,24 @@ public class EquiClass implements Cloneable {
             return singletonSplit();
 
         return multiSplit();
+    }
+
+    public Element getCorrespondingElement(Node n) {
+        Predicate<Element> f;
+        if(n.isOperation()) {
+            f = e -> e.getAnnotation().equals(n.getLabel());
+        } else {
+            f = e -> e.getLabel().equals(n.getLabel());
+        }
+
+        Element ele = null;
+
+        try {
+            ele =  set.stream().filter(f).findFirst().get();
+        } catch (NoSuchElementException e) {
+            assert false;
+        }
+        return ele;
     }
 
 
