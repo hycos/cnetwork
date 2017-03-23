@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.utils.EscapeUtils;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class EquiClass implements Cloneable {
@@ -126,6 +127,22 @@ public class EquiClass implements Cloneable {
 
     private void addAll(Collection<Element> ele) {
         set.addAll(ele);
+    }
+
+    public Set<Element> getElement(Predicate<Element> p) {
+        try {
+            return this.set.stream().filter(p).collect(Collectors.toSet());
+        } catch (NoSuchElementException e) {
+            return new HashSet<>();
+        }
+    }
+
+    public Element getFirstElement(Predicate <Element> p) {
+        try {
+            return this.set.stream().filter(p).findFirst().get();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
 
     public String getDotLabel() {
@@ -299,6 +316,7 @@ public class EquiClass implements Cloneable {
 
         return multiSplit();
     }
+
 
     public EquiClass clone() {
         return new EquiClass(this);

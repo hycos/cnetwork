@@ -492,7 +492,7 @@ public class EufLattice extends
     }
 
 
-    public void addEquiClass(EquiClass n)
+    public EquiClass addEquiClass(EquiClass n)
             throws EUFInconsistencyException {
 
         LOGGER.debug("add equi class {}:{}", n.getDotLabel(), n.getId());
@@ -500,7 +500,7 @@ public class EufLattice extends
 
         if (isAlreadySubsumed(n) || n.isEmpty()) {
             LOGGER.debug("{}:{} already subsumed", n.getLabel(), n.getId());
-            return;
+            return getCoveringEquiClass(n);
         }
 
         LOGGER.debug("find max ov for {}", n.getDotLabel());
@@ -511,6 +511,8 @@ public class EufLattice extends
         }
 
         removeRendundancies(n);
+
+        return n;
 
     }
 

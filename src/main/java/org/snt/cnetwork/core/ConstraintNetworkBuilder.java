@@ -350,15 +350,6 @@ public class ConstraintNetworkBuilder
         //} else {
         // create temporary equi class
 
-        if(nf.hasEquiClassFor(n)) {
-            try {
-                return nf.getEquiClassFor(n).getElements().iterator().next()
-                        .getMappedNode();
-            } catch (MissingItemException e) {
-                return n;
-            }
-        }
-
         nf.createEquiClass(n);
 
         EquiClass en = null;
@@ -370,6 +361,8 @@ public class ConstraintNetworkBuilder
         } catch (MissingItemException e) {
             assert false;
         }
+
+
         Set<EquiClass> snen = euf.inferEquiClassFor(en);
 
         LOGGER.debug("ieq {}", snen);
@@ -384,18 +377,29 @@ public class ConstraintNetworkBuilder
             return n;
         }
 
-        if (!nen.equals(en)) {
+
+        LOGGER.debug("equivalent class {}", nen.getDotLabel());
+        //assert nen.isSingleton();
+        Element ele = nen.getElements().iterator().next();
+        Node emap = ele.getMappedNode();
+
+        if (!ele.equals(emap)) {
             try {
-                euf.addEquiClass(nen.union(en));
+                // we have to look for the annotation in order to ensure that
+                // a node of a similar kind is returned
+                // @TODO: Julian this logic should be put into the
+                // equiclass class
+                EquiClass c = euf.addEquiClass(nen.union(en));
+                //emap = c.getElements().stream().filter( e -> e.getAnnotation
+                //        ().equals(n.getLabel())).findFirst().get()
+                //        .getMappedNode();
+
+                emap = c.getFirstElement(e -> e.getAnnotation().equals(n
+                        .getLabel())).getMappedNode();
             } catch (EUFInconsistencyException e) {
                 assert false;
             }
         }
-
-        LOGGER.debug("equivalent class {}", nen.getDotLabel());
-        //assert nen.isSingleton();
-        Element<Node> e = nen.getElements().iterator().next();
-        Node emap = e.getMappedNode();
 
         LOGGER.debug("mapped element is {}:{}", emap.getLabel(), emap.getId());
 
