@@ -273,6 +273,7 @@ public final class NodeElemFact implements EquiClassFact {
      */
     @Override
     public void relink(Node toReplace, Node replacement) {
+        LOGGER.debug("Relink {} to {}", toReplace.getId(), replacement.getId());
         cn.relink(toReplace, replacement);
     }
 

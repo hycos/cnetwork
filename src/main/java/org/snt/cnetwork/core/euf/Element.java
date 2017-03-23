@@ -73,7 +73,6 @@ public abstract class Element<T> implements Comparable, Cloneable{
     public int compareTo(Object o) {
         if(!(o instanceof Element))
             return -1;
-
         return getLabel().compareTo(((Element)o).getLabel());
     }
 

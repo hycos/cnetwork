@@ -37,7 +37,7 @@ public class ConstraintNetworkBuilder
     }
 
     public ConstraintNetworkBuilder(boolean eufEnabled) {
-        this.eufEnabled = eufEnabled;
+        this.eufEnabled = true;
         this.cn = new ConstraintNetwork();
         //if (this.eufEnabled) {
         // EUF has to e assigned first here
@@ -74,25 +74,23 @@ public class ConstraintNetworkBuilder
 
     private List<Node> inferParam(List<Node> param) {
         LOGGER.debug("infer parameters");
-        if (eufEnabled) {
-            List<Node> ret = new Vector<>();
-            for (Node p : param) {
-                ret.add(infer(p));
-            }
-            return ret;
+        List<Node> ret = new Vector<>();
+        for (Node p : param) {
+            ret.add(inferEquivalentNode(p));
         }
-        return param;
+        return ret;
+
     }
 
 
     public Node addOperation(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
 
-        Node op = cn.addOperation(kind, inferParam(params));
+        Node op = cn.addOperation(kind,params);
 
         LOGGER.debug("check node {}:{}", op.getLabel(), op.getId());
 
-        Node nop = infer(op);
+        Node nop = inferEquivalentNode(op);
 
         LOGGER.debug("NOP {}", nop);
         LOGGER.debug("OP {}", op);
@@ -152,14 +150,6 @@ public class ConstraintNetworkBuilder
     }
 
     public Node getNodeByLabel(String lbl) {
-
-
-        //if (eufEnabled) {
-        //if (!nf.getNodeForLabel(lbl)) {
-        //    LOGGER.debug("null");
-        //    return null;
-        //}
-
 
         EquiClass ec = nf.getEquiClassForLabel(lbl);
         Set<EquiClass> snen = euf.inferEquiClassFor(ec);
@@ -322,28 +312,10 @@ public class ConstraintNetworkBuilder
         }
     }
 
-    public Node infer(Node n) {
-
-        //if(eufEnabled) {
-        Node nn = inferEquivalentNode(n);
-        // is already present as nn1
-        if (!nn.equals(n)) {
-
-            LOGGER.debug("inferred \nt:{}:{}\nf:{}:{}", nn.getLabel(), nn
-                    .getId(), n
-                    .getLabel(), n.getId());
-            return nn;
-        }
-        return n;
-        //}
-        // n is the first of its kind
-        //return n;
-    }
-
 
     public Node relink(Node toReplace, Node replacement) {
 
-        if(!cn.containsVertex(toReplace) && cn.containsVertex(replacement))
+        if (!cn.containsVertex(toReplace) && cn.containsVertex(replacement))
             return replacement;
 
         int id = toReplace.getId();
@@ -370,18 +342,31 @@ public class ConstraintNetworkBuilder
     }
 
 
-    private Node inferEquivalentNode(Node n) {
+    public Node inferEquivalentNode(Node n) {
 
         LOGGER.debug("infer equivalent node {}:{}", n.getLabel(), n.getId());
         //if (n.isOperand()) {
         //    return n;
         //} else {
         // create temporary equi class
+
+        if(nf.hasEquiClassFor(n)) {
+            try {
+                return nf.getEquiClassFor(n).getElements().iterator().next()
+                        .getMappedNode();
+            } catch (MissingItemException e) {
+                return n;
+            }
+        }
+
         nf.createEquiClass(n);
 
         EquiClass en = null;
         try {
             en = nf.getEquiClassFor(n);
+
+            LOGGER.debug("infer equiclass {}", en.getDotLabel());
+
         } catch (MissingItemException e) {
             assert false;
         }
@@ -399,13 +384,21 @@ public class ConstraintNetworkBuilder
             return n;
         }
 
-        LOGGER.debug("equivalent class {}", nen.getDotLabel());
-        assert nen.isSingleton();
+        if (!nen.equals(en)) {
+            try {
+                euf.addEquiClass(nen.union(en));
+            } catch (EUFInconsistencyException e) {
+                assert false;
+            }
+        }
 
+        LOGGER.debug("equivalent class {}", nen.getDotLabel());
+        //assert nen.isSingleton();
         Element<Node> e = nen.getElements().iterator().next();
         Node emap = e.getMappedNode();
 
         LOGGER.debug("mapped element is {}:{}", emap.getLabel(), emap.getId());
+
 
         return emap;
     }
@@ -415,79 +408,77 @@ public class ConstraintNetworkBuilder
     public void update(Node n) throws EUFInconsistencyException {
         LOGGER.debug(">> update {}", n.getDotLabel());
 
-        if (eufEnabled) {
-            if (n.isNumeric() && n.getRange().isSingleton
-                    () && !n.isLiteral()) {
+        if (n.isNumeric() && n.getRange().isSingleton
+                () && !n.isLiteral()) {
 
 
-                LOGGER.debug("RAN " + n.getLabel() + " " + n.getRange()
-                        .toString
-                                ());
-                nf.createEquiClass(n);
+            LOGGER.debug("RAN " + n.getLabel() + " " + n.getRange()
+                    .toString
+                            ());
+            nf.createEquiClass(n);
 
-                EquiClass eq = null;
-                try {
-                    eq = nf.getEquiClassFor(n).clone();
-                } catch (MissingItemException e) {
-                    assert false;
-                }
-
-                eq.addElement(new SingletonElement(n, n.getRange().getMin()
-                        .getEndpoint().toString()));
-
-                LOGGER.debug("new eq {}", eq.toString());
-
-                euf.addEquiClass(eq);
-
-            } else if (n.isString() && n.getAutomaton().isSingleton() && !n.isLiteral()) {
-
-                nf.createEquiClass(n);
-
-                EquiClass eq = null;
-                try {
-                    eq = nf.getEquiClassFor(n).clone();
-                } catch (MissingItemException e) {
-                    assert false;
-                }
-
-                eq.addElement(new SingletonElement(n, "\"" + n.getAutomaton
-                        ().getShortestExample() + "\""));
-
-                LOGGER.debug("new eq {}", eq.toString());
-
-                euf.addEquiClass(eq);
-            } else if (n.isBoolean() && !n.isLiteral()) {
-
-                if (n.getKind().isInequality()) {
-                    if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
-                        List<Node> pars = cn.getParametersFor(n);
-                        assert pars.size() == 2;
-                        euf.addEquiClass(getParList(pars, false));
-                    }
-                    if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
-                        List<Node> pars = cn.getParametersFor(n);
-                        assert pars.size() == 2;
-                        if (!hasRedundantPars(pars, true))
-                            euf.addInequialityConstraint(pars.get(0), pars.get(1));
-                    }
-                } else if (n.getKind().isEquality()) {
-                    LOGGER.debug("n {}", n.getDotLabel());
-                    assert n.getRange() instanceof BooleanRange;
-                    if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
-                        List<Node> pars = cn.getParametersFor(n);
-                        assert pars.size() == 2;
-                        euf.addEquiClass(getParList(pars, true));
-                    }
-                    if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
-                        List<Node> pars = cn.getParametersFor(n);
-                        assert pars.size() == 2;
-                        if (!hasRedundantPars(pars, false))
-                            euf.addInequialityConstraint(pars.get(0), pars.get(1));
-                    }
-                }
-            } else if (!n.isBoolean() && n.isOperation()) {
-                euf.addEquiClass(n);
+            EquiClass eq = null;
+            try {
+                eq = nf.getEquiClassFor(n).clone();
+            } catch (MissingItemException e) {
+                assert false;
             }
+
+            eq.addElement(new SingletonElement(n, n.getRange().getMin()
+                    .getEndpoint().toString()));
+
+            LOGGER.debug("new eq {}", eq.toString());
+
+            euf.addEquiClass(eq);
+
+        } else if (n.isString() && n.getAutomaton().isSingleton() && !n.isLiteral()) {
+
+            nf.createEquiClass(n);
+
+            EquiClass eq = null;
+            try {
+                eq = nf.getEquiClassFor(n).clone();
+            } catch (MissingItemException e) {
+                assert false;
+            }
+
+            eq.addElement(new SingletonElement(n, "\"" + n.getAutomaton
+                    ().getShortestExample() + "\""));
+
+            LOGGER.debug("new eq {}", eq.toString());
+
+            euf.addEquiClass(eq);
+        } else if (n.isBoolean() && !n.isLiteral()) {
+
+            if (n.getKind().isInequality()) {
+                if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
+                    List<Node> pars = cn.getParametersFor(n);
+                    assert pars.size() == 2;
+                    euf.addEquiClass(getParList(pars, false));
+                }
+                if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
+                    List<Node> pars = cn.getParametersFor(n);
+                    assert pars.size() == 2;
+                    if (!hasRedundantPars(pars, true))
+                        euf.addInequialityConstraint(pars.get(0), pars.get(1));
+                }
+            } else if (n.getKind().isEquality()) {
+                LOGGER.debug("n {}", n.getDotLabel());
+                assert n.getRange() instanceof BooleanRange;
+                if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
+                    List<Node> pars = cn.getParametersFor(n);
+                    assert pars.size() == 2;
+                    euf.addEquiClass(getParList(pars, true));
+                }
+                if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
+                    List<Node> pars = cn.getParametersFor(n);
+                    assert pars.size() == 2;
+                    if (!hasRedundantPars(pars, false))
+                        euf.addInequialityConstraint(pars.get(0), pars.get(1));
+                }
+            }
+        } else if (!n.isBoolean() && n.isOperation()) {
+            euf.addEquiClass(n);
         }
 
     }

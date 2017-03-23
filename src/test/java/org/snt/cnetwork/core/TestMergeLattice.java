@@ -267,7 +267,8 @@ public class TestMergeLattice {
             //cn.addConstraint(NodeKind.EQUALS, aliasidxof, k);
 
             LOGGER.debug(cn.getConstraintNetwork().toDot());
-            Assert.assertEquals(aliasidxof, idxof);
+            LOGGER.debug(cn.getEufLattice().toDot());
+            Assert.assertEquals(cn.inferEquivalentNode(aliasidxof), cn.inferEquivalentNode(idxof));
 
         } catch (EUFInconsistencyException e) {
             e.printStackTrace();
@@ -299,8 +300,8 @@ public class TestMergeLattice {
 
             LOGGER.debug(cn.getEufLattice().toDot());
             LOGGER.debug(cn.getConstraintNetwork().toDot());
-            Node na = cn.infer(idxof);
-            Node nb = cn.infer(aliasidxof);
+            Node na = cn.inferEquivalentNode(idxof);
+            Node nb = cn.inferEquivalentNode(aliasidxof);
 
             Assert.assertEquals(na, nb);
         } catch (EUFInconsistencyException e) {
@@ -360,8 +361,8 @@ public class TestMergeLattice {
             Node eq0 = cn.addConstraint(NodeKind.EQUALS, concat1, a);
             Node eq1 = cn.addConstraint(NodeKind.EQUALS, concat2, a);
 
-            Node na = cn.infer(concat1);
-            Node nb = cn.infer(concat2);
+            Node na = cn.inferEquivalentNode(concat1);
+            Node nb = cn.inferEquivalentNode(concat2);
 
             Assert.assertEquals(na, nb);
 

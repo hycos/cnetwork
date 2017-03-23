@@ -219,7 +219,7 @@ public class EufLattice extends
 
         //@TODO: Julian -- this function might call this function recursively
         //again
-        mergeSplits(mo);
+        //mergeSplits(mo);
         //removeRendundancies(mo);
 
     }
@@ -231,6 +231,9 @@ public class EufLattice extends
     private void mergeSplits(EquiClass c) throws EUFInconsistencyException {
 
         LOGGER.debug("check param bw for {}", c.getDotLabel());
+
+        //addEquiClass(c);
+        //removeRendundancies(c);
 
         Set<EquiClass> in = getConnectedInNodesOfKind(c, EquiEdge.Kind.SPLIT);
 
@@ -259,6 +262,7 @@ public class EufLattice extends
             addEquiClass(ta);
             removeRendundancies(ta);
         }
+
 
     }
 
@@ -333,6 +337,7 @@ public class EufLattice extends
             throw new EUFInconsistencyException("there cannot be two literals" +
                     " belonging to the same equiclass " + con.toString());
         } else if (con.size() == 1 && vars.size() > 0) {
+            // remap all variables to the constant value
             remap(con.iterator().next(), vars);
         } else if (vars.size() > 1){
             Element min = Collections.min(vars, new IdComparator());
@@ -346,6 +351,9 @@ public class EufLattice extends
     private void remap(Element firste, Collection<Element> toremap) {
 
         Node first = firste.getMappedNode();
+
+
+        LOGGER.debug("FRIST {}", firste.getLabel());
 
         assert !toremap.contains(first);
 
@@ -497,11 +505,12 @@ public class EufLattice extends
 
         LOGGER.debug("find max ov for {}", n.getDotLabel());
         insert(n);
-
         if (edgeSet().contains(init)) {
             removeEdge(init);
             //LOGGER.debug("rm init edge {}", init);
         }
+
+        removeRendundancies(n);
 
     }
 
@@ -676,8 +685,12 @@ public class EufLattice extends
         //assert e.isNested();
         //assert e.getElements().size() == 1;
 
-        if (!e.isNested())
-            return Collections.singleton(e);
+        //if (!e.isNested())
+        //    return Collections.singleton(e);
+
+        if(!e.isNested()) {
+            return Collections.singleton(getCoveringEquiClass(e));
+        }
 
         Predicate<EquiEdge> p = k -> k.getKind() == EquiEdge.Kind.SPLIT;
 
