@@ -15,8 +15,7 @@ import java.util.stream.Stream;
 
 //@TODO: Julian simplify the implementation later on. Split the code in Model
 // and Controller
-public class EufLattice extends
-        DirectedPseudograph<EquiClass, EquiEdge> implements Cloneable {
+public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> implements Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(EufLattice.class);
 
