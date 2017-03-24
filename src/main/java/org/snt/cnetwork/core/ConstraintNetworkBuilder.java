@@ -22,10 +22,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
         this.cn = new ConstraintNetwork(cnb.cn);
         //this.nf = new NodeElemFact(this, cnb.nf);
         this.euf = new EufManager(cnb.euf,this);
-
         assert cnb.vertexSet().size() == this.cn.vertexSet().size();
-
-
         this.cn.vertexSet().forEach(v -> euf.attach(v));
     }
 

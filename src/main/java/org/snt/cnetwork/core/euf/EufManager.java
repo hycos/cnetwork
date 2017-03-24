@@ -12,7 +12,8 @@ import org.snt.cnetwork.exception.MissingItemException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class EufManager extends ConstraintNetworkObserver<Node> {
+public class EufManager extends ConstraintNetworkObserver<Node> implements
+        EufEventHandler {
 
 
     final static Logger LOGGER = LoggerFactory.getLogger(EufManager.class);
@@ -20,6 +21,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> {
     private EufLattice lattice = null;
     private NodeElemFact elementFact = null;
     private ConstraintNetworkBuilder cb = null;
+
 
 
     class IdComparator implements Comparator<Element> {
@@ -32,7 +34,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> {
     }
 
     public EufManager(ConstraintNetworkBuilder cb) {
-        this.lattice = new EufLattice();
+        this.lattice = new EufLattice(this);
         this.elementFact = new NodeElemFact(cb);
         this.cb = cb;
     }
@@ -41,7 +43,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> {
     public EufManager(EufManager mgr, ConstraintNetworkBuilder cb) {
         // copy element fact and updating reference to new cn
         this.elementFact = new NodeElemFact(mgr.elementFact, cb);
-        this.lattice = new EufLattice(mgr.lattice);
+        this.lattice = new EufLattice(this,mgr.lattice);
         assert this.lattice.vertexSet().size() == mgr.lattice.vertexSet()
                 .size();
         this.cb = cb;
@@ -207,7 +209,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> {
             Node mapped = e.getMappedNode();
 
             if (mapped.getId() != first.getId()) {
-                elementFact.relink(mapped, first);
+                cb.relink(mapped, first);
                 e.setMappedNode(first);
             }
 
@@ -219,8 +221,16 @@ public class EufManager extends ConstraintNetworkObserver<Node> {
         assert elementFact != null;
         EquiClass ec = lattice.addEquiClass(elementFact.createEquiClasses
                 (toadd));
-        removeRendundancies(ec);
         return ec;
+    }
+
+    @Override
+    public void onEquiClassAddition(EquiClass ec) {
+        try {
+            removeRendundancies(ec);
+        } catch (EUFInconsistencyException e) {
+            assert false;
+        }
     }
 
     public EquiClass join(Node... e) throws MissingItemException {
@@ -241,14 +251,6 @@ public class EufManager extends ConstraintNetworkObserver<Node> {
         assert snen.size() == 1;
         EquiClass nen = snen.iterator().next();
         return nen;
-    }
-
-    public String getLabelForNode(Node n) {
-        EquiClass nen = inferActualEquiClassForNode(n);
-        if (nen == null || nen == lattice.getBottom() || nen == lattice.getTop()) {
-            return null;
-        }
-        return nen.getCorrespondingElement(n).getLabel();
     }
 
     public EufLattice getLattice() {

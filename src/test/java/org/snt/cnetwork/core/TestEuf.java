@@ -422,6 +422,35 @@ public class TestEuf {
         LOGGER.debug(cn.getConstraintNetwork().toDot());
     }
 
+    @Test
+    public void testSameConcat() {
+
+        ConstraintNetworkBuilder cb1 = new ConstraintNetworkBuilder();
+
+        Node a = cb1.addOperand(NodeKind.STRVAR, "a");
+        Node b = cb1.addOperand(NodeKind.STRVAR, "b");
+        Node c = cb1.addOperand(NodeKind.STRVAR, "c");
+
+        Node concat1 = null, concat2 = null, eq;
+
+        try {
+            concat1 = cb1.addOperation(NodeKind.CONCAT, a, b);
+            concat2 = cb1.addOperation(NodeKind.CONCAT, concat1, c);
+            eq = cb1.addConstraint(NodeKind.EQUALS, concat1, concat2);
+
+            //concat3 = cb1.addOperation(NodeKind.CONCAT, concat2,)
+
+        } catch (EUFInconsistencyException e) {
+            e.printStackTrace();
+            Assert.assertFalse(true);
+        }
+
+        LOGGER.debug(cb1.getConstraintNetwork().toDot());
+
+        Assert.assertEquals(cb1.vertexSet().size(), 6);
+    }
+
+
 
 
 

@@ -227,15 +227,6 @@ public final class NodeElemFact {
         return nc.hasEquiClass(n);
     }
 
-    /**
-     * Remove a node and transfer all outgoing connections to another node
-     * @param toReplace
-     * @param replacement
-     */
-    public void relink(Node toReplace, Node replacement) {
-        LOGGER.debug("Relink {} to {}", toReplace.getId(), replacement.getId());
-        cn.relink(toReplace, replacement);
-    }
 
 
 }

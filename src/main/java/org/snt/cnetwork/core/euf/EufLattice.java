@@ -25,20 +25,22 @@ public class EufLattice extends
     private EquiClass bottom = new EquiClass.Bottom();
     private EquiEdge init = new EquiEdge(top, bottom, EquiEdge.Kind.SUB, -1);
     private BiMap<String, EquiClass> lmap = new BiMap<>();
+    private EufEventHandler eh = null;
 
 
-    public EufLattice() {
+    public EufLattice(EufEventHandler eh) {
         super(new EdgeFact());
         super.addVertex(top);
         super.addVertex(bottom);
         super.addEdge(top, bottom, init);
         lmap.put(bottom.toString(), bottom);
         lmap.put(top.toString(), top);
+        this.eh = eh;
     }
 
 
-    public EufLattice(EufLattice other) {
-        this();
+    public EufLattice(EufEventHandler eh, EufLattice other) {
+        this(eh);
         for (EquiClass e : other.vertexSet()) {
             try {
                 addEquiClass(e);
@@ -281,7 +283,7 @@ public class EufLattice extends
     }
 
 
-    public EquiClass addEquiClass(Collection<EquiClass> toadd) throws
+    protected EquiClass addEquiClass(Collection<EquiClass> toadd) throws
             EUFInconsistencyException {
 
 
@@ -295,7 +297,7 @@ public class EufLattice extends
     }
 
 
-    public EquiClass addEquiClass(EquiClass n)
+    protected EquiClass addEquiClass(EquiClass n)
             throws EUFInconsistencyException {
 
         LOGGER.debug("add equi class {}:{}", n.getDotLabel(), n.getId());
@@ -303,7 +305,7 @@ public class EufLattice extends
 
         if (isAlreadySubsumed(n) || n.isEmpty()) {
             LOGGER.debug("{}:{} already subsumed", n.getLabel(), n.getId());
-            return getOverlapping(n);
+            return getCovering(n);
         }
 
         LOGGER.debug("find max ov for {}", n.getDotLabel());
@@ -314,22 +316,26 @@ public class EufLattice extends
             //LOGGER.debug("rm init edge {}", init);
         }
 
+        if(eh != null) {
+            //
+            eh.onEquiClassAddition(n);
+        }
+
         return n;
     }
 
 
-    public Set<EquiEdge> outgoingEdgesOfKind(EquiClass e, EquiEdge.Kind
+    protected Set<EquiEdge> outgoingEdgesOfKind(EquiClass e, EquiEdge.Kind
             kind) {
         Set<EquiEdge> ret = new HashSet<>();
         if (vertexSet().contains(e)) {
             ret.addAll(outgoingEdgesOf(e).stream().filter(ne -> ne.getKind() ==
-                    kind)
-                    .collect(Collectors.toSet()));
+                    kind).collect(Collectors.toSet()));
         }
         return ret;
     }
 
-    public Set<EquiEdge> incomingEdgesOfKind(EquiClass e, EquiEdge.Kind
+    protected Set<EquiEdge> incomingEdgesOfKind(EquiClass e, EquiEdge.Kind
             kind) {
         Set<EquiEdge> ret = new HashSet<>();
         if (vertexSet().contains(e)) {
@@ -340,7 +346,7 @@ public class EufLattice extends
         return ret;
     }
 
-    public Set<EquiClass> getConnectedOutNodesOfKind(EquiClass e, EquiEdge
+    protected Set<EquiClass> getConnectedOutNodesOfKind(EquiClass e, EquiEdge
             .Kind kind) {
         Set<EquiClass> ret = new LinkedHashSet<>();
         ret.addAll(outgoingEdgesOfKind(e, kind).stream().map(EquiEdge::getTarget)
@@ -348,7 +354,7 @@ public class EufLattice extends
         return ret;
     }
 
-    public Set<EquiClass> getConnectedInNodesOfKind(EquiClass e, EquiEdge
+    protected Set<EquiClass> getConnectedInNodesOfKind(EquiClass e, EquiEdge
             .Kind kind) {
         Set<EquiClass> ret = new LinkedHashSet<>();
         ret.addAll(incomingEdgesOfKind(e, kind).stream().map(EquiEdge::getSource)
@@ -358,14 +364,14 @@ public class EufLattice extends
     }
 
 
-    public Set<EquiClass> getConnectedOutNodes(EquiClass e) {
+    protected Set<EquiClass> getConnectedOutNodes(EquiClass e) {
         Set<EquiClass> ret = new LinkedHashSet<>();
         ret.addAll(outgoingEdgesOf(e).stream().map(EquiEdge::getTarget)
                 .collect(Collectors.toSet()));
         return ret;
     }
 
-    public Set<EquiClass> getConnectedInNodesOf(EquiClass e) {
+    protected Set<EquiClass> getConnectedInNodesOf(EquiClass e) {
         Set<EquiClass> ret = new LinkedHashSet<>();
         ret.addAll(incomingEdgesOf(e).stream().map(EquiEdge::getSource)
                 .collect(Collectors.toSet()));

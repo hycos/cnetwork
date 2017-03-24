@@ -85,10 +85,45 @@ public class TestConstraintNetworkGeneration {
                 Assert.assertTrue(n1 != n2);
             }
         }
-
-
     }
 
+
+    @Test
+    public void testCopyConstructor() {
+
+        ConstraintNetworkBuilder cb1 = new ConstraintNetworkBuilder();
+
+        Node a = cb1.addOperand(NodeKind.STRVAR, "a");
+        Node b = cb1.addOperand(NodeKind.STRVAR, "b");
+        Node c = cb1.addOperand(NodeKind.STRVAR, "c");
+
+        Node concat1 = null, concat2 = null;
+
+        try {
+            concat1 = cb1.addOperation(NodeKind.CONCAT, a, b);
+            concat2 = cb1.addOperation(NodeKind.CONCAT, concat1, c);
+        } catch (EUFInconsistencyException e) {
+            e.printStackTrace();
+            Assert.assertFalse(true);
+        }
+
+        ConstraintNetworkBuilder cb2 = new ConstraintNetworkBuilder(cb1);
+
+        try {
+            cb2.addConstraint(NodeKind.EQUALS, concat1, concat2);
+        } catch (EUFInconsistencyException e) {
+            e.printStackTrace();
+        }
+
+        Assert.assertEquals(cb1.vertexSet().size(), 5);
+        Assert.assertEquals(cb2.vertexSet().size(), 8);
+
+
+        LOGGER.debug(cb1.getConstraintNetwork().toDot());
+        LOGGER.debug(cb1.getEufLattice().toDot());
+        LOGGER.debug(cb2.getConstraintNetwork().toDot());
+        LOGGER.debug(cb2.getEufLattice().toDot());
+    }
 
 }
 
