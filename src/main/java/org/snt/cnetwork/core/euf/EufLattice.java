@@ -48,7 +48,6 @@ public class EufLattice extends
                 assert false;
             }
         }
-
         for (EquiEdge e : other.edgeSet()) {
             addEdge(e);
         }
@@ -317,7 +316,6 @@ public class EufLattice extends
         }
 
         if(eh != null) {
-            //
             eh.onEquiClassAddition(n);
         }
 

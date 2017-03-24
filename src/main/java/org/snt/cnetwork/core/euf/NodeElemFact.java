@@ -192,9 +192,9 @@ public final class NodeElemFact {
 
         StringBuffer sb = new StringBuffer();
 
-        if (s.length == 1) {
-            sb.append(s[0].getLabel());
-        } else {
+        //if (s.length == 1) {
+        //    sb.append(s[0].getLabel());
+        //} else {
             //sb.append(s[0].getAnnotation());
             sb.append("(");
             for (int i = 0; i < s.length; i++) {
@@ -203,7 +203,7 @@ public final class NodeElemFact {
                     sb.append(",");
             }
             sb.append(")");
-        }
+        //}
         return sb.toString();
     }
 
