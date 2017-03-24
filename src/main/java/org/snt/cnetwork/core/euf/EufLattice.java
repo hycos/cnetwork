@@ -5,9 +5,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.jgrapht.graph.DirectedPseudograph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.Node;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
-import org.snt.cnetwork.exception.MissingItemException;
 import org.snt.cnetwork.utils.BiMap;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -26,34 +24,21 @@ public class EufLattice extends
     private EquiClass top = new EquiClass.Top();
     private EquiClass bottom = new EquiClass.Bottom();
     private EquiEdge init = new EquiEdge(top, bottom, EquiEdge.Kind.SUB, -1);
-    private EquiClassFact elementFact = null;
-
     private BiMap<String, EquiClass> lmap = new BiMap<>();
 
 
-    public EufLattice(EquiClassFact elementFact) {
+    public EufLattice() {
         super(new EdgeFact());
         super.addVertex(top);
         super.addVertex(bottom);
         super.addEdge(top, bottom, init);
-        this.elementFact = elementFact;
         lmap.put(bottom.toString(), bottom);
         lmap.put(top.toString(), top);
     }
 
 
-    class IdComparator implements Comparator<Element> {
-        @Override
-        public int compare(Element o1, Element o2) {
-            int id1 = o1.getMappedNode().getId();
-            int id2 = o2.getMappedNode().getId();
-            return id1 - id2;
-        }
-    }
-
-    public EufLattice(EufLattice other, EquiClassFact elementFact) {
-        this(elementFact);
-
+    public EufLattice(EufLattice other) {
+        this();
         for (EquiClass e : other.vertexSet()) {
             try {
                 addEquiClass(e);
@@ -65,77 +50,9 @@ public class EufLattice extends
         for (EquiEdge e : other.edgeSet()) {
             addEdge(e);
         }
-
     }
 
-    /**
-     * API
-     **/
-    public void addInequialityConstraint(Node... e) throws EUFInconsistencyException {
 
-        //LOGGER.debug("add inequality constraint");
-
-        assert e.length == 2;
-
-
-        if (!elementFact.hasEquiClassFor(e[0])) {
-            LOGGER.debug("ADD 0 {}", e[0]);
-            addEquiClass(e[0]);
-        }
-
-        if (!elementFact.hasEquiClassFor(e[1])) {
-            LOGGER.debug("ADD 1 {}", e[1]);
-            addEquiClass(e[1]);
-        }
-        EquiClass[] ec = new EquiClass[2];
-
-        try {
-            ec[0] = elementFact.getEquiClassFor(e[0]);
-            ec[1] = elementFact.getEquiClassFor(e[1]);
-        } catch (MissingItemException e1) {
-            assert false;
-        }
-
-        assert ec.length == 2;
-
-        EquiClass fst = getOverlapping(ec[0]);
-        EquiClass snd = getOverlapping(ec[1]);
-
-
-        LOGGER.debug("fst {} par {}", ec[0].getDotLabel(), fst.getDotLabel());
-        LOGGER.debug("snd {} par {}", ec[1].getDotLabel(), snd.getDotLabel());
-
-
-        // cannot create an ineq edge where source and dest are pointing to the
-        // same equi class
-        if (fst.equals(snd)) {
-            throw new EUFInconsistencyException("Inconsistency detected " +
-                    "between " + fst + " " + snd);
-        }
-
-
-        fst = fst.equals(top) ? ec[0] : fst;
-        snd = snd.equals(top) ? ec[1] : snd;
-
-
-        addIneqEdge(fst, snd);
-        addIneqEdge(snd, fst);
-    }
-
-    private EquiClass addEquiClass(Node toadd)
-            throws EUFInconsistencyException {
-        return addEquiClass(elementFact.createEquiClass(toadd));
-    }
-
-    public EquiClass addEquiClass(Node... toadd)
-            throws EUFInconsistencyException {
-        assert elementFact != null;
-        return addEquiClass(elementFact.createEquiClasses(toadd));
-    }
-
-    public EquiClass join(Node... e) throws MissingItemException {
-        return join(elementFact.getEquiClassesFor(e));
-    }
 
 
     public EquiClass getBottom() {
@@ -165,7 +82,6 @@ public class EufLattice extends
 
         if (isAlreadySubsumed(e))
             return;
-
 
         EquiClass mo = e;
         LOGGER.debug("insert {}:{}", e.getDotLabel(), e.getId());
@@ -227,113 +143,10 @@ public class EufLattice extends
             replace(sub, mo);
         }
         split(mo);
-
     }
 
 
-    private void removeRendundancies(EquiClass c) throws
-            EUFInconsistencyException {
-        // @TODO:Julian important
-        //addEquiClass(c);
 
-        EquiClass covering = getOverlapping(c);
-
-
-        // group by annotation
-        Map<String, LinkedList<Element>> ng = new HashMap<>();
-
-        LinkedList<Element> vars = new LinkedList<>();
-
-        LinkedList<Element> con = new LinkedList<>();
-
-
-        for (Element ta : covering.getElements()) {
-            if (ta.isNested()) {
-                if (!ng.containsKey(ta.getAnnotation())) {
-                    ng.put(ta.getAnnotation(), new LinkedList<>());
-                }
-                ng.get(ta.getAnnotation()).add(ta);
-
-
-                LOGGER.debug("add for {}", ta.getAnnotation());
-                LOGGER.debug("SIZE {}", ng.get(ta.getAnnotation()));
-
-            } else if (ta.isSingleton()) {
-
-                if (ta.getMappedNode().isLiteral()) {
-
-                    if (con.size() == 0)
-                        con.add(ta);
-
-                    if (con.size() == 1)
-                        assert ta.getMappedNode().getId()
-                                == con.getFirst().getMappedNode().getId();
-
-                } else {
-                    vars.add(ta);
-                }
-            }
-            //LOGGER.debug("class:{}, ta element {}", c.getDotLabel(), ta
-            //        .getLabel());
-        }
-
-        LOGGER.debug("ngroup to merge {}", ng.size());
-
-        Set<LinkedList<Element>> nestedToMerge = ng.values().stream().filter(
-                s -> s.size() > 1
-        ).collect(Collectors.toSet());
-
-        LOGGER.debug("nested to merge {}", nestedToMerge.size());
-
-
-        // remove redundant nodes in the CN
-        // 1. searching for equivalent functions of the same type (e.g.
-        // indexof(a,b,c), indexof (d,e,f)
-        // 2. remvoing the redundant node form the CN
-        // 3. remapping the corresponding EUF label to the remaining node
-        for (LinkedList<Element> ne : nestedToMerge) {
-            Element min = Collections.min(ne, new IdComparator());
-            ne.remove(min);
-            remap(min, ne);
-        }
-
-        if (con.size() > 1) {
-            throw new EUFInconsistencyException("there cannot be two literals" +
-                    " belonging to the same equiclass " + con.toString());
-        } else if (con.size() == 1 && vars.size() > 0) {
-            // remap all variables to the constant value
-            remap(con.iterator().next(), vars);
-        } else if (vars.size() > 1) {
-            Element min = Collections.min(vars, new IdComparator());
-            vars.remove(min);
-            remap(min, vars);
-        }
-    }
-
-
-    // map all elements in list to the one at the first positon
-    private void remap(Element firste,
-                       Collection<Element> toremap) {
-
-        Node first = firste.getMappedNode();
-
-
-        LOGGER.debug("FRIST {}", firste.getLabel());
-
-        assert !toremap.contains(first);
-
-        for (Element e : toremap) {
-            LOGGER.debug("REMAP {}", e.getLabel());
-
-            Node mapped = e.getMappedNode();
-
-            if (mapped.getId() != first.getId()) {
-                elementFact.relink(mapped, first);
-                e.setMappedNode(first);
-            }
-
-        }
-    }
 
     private EquiClass findSubsumptionPoint(EquiClass e) {
 
@@ -350,9 +163,9 @@ public class EufLattice extends
                 return top;
             }
         }
-
         return cursor;
     }
+
 
     public EquiClass getOverlapping(EquiClass o) {
         try {
@@ -501,12 +314,7 @@ public class EufLattice extends
             //LOGGER.debug("rm init edge {}", init);
         }
 
-        removeRendundancies(n);
-
-
-
         return n;
-
     }
 
 
@@ -636,24 +444,24 @@ public class EufLattice extends
             linkToBottom(dst);
     }
 
-    private void addIneqEdge(EquiClass src, EquiClass dst) {
+    protected void addIneqEdge(EquiClass src, EquiClass dst) {
         LOGGER.debug("add sub edge {} -> {}", src, dst);
         addEdge(src, dst, EquiEdge.Kind.INEQ, -1);
     }
 
 
-    private boolean hasIncomingEdgesOfKind(EquiClass n, EquiEdge.Kind kind) {
+    protected boolean hasIncomingEdgesOfKind(EquiClass n, EquiEdge.Kind kind) {
         Set<EquiEdge> in = incomingEdgesOfKind(n, kind);
         return in != null && in.size() > 0;
     }
 
-    private boolean hasOutgoingEdgesOfKind(EquiClass n, EquiEdge.Kind kind) {
+    protected boolean hasOutgoingEdgesOfKind(EquiClass n, EquiEdge.Kind kind) {
         Set<EquiEdge> out = outgoingEdgesOfKind(n, kind);
         return out != null && out.size() > 0;
     }
 
 
-    private EquiClass join(EquiClass... e) {
+    protected EquiClass join(EquiClass... e) {
 
         Objects.requireNonNull(e, "join cannot be called with a null " +
                 "parameter");
@@ -663,14 +471,14 @@ public class EufLattice extends
         return findSubsumptionPoint(u);
     }
 
-    private Collection<EquiClass> getCoveringSplit(EquiClass e) {
+    protected Collection<EquiClass> getCoveringSplit(EquiClass e) {
         return e.split().stream().map(v ->
                 getOverlapping(v)).collect(Collectors.toList());
     }
 
     // given a nested equiclass infer the equivalent based on parameter
     // equivalence
-    public Set<EquiClass> inferEquiClassFor(EquiClass ec) {
+    protected Set<EquiClass> inferEquiClassFor(EquiClass ec) {
         //assert e.isNested();
         //assert e.getElements().size() == 1;
 
@@ -792,7 +600,6 @@ public class EufLattice extends
         } else {
             return chop;
         }
-
     }
 
     private Set<EquiClass> bwslice(Collection<EquiClass> crit,

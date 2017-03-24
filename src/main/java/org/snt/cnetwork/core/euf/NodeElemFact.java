@@ -14,13 +14,23 @@ import java.util.stream.Collectors;
  * nodes. The euf lattice will keep track of mapping between equi classes/labels
  * to the existing CN nodes
  */
-public final class NodeElemFact implements EquiClassFact {
+public final class NodeElemFact {
 
     final static Logger LOGGER = LoggerFactory.getLogger(NodeElemFact.class);
 
     private ConstraintNetworkBuilder cn;
 
     private NodeCache nc = new NodeCache();
+
+    public NodeElemFact(ConstraintNetworkBuilder cn) {
+        this.cn = cn;
+    }
+
+    public NodeElemFact(NodeElemFact ne, ConstraintNetworkBuilder newBuilder) {
+        this(newBuilder);
+        nc = new NodeCache(ne.nc);
+    }
+
 
     public String getLabelForNode(Node n) {
         assert nc.hasEquiClass(n);
@@ -37,16 +47,6 @@ public final class NodeElemFact implements EquiClassFact {
         return nc.getEquiClass(lbl);
     }
 
-    public NodeElemFact(ConstraintNetworkBuilder cn,
-                        NodeElemFact ne) {
-        this(cn);
-        // clone cache
-        //nc = new NodeCache(ne.nc);
-    }
-
-    public NodeElemFact(ConstraintNetworkBuilder cn) {
-        this.cn = cn;
-    }
 
     private void handleNode(Node n, Set<EquiClass> es) {
 
@@ -124,7 +124,7 @@ public final class NodeElemFact implements EquiClassFact {
     }
 
 
-    @Override
+
     public Collection<EquiClass> createEquiClasses(Node... nods) {
 
         LOGGER.debug("create equi classes for:");
@@ -179,7 +179,6 @@ public final class NodeElemFact implements EquiClassFact {
         return ret;
     }
 
-    @Override
     public Collection<EquiClass> createEquiClass(Node p) {
         return createEquiClasses(p);
     }
@@ -208,30 +207,22 @@ public final class NodeElemFact implements EquiClassFact {
         return sb.toString();
     }
 
-    @Override
     public EquiClass[] getEquiClassesFor(Node... ns) throws MissingItemException {
-
-
         LOGGER.debug("create equi classes");
-
         EquiClass[] ec = new EquiClass[ns.length];
-
         for (int k = 0; k < ns.length; k++) {
             Node n = ns[k];
             ec[k] = getEquiClassFor(n);
         }
-
         return ec;
     }
 
-    @Override
     public EquiClass getEquiClassFor(Node n) {
         assert nc.hasEquiClass(n);
         return nc.getEquiClass(n);
     }
 
 
-    @Override
     public boolean hasEquiClassFor(Node n) {
         return nc.hasEquiClass(n);
     }
@@ -241,7 +232,6 @@ public final class NodeElemFact implements EquiClassFact {
      * @param toReplace
      * @param replacement
      */
-    @Override
     public void relink(Node toReplace, Node replacement) {
         LOGGER.debug("Relink {} to {}", toReplace.getId(), replacement.getId());
         cn.relink(toReplace, replacement);

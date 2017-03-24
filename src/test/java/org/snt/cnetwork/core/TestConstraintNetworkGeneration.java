@@ -15,7 +15,7 @@ public class TestConstraintNetworkGeneration {
     @Test
     public void testCnConstruction() {
 
-        ConstraintNetworkBuilder tm2 = new ConstraintNetworkBuilder(true);
+        ConstraintNetworkBuilder tm2 = new ConstraintNetworkBuilder();
         Node x = new Operand("x", NodeKind.STRVAR);
         String sor = ".*' +[Oo][Rr] +'";
         Node or = new Operand(sor, NodeKind.STRREXP);
@@ -45,7 +45,7 @@ public class TestConstraintNetworkGeneration {
 
     @Test
     public void testCNClone() {
-        ConstraintNetworkBuilder tm2 = new ConstraintNetworkBuilder(true);
+        ConstraintNetworkBuilder tm2 = new ConstraintNetworkBuilder();
         Node x = new Operand("x", NodeKind.STRVAR);
         String sor = ".*' +[Oo][Rr] +'";
         Node or = new Operand(sor, NodeKind.STRREXP);

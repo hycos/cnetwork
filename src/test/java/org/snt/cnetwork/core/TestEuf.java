@@ -5,8 +5,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.euf.EquiClass;
-import org.snt.cnetwork.core.euf.EufLattice;
-import org.snt.cnetwork.core.euf.NodeElemFact;
+import org.snt.cnetwork.core.euf.EufManager;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.exception.MissingItemException;
 
@@ -17,7 +16,7 @@ public class TestEuf {
     @Test
     public void testSimple0() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
-        EufLattice mt = new EufLattice(new NodeElemFact(cn));
+        EufManager mt = new EufManager(cn);
 
         Node a = cn.addOperand(NodeKind.STRLIT, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -34,15 +33,15 @@ public class TestEuf {
             Assert.assertTrue(false);
         }
 
-        LOGGER.debug(mt.toDot());
-        Assert.assertEquals(mt.vertexSet().size(),3);
+        LOGGER.debug(mt.getLattice().toDot());
+        Assert.assertEquals(mt.getLattice().vertexSet().size(),3);
     }
 
     @Test
     public void testSimple1() {
 
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
-        EufLattice mt = new EufLattice(new NodeElemFact(cn));
+        EufManager mt = new EufManager(cn);
 
         Node a = cn.addOperand(NodeKind.STRLIT, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -61,8 +60,8 @@ public class TestEuf {
             Assert.assertTrue(false);
         }
 
-        LOGGER.debug(mt.toDot());
-        Assert.assertEquals(mt.vertexSet().size(),3);
+        LOGGER.debug(mt.getLattice().toDot());
+        Assert.assertEquals(mt.getLattice().vertexSet().size(),3);
     }
 
 
@@ -71,8 +70,9 @@ public class TestEuf {
     public void testSimple2() {
 
         LOGGER.debug("SIMPLE 2");
+
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
-        EufLattice mt = new EufLattice(new NodeElemFact(cn));
+        EufManager mt = new EufManager(cn);
 
         Node a = cn.addOperand(NodeKind.STRLIT, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -87,7 +87,7 @@ public class TestEuf {
         } catch (EUFInconsistencyException e1) {
             Assert.assertTrue(false);
         }
-        LOGGER.debug(mt.toDot());
+        LOGGER.debug(mt.getLattice().toDot());
 
         EquiClass join = null;
 
@@ -109,14 +109,15 @@ public class TestEuf {
         }
 
         Assert.assertEquals(new EquiClass.Top(), join);
-        LOGGER.debug(mt.toDot());
+        LOGGER.debug(mt.getLattice().toDot());
     }
 
     @Test
     public void testOperation() {
 
+
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
-        EufLattice mt = cn.getEufLattice();
+        EufManager mt = new EufManager(cn);
 
 
         Node a = cn.addOperand(NodeKind.STRLIT, "a");
@@ -132,9 +133,9 @@ public class TestEuf {
             Assert.assertFalse(true);
         }
 
-        LOGGER.debug(mt.toDot());
+        LOGGER.debug(mt.getLattice().toDot());
 
-        Assert.assertEquals(mt.vertexSet().size(), 6);
+        Assert.assertEquals(mt.getLattice().vertexSet().size(), 6);
     }
 
     @Test
@@ -142,7 +143,7 @@ public class TestEuf {
 
 
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
-        EufLattice mt = cn.getEufLattice();
+        EufManager mt = new EufManager(cn);
 
         Node a = cn.addOperand(NodeKind.STRLIT, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -158,14 +159,15 @@ public class TestEuf {
             Assert.assertFalse(true);
         }
 
-        LOGGER.debug(mt.toDot());
+        LOGGER.debug(mt.getLattice().toDot());
         LOGGER.debug(cn.getConstraintNetwork().toDot());
     }
 
     @Test
     public void testConsistency() {
+
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
-        EufLattice mt = cn.getEufLattice();
+        EufManager mt = new EufManager(cn);
 
         Node a = cn.addOperand(NodeKind.STRLIT, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -187,7 +189,7 @@ public class TestEuf {
             LOGGER.debug(e1.getMessage());
         }
 
-        LOGGER.debug(mt.toDot());
+        LOGGER.debug(mt.getLattice().toDot());
 
         Assert.assertEquals(thrown, false);
 
@@ -201,14 +203,15 @@ public class TestEuf {
         Assert.assertTrue(thrown);
 
 
-        LOGGER.debug(mt.toDot());
+        //LOGGER.debug(mt.toDot());
 
     }
 
     @Test
     public void testConsistency2() {
+
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
-        EufLattice mt = new EufLattice(new NodeElemFact(cn));
+        EufManager mt = new EufManager(cn);
 
         Node a = cn.addOperand(NodeKind.STRLIT, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -231,7 +234,7 @@ public class TestEuf {
 
         Assert.assertFalse(thrown);
 
-        LOGGER.debug(mt.toDot());
+        LOGGER.debug(mt.getLattice().toDot());
 
         try {
             mt.addInequialityConstraint(b,f);
@@ -242,13 +245,7 @@ public class TestEuf {
 
         Assert.assertTrue(thrown);
 
-        LOGGER.debug(mt.toDot());
-    }
-
-
-    @Test
-    public void testConsistency3() {
-        ConstraintNetworkBuilder cb = new ConstraintNetworkBuilder();
+        LOGGER.debug(mt.getLattice().toDot());
     }
 
 

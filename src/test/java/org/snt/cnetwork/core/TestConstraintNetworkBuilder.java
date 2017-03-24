@@ -14,7 +14,7 @@ public class TestConstraintNetworkBuilder {
     public void testBuilder() {
 
         try {
-            ConstraintNetworkBuilder cb = new ConstraintNetworkBuilder(true);
+            ConstraintNetworkBuilder cb = new ConstraintNetworkBuilder();
 
             String sor = ".*' +[Oo][Rr] +'";
             Node or = new Operand(sor, NodeKind.STRREXP);
@@ -50,7 +50,7 @@ public class TestConstraintNetworkBuilder {
 
     @Test
     public void testBuilder2() {
-        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
 
         Node zero = cn.addOperand(NodeKind.NUMLIT, "0");
         Node one = cn.addOperand(NodeKind.NUMLIT, "1");
@@ -75,7 +75,7 @@ public class TestConstraintNetworkBuilder {
 
     @Test
     public void testDeleteNode() {
-        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
 
         Node zero = cn.addOperand(NodeKind.NUMLIT, "0");
         Node one = cn.addOperand(NodeKind.NUMLIT, "1");
