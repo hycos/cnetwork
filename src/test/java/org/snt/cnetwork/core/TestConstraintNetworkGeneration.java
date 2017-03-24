@@ -115,15 +115,54 @@ public class TestConstraintNetworkGeneration {
             e.printStackTrace();
         }
 
+
         Assert.assertEquals(cb1.vertexSet().size(), 5);
-        Assert.assertEquals(cb2.vertexSet().size(), 8);
+        Assert.assertEquals(cb2.vertexSet().size(), 6);
 
 
-        LOGGER.debug(cb1.getConstraintNetwork().toDot());
-        LOGGER.debug(cb1.getEufLattice().toDot());
-        LOGGER.debug(cb2.getConstraintNetwork().toDot());
         LOGGER.debug(cb2.getEufLattice().toDot());
+
+
+        LOGGER.debug("=========");
+
+        LOGGER.debug("d {}", cb1.getEufLattice().debug());
+
+
+        LOGGER.debug("=========");
+
     }
+
+
+    @Test
+    public void testDummy() {
+
+        ConstraintNetworkBuilder cb1 = new ConstraintNetworkBuilder();
+
+        Node a = cb1.addOperand(NodeKind.STRVAR, "a");
+        Node b = cb1.addOperand(NodeKind.STRVAR, "b");
+        Node c = cb1.addOperand(NodeKind.STRVAR, "c");
+
+        Node concat1 = null, concat2 = null;
+
+        try {
+            concat1 = cb1.addOperation(NodeKind.CONCAT, a, b);
+            concat2 = cb1.addOperation(NodeKind.CONCAT, concat1, c);
+            cb1.addConstraint(NodeKind.EQUALS, concat1, concat2);
+        } catch (EUFInconsistencyException e) {
+            e.printStackTrace();
+            Assert.assertFalse(true);
+        }
+
+
+        LOGGER.debug("=========");
+
+        LOGGER.debug("d {}", cb1.getEufLattice().debug());
+
+
+        LOGGER.debug("=========");
+
+    }
+
 
 }
 

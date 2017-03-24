@@ -23,7 +23,6 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
     private ConstraintNetworkBuilder cb = null;
 
 
-
     class IdComparator implements Comparator<Element> {
         @Override
         public int compare(Element o1, Element o2) {
@@ -42,10 +41,11 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
     // copy constructor
     public EufManager(EufManager mgr, ConstraintNetworkBuilder cb) {
         // copy element fact and updating reference to new cn
-        this.elementFact = new NodeElemFact(mgr.elementFact, cb);
+        assert (mgr.lattice != null);
         this.lattice = new EufLattice(this,mgr.lattice);
-        assert this.lattice.vertexSet().size() == mgr.lattice.vertexSet()
-                .size();
+        assert this.lattice != null;
+        this.elementFact = new NodeElemFact(mgr.elementFact, cb);
+        assert this.lattice.vertexSet().size() == mgr.lattice.vertexSet().size();
         this.cb = cb;
     }
 
@@ -118,6 +118,8 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
 
     private void removeRendundancies(EquiClass c) throws
             EUFInconsistencyException {
+
+        assert lattice != null;
 
         EquiClass covering = lattice.getCovering(c);
 
@@ -219,8 +221,8 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
     public EquiClass addEquiClass(Node... toadd)
             throws EUFInconsistencyException {
         assert elementFact != null;
-        EquiClass ec = lattice.addEquiClass(elementFact.createEquiClasses
-                (toadd));
+        Collection<EquiClass> neqi = elementFact.createEquiClasses(toadd);
+        EquiClass ec = lattice.addEquiClass(neqi);
         return ec;
     }
 
@@ -267,6 +269,15 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
 
     public EquiClass getEquiClassForNode(Node n) {
         return elementFact.getEquiClassFor(n);
+    }
+
+    public Node getNodeByLabel(String lbl) {
+
+        EquiClass ec = lattice.getEquiClassByLabel(lbl);
+
+        assert ec.isSingleton();
+
+        return ec.getFirstElement().getMappedNode();
     }
 
     public EquiClass addEquiClass(EquiClass e) throws EUFInconsistencyException {

@@ -6,7 +6,6 @@ import org.jgrapht.graph.DirectedPseudograph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
-import org.snt.cnetwork.utils.BiMap;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
@@ -24,7 +23,7 @@ public class EufLattice extends
     private EquiClass top = new EquiClass.Top();
     private EquiClass bottom = new EquiClass.Bottom();
     private EquiEdge init = new EquiEdge(top, bottom, EquiEdge.Kind.SUB, -1);
-    private BiMap<String, EquiClass> lmap = new BiMap<>();
+    private Map<String, EquiClass> lmap = new HashMap<>();
     private EufEventHandler eh = null;
 
 
@@ -41,16 +40,15 @@ public class EufLattice extends
 
     public EufLattice(EufEventHandler eh, EufLattice other) {
         this(eh);
-        for (EquiClass e : other.vertexSet()) {
-            try {
-                addEquiClass(e);
-            } catch (EUFInconsistencyException e1) {
-                assert false;
-            }
+        for(EquiClass e : other.vertexSet()) {
+            super.addVertex(e.clone());
+            lmap.put(e.getLabel(), e);
         }
-        for (EquiEdge e : other.edgeSet()) {
-            addEdge(e);
+        for(EquiEdge e : other.edgeSet()) {
+            super.addEdge(e.getSource(),e.getTarget(),e);
         }
+        lmap.put(bottom.toString(), bottom);
+        lmap.put(top.toString(), top);
     }
 
 
@@ -186,7 +184,7 @@ public class EufLattice extends
 
         // quicker access
         if(lmap.containsKey(o.getLabel()))
-            return lmap.getValueByKey(o.getLabel());
+            return lmap.get(o.getLabel());
 
         try {
             return getConnectedOutNodesOfKind(top, EquiEdge.Kind.SUB).stream()
@@ -401,11 +399,18 @@ public class EufLattice extends
     public EquiClass checkAndGet(EquiClass v) {
         if (!lmap.containsKey(v.getLabel())) {
             lmap.put(v.getLabel(), v);
+
+            if(!v.isNested() && !v.isSingleton()) {
+                for (Element vc : v.getElements()) {
+                    lmap.put(vc.getLabel(), v);
+                }
+            }
+
             super.addVertex(v);
         }
         assert lmap.containsKey(v.getLabel());
         assert super.containsVertex(v);
-        return lmap.getValueByKey(v.getLabel());
+        return lmap.get(v.getLabel());
     }
 
     private void addSplitEdge(EquiClass src, EquiClass dst, int idx) throws
@@ -735,7 +740,7 @@ public class EufLattice extends
 
     private void removeEquiClass(EquiClass v) {
         LOGGER.debug("remove vertex {}:{}", v.getDotLabel(), v.getId());
-        lmap.removeEntry(v.getLabel());
+        lmap.remove(v.getLabel());
         super.removeVertex(v);
     }
 
@@ -858,6 +863,16 @@ public class EufLattice extends
         }
         sb.append("}");
         return sb.toString();
+    }
+
+
+    public EquiClass getEquiClassByLabel(String l) {
+        assert lmap.containsKey(l);
+        return lmap.get(l);
+    }
+
+    public String debug() {
+       return lmap.toString();
     }
 
 }

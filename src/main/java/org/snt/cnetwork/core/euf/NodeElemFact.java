@@ -38,6 +38,7 @@ public final class NodeElemFact {
     }
 
     public Node getNodeForLabel(String lbl) {
+        LOGGER.debug("get node by label {}", lbl);
         assert nc.hasNode(lbl);
         return nc.getNode(lbl);
     }
@@ -134,9 +135,7 @@ public final class NodeElemFact {
         LOGGER.debug("done");
 
         Set<EquiClass> s = new HashSet<>();
-
         Set<EquiClass> ret = new HashSet<>();
-
         List<Element> ele = new Vector<>();
 
         for (int k = 0; k < nods.length; k++) {

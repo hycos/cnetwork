@@ -21,7 +21,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
     public ConstraintNetworkBuilder(ConstraintNetworkBuilder cnb) {
         this.cn = new ConstraintNetwork(cnb.cn);
         //this.nf = new NodeElemFact(this, cnb.nf);
-        this.euf = new EufManager(cnb.euf,this);
+        this.euf = new EufManager(cnb.euf, this);
         assert cnb.vertexSet().size() == this.cn.vertexSet().size();
         this.cn.vertexSet().forEach(v -> euf.attach(v));
     }
@@ -31,6 +31,10 @@ public class ConstraintNetworkBuilder implements Cloneable {
         this.euf = new EufManager(this);
     }
 
+
+    public Node getNodeByLabel(String lbl) {
+        return this.euf.getNodeByLabel(lbl);
+    }
 
     public Node addConstraint(NodeKind kind, Node... params) throws
             EUFInconsistencyException {
@@ -155,6 +159,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
     }
 
     public Node addOperand(NodeKind kind, String label) {
+        LOGGER.debug("add operand {}", label);
         Node n = cn.addOperand(kind, label);
         try {
             euf.addEquiClass(n);

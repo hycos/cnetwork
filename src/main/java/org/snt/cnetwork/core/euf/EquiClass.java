@@ -148,6 +148,11 @@ public class EquiClass implements Cloneable {
         }
     }
 
+    public Element getFirstElement() {
+        assert set.size() > 0;
+        return set.iterator().next();
+    }
+
     public String getDotLabel() {
         StringBuffer sb = new StringBuffer();
         for(Element n : set) {
@@ -163,6 +168,12 @@ public class EquiClass implements Cloneable {
 
     public String getLabel() {
         StringBuffer sb = new StringBuffer();
+
+        if(set.size() == 1) {
+            sb.append(EscapeUtils.escapeSpecialCharacters(set.iterator().next
+                    ().getLabel()));
+            return sb.toString();
+        }
         sb.append("\\{");
         for(Element n : set) {
             if(sb.charAt(sb.length()-1) != '{') {
