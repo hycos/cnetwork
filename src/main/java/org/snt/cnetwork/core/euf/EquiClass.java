@@ -218,16 +218,7 @@ public class EquiClass implements Cloneable {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Equiclass:========\n");
-
-        for(Element e : this.set) {
-            sb.append(e.toString());
-            sb.append("\n");
-        }
-
-        sb.append("=================\n");
-        return sb.toString();
+        return this.getLabel();
     }
 
     public boolean hasOverlap(EquiClass other) {
@@ -386,6 +377,22 @@ public class EquiClass implements Cloneable {
         }
 
         return ret;
+    }
+
+    public String debug() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("==== EQ START:\n");
+
+        for(Element e : set) {
+            sb.append(e.getLabel() + "\n");
+        }
+
+        sb.append("==== EQ END");
+
+
+        return sb.toString();
+
     }
 
 }

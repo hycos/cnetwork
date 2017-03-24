@@ -10,7 +10,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Generate Equivalence Classes from Nodes
+ * This class is only responsible for creating and caching equi classes from
+ * nodes. The euf lattice will keep track of mapping between equi classes/labels
+ * to the existing CN nodes
  */
 public final class NodeElemFact implements EquiClassFact {
 

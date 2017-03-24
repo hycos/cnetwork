@@ -11,8 +11,8 @@ import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.exception.MissingItemException;
 
 
-public class TestMergeLattice {
-    final static Logger LOGGER = LoggerFactory.getLogger(TestMergeLattice.class);
+public class TestEuf {
+    final static Logger LOGGER = LoggerFactory.getLogger(TestEuf.class);
 
     @Test
     public void testSimple0() {
@@ -115,7 +115,7 @@ public class TestMergeLattice {
     @Test
     public void testOperation() {
 
-        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
         EufLattice mt = cn.getEufLattice();
 
 
@@ -141,7 +141,7 @@ public class TestMergeLattice {
     public void testRecursion() {
 
 
-        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
         EufLattice mt = cn.getEufLattice();
 
         Node a = cn.addOperand(NodeKind.STRLIT, "a");
@@ -164,7 +164,7 @@ public class TestMergeLattice {
 
     @Test
     public void testConsistency() {
-        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
         EufLattice mt = cn.getEufLattice();
 
         Node a = cn.addOperand(NodeKind.STRLIT, "a");
@@ -207,7 +207,7 @@ public class TestMergeLattice {
 
     @Test
     public void testConsistency2() {
-        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
         EufLattice mt = new EufLattice(new NodeElemFact(cn));
 
         Node a = cn.addOperand(NodeKind.STRLIT, "a");
@@ -247,8 +247,15 @@ public class TestMergeLattice {
 
 
     @Test
+    public void testConsistency3() {
+        ConstraintNetworkBuilder cb = new ConstraintNetworkBuilder();
+    }
+
+
+
+    @Test
     public void testInferenceCase1() {
-        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
 
         Node a = cn.addOperand(NodeKind.STRVAR, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -264,7 +271,7 @@ public class TestMergeLattice {
             LOGGER.debug("=====================================================");
             LOGGER.debug(cn.getConstraintNetwork().toDot());
             Node aliasidxof = cn.addOperation(NodeKind.INDEXOF, b, one);
-            //cn.addConstraint(NodeKind.EQUALS, aliasidxof, k);
+            cn.addConstraint(NodeKind.EQUALS, aliasidxof, k);
 
             LOGGER.debug(cn.getConstraintNetwork().toDot());
             LOGGER.debug(cn.getEufLattice().toDot());
@@ -283,8 +290,8 @@ public class TestMergeLattice {
     }
 
     @Test
-    public void testInferenceCase2() {
-        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+    public void testInferenceBackwards() {
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
 
         Node a = cn.addOperand(NodeKind.STRVAR, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -319,7 +326,7 @@ public class TestMergeLattice {
 
     @Test
     public void testInferenceCase3() {
-        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
 
         Node a = cn.addOperand(NodeKind.STRVAR, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -350,7 +357,7 @@ public class TestMergeLattice {
 
     @Test
     public void testInferenceCase4() {
-        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
 
         Node a = cn.addOperand(NodeKind.STRVAR, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");
@@ -382,13 +389,11 @@ public class TestMergeLattice {
 
     @Test
     public void testInferenceCase5() {
-        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder(true);
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
 
         Node a = cn.addOperand(NodeKind.STRVAR, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");
         Node five = cn.addOperand(NodeKind.STRLIT, "5");
-
-
 
         try {
             cn.addConstraint(NodeKind.EQUALS, a, b);
@@ -397,11 +402,29 @@ public class TestMergeLattice {
             e.printStackTrace();
         }
 
-        LOGGER.debug(cn.getEufLattice().toDot());
-        LOGGER.debug(cn.getConstraintNetwork().toDot());
-
+        Assert.assertEquals(cn.vertexSet().size(), 7);
 
     }
+
+    @Test
+    public void testDoubleAdd() {
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
+
+        Node a = cn.addOperand(NodeKind.STRVAR, "a");
+        Node b = cn.addOperand(NodeKind.STRVAR, "b");
+
+        try {
+            Node concatab1 = cn.addOperation(NodeKind.CONCAT, a,b);
+            Node concatab2 = cn.addOperation(NodeKind.CONCAT, a,b);
+            Assert.assertEquals(concatab1, concatab2);
+        } catch (EUFInconsistencyException e) {
+            e.printStackTrace();
+        }
+
+        LOGGER.debug(cn.getEufLattice().toDot());
+        LOGGER.debug(cn.getConstraintNetwork().toDot());
+    }
+
 
 
 

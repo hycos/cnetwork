@@ -98,8 +98,8 @@ public class EufLattice extends
 
         assert ec.length == 2;
 
-        EquiClass fst = getCoveringEquiClass(ec[0]);
-        EquiClass snd = getCoveringEquiClass(ec[1]);
+        EquiClass fst = getOverlapping(ec[0]);
+        EquiClass snd = getOverlapping(ec[1]);
 
 
         LOGGER.debug("fst {} par {}", ec[0].getDotLabel(), fst.getDotLabel());
@@ -166,8 +166,21 @@ public class EufLattice extends
         if (isAlreadySubsumed(e))
             return;
 
+
         EquiClass mo = e;
         LOGGER.debug("insert {}:{}", e.getDotLabel(), e.getId());
+
+        if(e.isNested()) {
+
+            LOGGER.debug("INFERR {}", e.getDotLabel());
+            Set<EquiClass> other = inferEquiClassFor(e);
+            assert other.size() == 1;
+
+            EquiClass o = other.iterator().next();
+
+            LOGGER.debug("OTHER {}", o.getDotLabel());
+            mo = mo.union(other.iterator().next());
+        }
 
 
         // 1. geneerate max overlap
@@ -218,13 +231,12 @@ public class EufLattice extends
     }
 
 
-
     private void removeRendundancies(EquiClass c) throws
             EUFInconsistencyException {
         // @TODO:Julian important
         //addEquiClass(c);
 
-        EquiClass covering = getCoveringEquiClass(c);
+        EquiClass covering = getOverlapping(c);
 
 
         // group by annotation
@@ -250,12 +262,12 @@ public class EufLattice extends
 
                 if (ta.getMappedNode().isLiteral()) {
 
-                    if(con.size() == 0)
+                    if (con.size() == 0)
                         con.add(ta);
 
-                    if(con.size() == 1)
+                    if (con.size() == 1)
                         assert ta.getMappedNode().getId()
-                        == con.getFirst().getMappedNode().getId();
+                                == con.getFirst().getMappedNode().getId();
 
                 } else {
                     vars.add(ta);
@@ -282,7 +294,7 @@ public class EufLattice extends
         for (LinkedList<Element> ne : nestedToMerge) {
             Element min = Collections.min(ne, new IdComparator());
             ne.remove(min);
-            remap(min,ne);
+            remap(min, ne);
         }
 
         if (con.size() > 1) {
@@ -291,10 +303,10 @@ public class EufLattice extends
         } else if (con.size() == 1 && vars.size() > 0) {
             // remap all variables to the constant value
             remap(con.iterator().next(), vars);
-        } else if (vars.size() > 1){
+        } else if (vars.size() > 1) {
             Element min = Collections.min(vars, new IdComparator());
             vars.remove(min);
-            remap(min,vars);
+            remap(min, vars);
         }
     }
 
@@ -342,13 +354,38 @@ public class EufLattice extends
         return cursor;
     }
 
-    public EquiClass getCoveringEquiClass(EquiClass o) {
+    public EquiClass getOverlapping(EquiClass o) {
         try {
             return getConnectedOutNodesOfKind(top, EquiEdge.Kind.SUB).stream()
                     .filter(x -> x.hasOverlap(o)).findFirst().get();
         } catch (NoSuchElementException e) {
             return o;
         }
+    }
+
+    /**
+     * there can only be one covering equi class
+     * @param o
+     * @return
+     */
+    public EquiClass getCovering(EquiClass o) {
+
+        // quicker access
+        if(lmap.containsKey(o.getLabel()))
+            return lmap.getValueByKey(o.getLabel());
+
+        try {
+            return getConnectedOutNodesOfKind(top, EquiEdge.Kind.SUB).stream()
+                    .filter(x -> x.subsumes(o)).findFirst().get();
+        } catch (NoSuchElementException e) {
+            return o;
+        }
+    }
+
+    public boolean hasCovering(EquiClass o) {
+
+        return getConnectedOutNodesOfKind(top, EquiEdge.Kind.SUB).stream()
+                .filter(x -> x.subsumes(o)).count() > 0;
     }
 
 
@@ -412,7 +449,7 @@ public class EufLattice extends
 
         // this is all the parameters
         for (EquiClass n : parent.split()) {
-            EquiClass alias = getCoveringEquiClass(n);
+            EquiClass alias = getOverlapping(n);
 
             LOGGER.debug("Alias for {}:{} is {}:{}", n.getDotLabel(), n.getId(),
                     alias.getDotLabel(), alias.getId());
@@ -453,7 +490,7 @@ public class EufLattice extends
 
         if (isAlreadySubsumed(n) || n.isEmpty()) {
             LOGGER.debug("{}:{} already subsumed", n.getLabel(), n.getId());
-            return getCoveringEquiClass(n);
+            return getOverlapping(n);
         }
 
         LOGGER.debug("find max ov for {}", n.getDotLabel());
@@ -465,6 +502,8 @@ public class EufLattice extends
         }
 
         removeRendundancies(n);
+
+
 
         return n;
 
@@ -548,18 +587,12 @@ public class EufLattice extends
     }
 
     public EquiClass checkAndGet(EquiClass v) {
-
-
         if (!lmap.containsKey(v.getLabel())) {
-
             lmap.put(v.getLabel(), v);
             super.addVertex(v);
         }
-
-
         assert lmap.containsKey(v.getLabel());
         assert super.containsVertex(v);
-
         return lmap.getValueByKey(v.getLabel());
     }
 
@@ -632,21 +665,21 @@ public class EufLattice extends
 
     private Collection<EquiClass> getCoveringSplit(EquiClass e) {
         return e.split().stream().map(v ->
-                getCoveringEquiClass(v)).collect(Collectors.toList());
+                getOverlapping(v)).collect(Collectors.toList());
     }
 
     // given a nested equiclass infer the equivalent based on parameter
     // equivalence
-    public Set<EquiClass> inferEquiClassFor(EquiClass e) {
+    public Set<EquiClass> inferEquiClassFor(EquiClass ec) {
         //assert e.isNested();
         //assert e.getElements().size() == 1;
 
-        //if (!e.isNested())
-        //    return Collections.singleton(e);
+        // first -- search for the corresponding equi class
+        // if it does exist
+        EquiClass e = getCovering(ec);
 
-        if(!e.isNested()) {
-            return Collections.singleton(getCoveringEquiClass(e));
-        }
+        if(!e.isNested())
+            return Collections.singleton(e);
 
         Predicate<EquiEdge> p = k -> k.getKind() == EquiEdge.Kind.SPLIT;
 
@@ -663,7 +696,7 @@ public class EufLattice extends
                 .filter(v -> !v.equals(e))
                 .filter(v -> v.getElements().iterator().next().getAnnotation
                         ().equals(anno)).collect(Collectors.toSet());
-
+        LOGGER.debug("srccrit {}", srccrit);
 
         // do not consider join elements from e as source crits
         if (containsVertex(e))
@@ -881,11 +914,7 @@ public class EufLattice extends
 
         addEdges(edges);
 
-
         removeEquiClasses(toReplace);
-        //split(replacement);
-        //LOGGER.debug(this.toDot());
-        //LOGGER.debug("***********************");
     }
 
 
