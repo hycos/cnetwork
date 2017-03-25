@@ -115,7 +115,8 @@ public class EquiClass implements Cloneable {
     }
 
     public EquiClass(EquiClass other) {
-        this(other.getElements());
+        set.addAll(other.set);
+        this.id = other.id;
     }
 
 

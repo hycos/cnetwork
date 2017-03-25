@@ -39,15 +39,11 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
     public EufLattice(EufEventHandler eh, EufLattice other) {
         this(eh);
-        for(EquiClass e : other.vertexSet()) {
-            super.addVertex(e.clone());
-            lmap.put(e.getLabel(), e);
-        }
         for(EquiEdge e : other.edgeSet()) {
-            super.addEdge(e.getSource(),e.getTarget(),e);
+            EquiClass esrc = e.getSource().clone();
+            EquiClass edst = e.getTarget().clone();
+            addEdge(esrc, edst, e.getKind(), e.getSequence());
         }
-        lmap.put(bottom.toString(), bottom);
-        lmap.put(top.toString(), top);
     }
 
 
