@@ -866,7 +866,9 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
 
     public EquiClass getEquiClassByLabel(String l) {
+        LOGGER.debug("1 {}", l);
         assert lmap.containsKey(l);
+        LOGGER.debug("2");
         return lmap.get(l);
     }
 

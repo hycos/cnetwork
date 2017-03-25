@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
+import org.snt.cnetwork.utils.EscapeUtils;
 
 
 public class TestConstraintNetworkBuilder {
@@ -100,5 +101,30 @@ public class TestConstraintNetworkBuilder {
 
     }
 
+
+    @Test
+    public void testGetNodeByLabel() {
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
+
+        Node five = cn.addOperand(NodeKind.NUMLIT, "5");
+        Node s = cn.addOperand(NodeKind.STRLIT, "s");
+        Node var = cn.addOperand(NodeKind.NUMVAR, "v");
+
+
+        try {
+            Node tostr = cn.addOperation(NodeKind.TOSTR, var);
+
+            Node concat = cn.addOperation(NodeKind.CONCAT, tostr,s);
+
+            Assert.assertEquals(s, cn.getNodeByLabel(EscapeUtils
+                    .escapeSpecialCharacters("\"s\"")));
+
+            Assert.assertEquals(concat, cn.getNodeByLabel(EscapeUtils.escapeSpecialCharacters("concat\\(tostr\\(v\\),\\\"s\\\"\\)")));
+
+            Assert.assertEquals(five, cn.getNodeByLabel("5"));
+        } catch (EUFInconsistencyException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

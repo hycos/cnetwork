@@ -119,16 +119,20 @@ public class TestConstraintNetworkGeneration {
         Assert.assertEquals(cb1.vertexSet().size(), 5);
         Assert.assertEquals(cb2.vertexSet().size(), 6);
 
+        Node d = cb1.addOperand(NodeKind.STRVAR, "d");
 
-        LOGGER.debug(cb2.getEufLattice().toDot());
+        try {
+            cb1.addConstraint(NodeKind.EQUALS, d, d);
+        } catch (EUFInconsistencyException e) {
+            e.printStackTrace();
+        }
 
 
-        LOGGER.debug("=========");
+        Assert.assertEquals(cb1.vertexSet().size(), 9);
+        Assert.assertEquals(cb2.vertexSet().size(), 6);
 
-        LOGGER.debug("d {}", cb1.getEufLattice().debug());
 
-
-        LOGGER.debug("=========");
+        LOGGER.debug(cb1.getConstraintNetwork().toDot());
 
     }
 

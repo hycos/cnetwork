@@ -5,7 +5,7 @@
     <groupId>org.snt</groupId>
     <artifactId>cnetwork</artifactId>
     <version>1.0</version>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <parent>
         <groupId>org.snt</groupId>
@@ -34,11 +34,6 @@
             <groupId>dk.brics.automaton</groupId>
             <artifactId>automaton</artifactId>
             <version>1.11-8</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.julianthome</groupId>
-            <artifactId>autorex</artifactId>
-            <version>1.0</version>
         </dependency>
     </dependencies>
 </project>
