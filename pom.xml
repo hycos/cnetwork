@@ -5,7 +5,7 @@
     <groupId>org.snt</groupId>
     <artifactId>cnetwork</artifactId>
     <version>1.0</version>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <parent>
         <groupId>org.snt</groupId>

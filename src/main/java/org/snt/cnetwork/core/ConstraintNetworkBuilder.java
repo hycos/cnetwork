@@ -33,8 +33,14 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
 
     public Node getNodeByLabel(String lbl) {
+        LOGGER.debug("get node by label {}", lbl);
         return this.euf.getNodeByLabel(lbl);
     }
+
+    public boolean hasNodeForLabel(String lbl) {
+        return this.euf.hasNodeForLabel(lbl);
+    }
+
 
     public Node addConstraint(NodeKind kind, Node... params) throws
             EUFInconsistencyException {
@@ -53,6 +59,38 @@ public class ConstraintNetworkBuilder implements Cloneable {
     }
 
 
+    public Node addOperand(NodeKind n, String s) {
+
+        LOGGER.debug("add operand {}:{}", n, s);
+        Node op = cn.addOperand(n, s);
+
+        try {
+            euf.addEquiClass(op);
+            return infer(op);
+        } catch (EUFInconsistencyException e) {
+            LOGGER.error("should never ever happen");
+            assert false;
+        }
+        return null;
+    }
+
+    private Node infer(Node n) throws EUFInconsistencyException {
+        Node nop = inferEquivalentNode(n);
+
+        LOGGER.debug("NOP {}:{}", nop, nop.getId());
+        LOGGER.debug("OP {}:{}", n, n.getId());
+
+        if (n.equals(nop)) {
+            euf.attach(nop);
+            euf.update(nop);
+            return nop;
+        } else {
+            cn.removeVertex(n);
+            return nop;
+        }
+    }
+
+
     public Node addOperation(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
 
@@ -61,19 +99,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
         LOGGER.debug("check node {}:{}", op.getLabel(), op.getId());
 
-        Node nop = inferEquivalentNode(op);
-
-        LOGGER.debug("NOP {}:{}", nop, nop.getId());
-        LOGGER.debug("OP {}:{}", op, op.getId());
-
-        if (op.equals(nop)) {
-            euf.attach(nop);
-            euf.update(nop);
-            return nop;
-        } else {
-            cn.removeVertex(op);
-            return nop;
-        }
+        return infer(op);
     }
 
     public Node addConstraint(NodeKind kind, List<Node> params) throws
@@ -158,7 +184,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
         return cn.containsVertex(n);
     }
 
-    public Node addOperand(NodeKind kind, String label) {
+    /**public Node addOperand(NodeKind kind, String label) {
         LOGGER.debug("add operand {}", label);
         Node n = cn.addOperand(kind, label);
         try {
@@ -167,7 +193,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
             assert false;
         }
         return n;
-    }
+    }**/
 
     public Set<Edge> incomingEdgesOf(Node n) {
         return incomingEdgesOf(n);
@@ -252,8 +278,8 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
         EquiClass nn = euf.getEquiClassForNode(n);
 
-        LOGGER.debug("actual {}:{}", nen.getDotLabel(), nen.getId());
-        LOGGER.debug("new {}:{}", nn.getDotLabel(), nn.getId());
+        LOGGER.debug("actual {}:{}", nen.getLabel(), nen.getId());
+        LOGGER.debug("new {}:{}", nn.getLabel(), nn.getId());
 
         assert nen != null;
         assert nen != euf.getBottom();

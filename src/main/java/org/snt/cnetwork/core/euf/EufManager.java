@@ -272,12 +272,12 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
     }
 
     public Node getNodeByLabel(String lbl) {
-
         EquiClass ec = lattice.getEquiClassByLabel(lbl);
-
-        assert ec.isSingleton();
-
         return ec.getFirstElement().getMappedNode();
+    }
+
+    public boolean hasNodeForLabel(String lbl) {
+        return lattice.hasNodeForLabel(lbl);
     }
 
     public EquiClass addEquiClass(EquiClass e) throws EUFInconsistencyException {
@@ -289,8 +289,8 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
     public void update(Node n) throws EUFInconsistencyException {
         LOGGER.debug(">> update {}", n.getDotLabel());
 
-        if (n.isNumeric() && n.getRange().isSingleton
-                () && !n.isLiteral()) {
+
+        if (n.isNumeric() && n.getRange().isSingleton()) {
 
 
             LOGGER.debug("RAN " + n.getLabel() + " " + n.getRange()
@@ -310,7 +310,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
 
             lattice.addEquiClass(eq);
 
-        } else if (n.isString() && n.getAutomaton().isSingleton() && !n.isLiteral()) {
+        } else if (n.isString() && n.getAutomaton().isSingleton()) {
 
             elementFact.createEquiClass(n);
 
@@ -325,7 +325,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
             LOGGER.debug("new eq {}", eq.toString());
 
             lattice.addEquiClass(eq);
-        } else if (n.isBoolean() && !n.isLiteral()) {
+        } else if (n.isBoolean()) {
 
             if (n.getKind().isInequality()) {
                 if (((BooleanRange) n.getRange()).isAlwaysFalse()) {

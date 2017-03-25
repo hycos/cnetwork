@@ -53,12 +53,13 @@ public class TestConstraintNetworkBuilder {
     public void testBuilder2() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
 
-        Node zero = cn.addOperand(NodeKind.NUMLIT, "0");
-        Node one = cn.addOperand(NodeKind.NUMLIT, "1");
-        Node three = cn.addOperand(NodeKind.NUMLIT, "3");
-        Node dot = cn.addOperand(NodeKind.STRLIT, ".");
+
 
         try {
+            Node zero = cn.addOperand(NodeKind.NUMLIT, "0");
+            Node one = cn.addOperand(NodeKind.NUMLIT, "1");
+            Node three = cn.addOperand(NodeKind.NUMLIT, "3");
+            Node dot = cn.addOperand(NodeKind.STRLIT, ".");
             Node add = cn.addOperation(NodeKind.ADD, one, zero);
             cn.addConstraint(NodeKind.EQUALS, add, zero);
             //Node subone = cn.addOperation(NodeKind.SUBSTR, idxof, one);
@@ -78,12 +79,12 @@ public class TestConstraintNetworkBuilder {
     public void testDeleteNode() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
 
-        Node zero = cn.addOperand(NodeKind.NUMLIT, "0");
-        Node one = cn.addOperand(NodeKind.NUMLIT, "1");
-        Node filename_1 = cn.addOperand(NodeKind.NUMVAR, "filename_1");
-        Node dot = cn.addOperand(NodeKind.STRLIT, ".");
 
         try {
+            Node zero = cn.addOperand(NodeKind.NUMLIT, "0");
+            Node one = cn.addOperand(NodeKind.NUMLIT, "1");
+            Node filename_1 = cn.addOperand(NodeKind.NUMVAR, "filename_1");
+            Node dot = cn.addOperand(NodeKind.STRLIT, ".");
             Node idxof = cn.addOperation(NodeKind.INDEXOF, filename_1, dot, zero);
             cn.addConstraint(NodeKind.EQUALS, idxof, zero);
             Node subone = cn.addOperation(NodeKind.SUBSTR, idxof, one);
@@ -106,12 +107,12 @@ public class TestConstraintNetworkBuilder {
     public void testGetNodeByLabel() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
 
-        Node five = cn.addOperand(NodeKind.NUMLIT, "5");
-        Node s = cn.addOperand(NodeKind.STRLIT, "s");
-        Node var = cn.addOperand(NodeKind.NUMVAR, "v");
-
 
         try {
+
+            Node five = cn.addOperand(NodeKind.NUMLIT, "5");
+            Node s = cn.addOperand(NodeKind.STRLIT, "s");
+            Node var = cn.addOperand(NodeKind.NUMVAR, "v");
             Node tostr = cn.addOperation(NodeKind.TOSTR, var);
 
             Node concat = cn.addOperation(NodeKind.CONCAT, tostr,s);

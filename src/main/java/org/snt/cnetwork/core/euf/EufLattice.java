@@ -52,7 +52,6 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
 
 
-
     public EquiClass getBottom() {
         return this.bottom;
     }
@@ -181,6 +180,8 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
      */
     public EquiClass getCovering(EquiClass o) {
 
+        LOGGER.debug("lmap {}", debug());
+
         // quicker access
         if(lmap.containsKey(o.getLabel()))
             return lmap.get(o.getLabel());
@@ -251,6 +252,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
         int x = 0;
 
         LOGGER.debug(this.toDot());
+        LOGGER.debug("llmap {}", debug());
         LOGGER.debug("handle nested element {}:{}", parent.getDotLabel(),
                 parent.getId());
         Set<EquiClass> ret = new HashSet<>();
@@ -396,15 +398,8 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
     }
 
     public EquiClass checkAndGet(EquiClass v) {
-        if (!lmap.containsKey(v.getLabel())) {
-            lmap.put(v.getLabel(), v);
-
-            if(!v.isNested() && !v.isSingleton()) {
-                for (Element vc : v.getElements()) {
-                    lmap.put(vc.getLabel(), v);
-                }
-            }
-
+        if (!vertexSet().contains(v)) {
+            updateCache(v);
             super.addVertex(v);
         }
         assert lmap.containsKey(v.getLabel());
@@ -700,6 +695,8 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
                     ).collect(Collectors.toSet()));
         }
 
+        //lmap.replace(toReplace.getLabel(), replacement);
+
         return edges;
 
     }
@@ -730,8 +727,28 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
         addEdges(edges);
 
         removeEquiClasses(toReplace);
+
+        updateCache(edges);
     }
 
+    private void updateCache(Set<EquiEdge> e) {
+        e.forEach(x -> updateCache(x));
+    }
+
+    private void updateCache(EquiEdge e) {
+        updateCache(e.getSource());
+        updateCache(e.getTarget());
+    }
+
+    private void updateCache(EquiClass v) {
+        lmap.put(v.getLabel(), v);
+
+        if(!v.isNested() && !v.isSingleton()) {
+            for (Element vc : v.getElements()) {
+                lmap.put(vc.getLabel(), v);
+            }
+        }
+    }
 
     private void removeEquiClasses(Collection<EquiClass> v) {
         v.forEach(e -> removeEquiClass(e));
@@ -867,9 +884,15 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
     public EquiClass getEquiClassByLabel(String l) {
         LOGGER.debug("1 {}", l);
+        LOGGER.debug("lmap ++ {}", debug());
+        LOGGER.debug(toDot());
         assert lmap.containsKey(l);
         LOGGER.debug("2");
         return lmap.get(l);
+    }
+
+    public boolean hasNodeForLabel(String l) {
+        return lmap.containsKey(l);
     }
 
     public String debug() {
