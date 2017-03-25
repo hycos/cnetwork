@@ -450,6 +450,16 @@ public class TestEuf {
         Assert.assertEquals(cb1.vertexSet().size(), 6);
     }
 
+    @Test
+    public void testLitAdd() {
+        ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
+
+        Node a = cn.addOperand(NodeKind.STRLIT, ".");
+        Node b = cn.addOperand(NodeKind.STRLIT, ".");
+        LOGGER.debug(cn.getEufLattice().toDot());
+        LOGGER.debug(cn.getConstraintNetwork().toDot());
+    }
+
 
 
 

@@ -3,6 +3,7 @@ package org.snt.cnetwork.core.euf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.Node;
+import org.snt.cnetwork.utils.EscapeUtils;
 
 public abstract class Element implements Comparable, Cloneable{
 
@@ -37,6 +38,10 @@ public abstract class Element implements Comparable, Cloneable{
 
     public String getLabel() {
         return lbl;
+    }
+
+    public String getDotLabel() {
+        return EscapeUtils.escapeSpecialCharacters(this.lbl);
     }
 
     public String getAnnotation() { return annotation ;}

@@ -106,7 +106,7 @@ public class EquiClass implements Cloneable {
     private final int id;
 
     // elements are ordered in alphabetical order
-    protected final Set<Element> set = new TreeSet<>();
+    protected final Set<Element> set = new HashSet<>();
 
     public EquiClass(Element ... nods) {
         this.id = nid++;
@@ -169,22 +169,19 @@ public class EquiClass implements Cloneable {
     public String getLabel() {
         StringBuffer sb = new StringBuffer();
 
-        if(set.size() == 1) {
+        if (set.size() == 1) {
             sb.append(EscapeUtils.escapeSpecialCharacters(set.iterator().next
                     ().getLabel()));
-            return sb.toString();
-        }
-        sb.append("\\{");
-        for(Element n : set) {
-            if(sb.charAt(sb.length()-1) != '{') {
-                sb.append(",");
+        } else {
+            for (Element n : set) {
+                if (sb.length() != 0) {
+                    sb.append(",");
+                }
+                sb.append(EscapeUtils.escapeSpecialCharacters(n.getLabel()));
             }
-            sb.append(EscapeUtils.escapeSpecialCharacters(n.getLabel()));
         }
-        sb.append("\\}");
         return sb.toString();
     }
-
 
 
     public Collection<Element> getElements() {
