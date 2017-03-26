@@ -57,11 +57,11 @@ public final class NestedElement extends Element {
     @Override
     public Element [] split() {
 
-        LOGGER.debug("split");
+       // LOGGER.debug("split");
 
-        for(Element e : tuple) {
-            LOGGER.debug(e.getLabel());
-        }
+        //for(Element e : tuple) {
+        //    LOGGER.debug(e.getLabel());
+       // }
         assert tuple != null;
         return Arrays.copyOf(tuple, tuple.length);
     }

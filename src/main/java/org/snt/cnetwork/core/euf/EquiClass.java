@@ -277,7 +277,7 @@ public class EquiClass implements Cloneable {
         List<EquiClass>ret = new Vector<>();
 
         for(Element e : set) {
-            LOGGER.debug("split {} {}", e, e.getClass().toGenericString());
+            //LOGGER.debug("split {} {}", e, e.getClass().toGenericString());
             for(Element split : e.split()) {
                 assert split != null;
                 ret.add(new EquiClass(split));
@@ -368,7 +368,7 @@ public class EquiClass implements Cloneable {
         int rows = feset.size();
         int cols = feset.iterator().next().split().length;
 
-        LOGGER.debug("rows {}, cols {}", rows, cols);
+        //LOGGER.debug("rows {}, cols {}", rows, cols);
 
         Element [][] elink = new Element[rows][rows];
 

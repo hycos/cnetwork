@@ -209,6 +209,8 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
 
         Node first = firste.getMappedNode();
 
+        assert cb.vertexSet().contains(first);
+
         LOGGER.debug("FRIST {}", firste.getLabel());
 
         assert !toremap.contains(first);
@@ -219,6 +221,8 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
             Node mapped = e.getMappedNode();
 
             if (mapped.getId() != first.getId()) {
+
+
                 cb.relink(mapped, first);
 
                 e.setMappedNode(first);
@@ -250,16 +254,22 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
      * @param n
      * @return
      */
-    public EquiClass inferActualEquiClassForNode(Node n) {
+    public EquiClass inferActualEquiClassForNode(Node n) throws EUFInconsistencyException {
 
-        LOGGER.debug(lattice.toDot());
+        //LOGGER.debug(lattice.toDot());
         elementFact.createEquiClass(n);
         EquiClass ec = elementFact.getEquiClassFor(n);
         Set<EquiClass> snen = lattice.inferEquiClassFor(ec);
         LOGGER.debug("ieq {}:{}", snen, snen.size());
+
+        if(snen.size() > 1) {
+            EquiClass nec = snen.stream().reduce(EquiClass::union).get().union(ec);
+            EquiClass nnec = addEquiClass(nec);
+            return nnec;
+        }
+
         assert snen.size() == 1;
-        EquiClass nen = snen.iterator().next();
-        return nen;
+        return snen.iterator().next();
     }
 
     public EufLattice getLattice() {
@@ -295,6 +305,14 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
 
     public void update(Node n) throws EUFInconsistencyException {
         LOGGER.debug(">> update {}", n.getDotLabel());
+
+
+        LOGGER.debug(this.cb.getConstraintNetwork().toDot());
+
+        if(n.isNumeric()) {
+            LOGGER.debug(n.getLabel());
+            assert !n.getRange().isEmpty();
+        }
 
 
         if (n.isNumeric() && n.getRange().isSingleton()) {

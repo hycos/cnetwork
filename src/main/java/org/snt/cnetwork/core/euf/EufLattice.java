@@ -220,8 +220,8 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
                 //if (e == null || e.isEmpty() || e.stream()
                 //        .filter(x -> x.getKind() == EquiEdge.Kind.SUB).count
                 //                () == 0) {
-                LOGGER.debug("parent {}:{} -> child {}:{}", n.getDotLabel
-                        (), n.getId(), s.getDotLabel(), s.getId());
+                //LOGGER.debug("parent {}:{} -> child {}:{}", n.getDotLabel
+                //        (), n.getId(), s.getDotLabel(), s.getId());
                 addSubEdge(n, s);
                 worklist.add(s);
                 //}
@@ -239,7 +239,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
             EquiClass next = worklist.pop();
             worklist.addAll(handleNestedElement(next));
         }
-        LOGGER.debug(toDot());
+        //LOGGER.debug(toDot());
 
     }
 
@@ -247,10 +247,10 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
     private Set<EquiClass> handleNestedElement(EquiClass parent) throws EUFInconsistencyException {
         int x = 0;
 
-        LOGGER.debug(this.toDot());
-        LOGGER.debug("llmap {}", debug());
-        LOGGER.debug("handle nested element {}:{}", parent.getDotLabel(),
-                parent.getId());
+        //LOGGER.debug(this.toDot());
+        //LOGGER.debug("llmap {}", debug());
+        //LOGGER.debug("handle nested element {}:{}", parent.getDotLabel(),
+         //       parent.getId());
         Set<EquiClass> ret = new HashSet<>();
 
         assert parent.isNested();
@@ -260,8 +260,9 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
         for (EquiClass n : parent.split()) {
             EquiClass alias = getOverlapping(n);
 
-            LOGGER.debug("Alias for {}:{} is {}:{}", n.getDotLabel(), n.getId(),
-                    alias.getDotLabel(), alias.getId());
+            //LOGGER.debug("Alias for {}:{} is {}:{}", n.getDotLabel(), n
+            //                .getId(),
+            //        alias.getDotLabel(), alias.getId());
 
             assert !parent.equals(alias);
 
@@ -405,9 +406,9 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
     private void addSplitEdge(EquiClass src, EquiClass dst, int idx) throws
             EUFInconsistencyException {
-        LOGGER.debug("add split edge {}:{} -> {}:{}",
-                src.getDotLabel(), src.getId(),
-                dst.getDotLabel(), dst.getId());
+        //LOGGER.debug("add split edge {}:{} -> {}:{}",
+        //        src.getDotLabel(), src.getId(),
+        //        dst.getDotLabel(), dst.getId());
 
         assert src.isNested();
 
@@ -426,7 +427,8 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
 
     private void addSubEdge(EquiClass src, EquiClass dst) {
-        LOGGER.debug("add sub edge {} -> {}", src.getDotLabel(), dst.getDotLabel());
+        //LOGGER.debug("add sub edge {} -> {}", src.getDotLabel(), dst
+        //        .getDotLabel());
 
         //assert  src.subsumes(dst);
 
@@ -477,16 +479,13 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
     // given a nested equiclass infer the equivalent based on parameter
     // equivalence
-    protected Set<EquiClass> inferEquiClassFor(EquiClass ec) {
+    protected Set<EquiClass> inferEquiClassFor(EquiClass ec) throws EUFInconsistencyException {
         //assert e.isNested();
         //assert e.getElements().size() == 1;
 
         // first -- search for the corresponding equi class
         // if it does exist
         EquiClass e = getCovering(ec);
-
-        if(e.getId() != ec.getId())
-            return Collections.singleton(e);
 
         if(!e.isNested())
             return Collections.singleton(e);
@@ -506,6 +505,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
                 .filter(v -> !v.equals(e))
                 .filter(v -> v.getElements().iterator().next().getAnnotation
                         ().equals(anno)).collect(Collectors.toSet());
+
         LOGGER.debug("srccrit {}", srccrit);
 
         // do not consider join elements from e as source crits
@@ -600,7 +600,16 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
             ret.add(e);
             return ret;
         } else {
-            return chop;
+
+            //if(chop.size() > 1) {
+            //   EquiClass nec = chop.stream().reduce(EquiClass::union).get()
+            //           .union(e);
+            //   addEquiClass(nec);
+            //   return Collections.singleton(getCovering(nec));
+            //} else {
+
+                return chop;
+            //}
         }
     }
 
@@ -677,7 +686,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
                     .map(e -> new EquiEdge(e.getSource(), replacement, e.getKind(), e.getSequence())
                     ).collect(Collectors.toSet()));
 
-            LOGGER.debug("OUT");
+            //LOGGER.debug("OUT");
             edges.addAll(out.stream()
                     .filter(e -> e.getKind() == EquiEdge.Kind.SUB)
                     .map(e -> new EquiEdge(replacement, e.getTarget(), e.getKind(), e.getSequence())
@@ -688,7 +697,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
                     .map(e -> new EquiEdge(e.getSource(), replacement, e.getKind(), e.getSequence())
                     ).collect(Collectors.toSet()));
 
-            LOGGER.debug("OUT");
+            //LOGGER.debug("OUT");
             edges.addAll(out.stream()
                     .map(e -> new EquiEdge(replacement, e.getTarget(), e.getKind(), e.getSequence())
                     ).collect(Collectors.toSet()));
@@ -754,7 +763,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
     }
 
     private void removeEquiClass(EquiClass v) {
-        LOGGER.debug("remove vertex {}:{}", v.getDotLabel(), v.getId());
+        //LOGGER.debug("remove vertex {}:{}", v.getDotLabel(), v.getId());
         lmap.remove(v.getLabel());
         super.removeVertex(v);
     }
@@ -774,8 +783,8 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
         dst = checkAndGet(dst);
 
         EquiEdge e = new EquiEdge(src, dst, kind, idx);
-        LOGGER.debug("add edge {}:{} -> {}:{}", src.getDotLabel(), src.getId
-                (), dst.getDotLabel(), dst.getId());
+       //LOGGER.debug("add edge {}:{} -> {}:{}", src.getDotLabel(), src.getId
+       //         (), dst.getDotLabel(), dst.getId());
 
         super.addEdge(e.getSource(), e.getTarget(), e);
     }
@@ -851,7 +860,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
             EquiClass src = e.getSource();
             EquiClass dest = e.getTarget();
 
-            LOGGER.debug("src {}", src.getDotLabel());
+            //LOGGER.debug("src {}", src.getDotLabel());
 
             //assert outgoingEdgesOf(src).contains(e);
             //assert incomingEdgesOf(dest).contains(e);
@@ -883,8 +892,8 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
     public EquiClass getEquiClassByLabel(String l) {
         LOGGER.debug("1 {}", l);
-        LOGGER.debug("lmap ++ {}", debug());
-        LOGGER.debug(toDot());
+        //LOGGER.debug("lmap ++ {}", debug());
+        //LOGGER.debug(toDot());
         assert lmap.containsKey(l);
         LOGGER.debug("2");
         return lmap.get(l);
@@ -895,7 +904,8 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
     }
 
     public String debug() {
-       return lmap.toString();
+       //return lmap.toString();
+        return "";
     }
 
 }

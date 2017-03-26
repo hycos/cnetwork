@@ -286,7 +286,9 @@ public class ConstraintNetworkBuilder implements Cloneable {
         NodeDomain isect = toReplace.getDomain().intersect(replacement.getDomain
                 ());
 
-        if(isect.isEmpty()) {
+        LOGGER.debug("ISECT {}" + isect.toString());
+
+        if(isect == null || isect.isEmpty()) {
             throw new EUFInconsistencyException("could not merge " +
                     replacement.getId() + " and " + toReplace.getId());
         }
@@ -298,7 +300,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
     // @TODO: make inference work properly for operands as well -- we need
     // to ensure that the returned nodes are definetely present in the CN
-    public Node inferEquivalentNode(Node n) {
+    public Node inferEquivalentNode(Node n) throws EUFInconsistencyException {
 
         EquiClass nen = euf.inferActualEquiClassForNode(n);
 
