@@ -97,7 +97,7 @@ public enum ConsistencyCheckerFactory {
             case SMALLEREQ:
             case GREATEREQ:
                 return nco;
-                
+
             case ADD:
             case SUB:
             case DIV:

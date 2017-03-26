@@ -73,7 +73,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
             euf.addEquiClass(op);
             return infer(op);
         } catch (EUFInconsistencyException e) {
-            LOGGER.error("should never ever happen");
+            LOGGER.error(e.getMessage());
             assert false;
         }
         return null;

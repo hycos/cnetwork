@@ -149,9 +149,16 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
                     if (con.size() == 0)
                         con.add(ta);
 
-                    if (con.size() == 1)
-                        assert ta.getMappedNode().getId()
-                                == con.getFirst().getMappedNode().getId();
+                    if (con.size() >= 1)
+                        if(ta.getMappedNode().getId()
+                                != con.getFirst().getMappedNode().getId()) {
+                            throw new EUFInconsistencyException(
+                                    ta.getMappedNode().getLabel() +
+                                            " should not be in the same " +
+                                            "equiclass as " + con.getFirst()
+                                    .getMappedNode().getLabel()
+                            );
+                        }
 
                 } else {
                     vars.add(ta);
@@ -229,12 +236,8 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
     }
 
     @Override
-    public void onEquiClassAddition(EquiClass ec) {
-        try {
-            removeRendundancies(ec);
-        } catch (EUFInconsistencyException e) {
-            assert false;
-        }
+    public void onEquiClassAddition(EquiClass ec) throws EUFInconsistencyException{
+        removeRendundancies(ec);
     }
 
     public EquiClass join(Node... e) throws MissingItemException {
