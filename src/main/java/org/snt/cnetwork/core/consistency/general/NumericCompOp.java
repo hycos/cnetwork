@@ -11,6 +11,6 @@ public class NumericCompOp extends ConsistencyChecker {
     public boolean check(ConstraintNetworkBuilder cb, Node n) {
         return checkNary(cb, n, 2, x ->x.getKind().isNumeric(), p -> p
                 .getKind()
-                .isNumeric());
+                .isBoolean());
     }
 }
