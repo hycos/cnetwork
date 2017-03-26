@@ -485,6 +485,9 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
         // if it does exist
         EquiClass e = getCovering(ec);
 
+        if(e.getId() != ec.getId())
+            return Collections.singleton(e);
+
         if(!e.isNested())
             return Collections.singleton(e);
 

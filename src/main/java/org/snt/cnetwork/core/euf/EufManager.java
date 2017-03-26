@@ -251,10 +251,12 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
      * @return
      */
     public EquiClass inferActualEquiClassForNode(Node n) {
+
+        LOGGER.debug(lattice.toDot());
         elementFact.createEquiClass(n);
         EquiClass ec = elementFact.getEquiClassFor(n);
         Set<EquiClass> snen = lattice.inferEquiClassFor(ec);
-        LOGGER.debug("ieq {}", snen);
+        LOGGER.debug("ieq {}:{}", snen, snen.size());
         assert snen.size() == 1;
         EquiClass nen = snen.iterator().next();
         return nen;
