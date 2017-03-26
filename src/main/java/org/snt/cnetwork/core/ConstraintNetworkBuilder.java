@@ -4,8 +4,11 @@ package org.snt.cnetwork.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.consistency.ConsistencyCheckerFactory;
+import org.snt.cnetwork.core.domain.NodeDomain;
 import org.snt.cnetwork.core.domain.NodeDomainFactory;
-import org.snt.cnetwork.core.euf.*;
+import org.snt.cnetwork.core.euf.EquiClass;
+import org.snt.cnetwork.core.euf.EufLattice;
+import org.snt.cnetwork.core.euf.EufManager;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 
 import java.util.*;
@@ -32,6 +35,9 @@ public class ConstraintNetworkBuilder implements Cloneable {
         this.euf = new EufManager(this);
     }
 
+    public Node getNodeById(int id) {
+        return this.cn.getNodeById(id);
+    }
 
     public Node getNodeByLabel(String lbl) {
         LOGGER.debug("get node by label {}", lbl);
@@ -249,11 +255,17 @@ public class ConstraintNetworkBuilder implements Cloneable {
         assert cn.containsVertex(toReplace);
 
         Set<Edge> out = cn.outgoingEdgesOf(toReplace);
+        //Set<Edge> in = cn.incomingEdgesOf(toReplace);
+
         Set<Edge> toAdd = new HashSet<>();
 
         for (Edge e : out) {
             toAdd.add(new Edge(replacement, e.getTarget(), e.getSequence()));
         }
+
+        //for(Edge e : in) {
+        //    toAdd.add(new Edge(e.getSource(),replacement, e.getSequence()));
+        //}
 
         if (containsVertex(toReplace)) {
             removeVertex(toReplace);
@@ -270,6 +282,15 @@ public class ConstraintNetworkBuilder implements Cloneable {
             throw new EUFInconsistencyException("malformed operand " + replacement
                     .getId());
         }
+
+        NodeDomain isect = toReplace.getDomain().intersect(replacement.getDomain
+                ());
+
+        if(isect.isEmpty()) {
+            throw new EUFInconsistencyException("could not merge " +
+                    replacement.getId() + " and " + toReplace.getId());
+        }
+        replacement.setDomain(isect);
 
         return replacement;
     }
