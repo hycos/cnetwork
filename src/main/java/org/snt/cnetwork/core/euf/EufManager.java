@@ -197,7 +197,8 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
 
 
     // map all elements in list to the one at the first positon
-    private void remap(Element firste, Collection<Element> toremap) {
+    private void remap(Element firste, Collection<Element> toremap) throws
+    EUFInconsistencyException {
 
         Node first = firste.getMappedNode();
 
@@ -212,6 +213,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
 
             if (mapped.getId() != first.getId()) {
                 cb.relink(mapped, first);
+
                 e.setMappedNode(first);
             }
 

@@ -36,8 +36,8 @@ public enum NodeDomainFactory {
     public static NumRange NM1 = new NumRange(new AtomicNumRange(new NumCut
             (-1), new AboveAll()));
 
-    public static BooleanRange FALSE = new BooleanRange(BoolCut.FALSE.clone());
-    public static BooleanRange TRUE = new BooleanRange(BoolCut.TRUE.clone());
+    public static BooleanRange FALSE = new BooleanRange(BooleanCut.FALSE.clone());
+    public static BooleanRange TRUE = new BooleanRange(BooleanCut.TRUE.clone());
 
 
     public static NodeDomain DB = new NodeDomain(DomainKind.BOOLEAN,
@@ -179,7 +179,7 @@ public enum NodeDomainFactory {
                     LOGGER.debug("__" + lbl);
 
                     assert lbl != null && lbl.matches("(true|false)");
-                    BoolCut bv = BoolCut.KindFromString(lbl);
+                    BooleanCut bv = BooleanCut.KindFromString(lbl);
 
                     return new NodeDomain(n.getDomainKind(),new Automaton(bv
                             .getValue()), new

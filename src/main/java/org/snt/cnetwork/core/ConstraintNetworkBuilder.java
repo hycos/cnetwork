@@ -3,6 +3,7 @@ package org.snt.cnetwork.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.consistency.ConsistencyCheckerFactory;
 import org.snt.cnetwork.core.domain.NodeDomainFactory;
 import org.snt.cnetwork.core.euf.*;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
@@ -41,6 +42,10 @@ public class ConstraintNetworkBuilder implements Cloneable {
         return this.euf.hasNodeForLabel(lbl);
     }
 
+    public String getLabelForNode(Node n) {
+        EquiClass e = euf.getEquiClassForNode(n);
+        return e.getCorrespondingElement(n).getLabel()  ;
+    }
 
     public Node addConstraint(NodeKind kind, Node... params) throws
             EUFInconsistencyException {
@@ -80,6 +85,11 @@ public class ConstraintNetworkBuilder implements Cloneable {
         LOGGER.debug("NOP {}:{}", nop, nop.getId());
         LOGGER.debug("OP {}:{}", n, n.getId());
 
+        if(!ConsistencyCheckerFactory.INSTANCE.isConsistent(this, nop)) {
+            throw new EUFInconsistencyException("malformed operand " + nop
+                    .getKind());
+        }
+
         if (n.equals(nop)) {
             euf.attach(nop);
             euf.update(nop);
@@ -93,12 +103,8 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
     public Node addOperation(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
-
-
         Node op = cn.addOperation(kind, params);
-
         LOGGER.debug("check node {}:{}", op.getLabel(), op.getId());
-
         return infer(op);
     }
 
@@ -184,19 +190,9 @@ public class ConstraintNetworkBuilder implements Cloneable {
         return cn.containsVertex(n);
     }
 
-    /**public Node addOperand(NodeKind kind, String label) {
-        LOGGER.debug("add operand {}", label);
-        Node n = cn.addOperand(kind, label);
-        try {
-            euf.addEquiClass(n);
-        } catch (EUFInconsistencyException e) {
-            assert false;
-        }
-        return n;
-    }**/
 
     public Set<Edge> incomingEdgesOf(Node n) {
-        return incomingEdgesOf(n);
+        return cn.incomingEdgesOf(n);
     }
 
     public Set<Edge> outgoingEdgesOf(Node n) {
@@ -241,10 +237,12 @@ public class ConstraintNetworkBuilder implements Cloneable {
     }
 
 
-    public Node relink(Node toReplace, Node replacement) {
+    public Node relink(Node toReplace, Node replacement) throws EUFInconsistencyException {
 
-        if (!cn.containsVertex(toReplace) && cn.containsVertex(replacement))
+        if (!cn.containsVertex(toReplace) && cn.containsVertex(replacement)) {
+            //assert false;
             return replacement;
+        }
 
         int id = toReplace.getId();
 
@@ -265,6 +263,13 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
         assert vertexSet().stream().filter(x -> x
                 .getId() == id).count() == 0;
+
+
+        if(!ConsistencyCheckerFactory.INSTANCE.isConsistent(this,
+                replacement)) {
+            throw new EUFInconsistencyException("malformed operand " + replacement
+                    .getId());
+        }
 
         return replacement;
     }

@@ -1,5 +1,7 @@
 package org.snt.cnetwork.core.exec;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.Operation;
 import org.snt.cnetwork.sig.JavaMethodSignature;
 
@@ -11,6 +13,8 @@ public class WrapperFactory {
 
     private HashMap<JavaMethodSignature, UnknownFunctionExecutor> invocators = null;
 
+
+    final static Logger LOGGER = LoggerFactory.getLogger(WrapperFactory.class);
 
     public static WrapperFactory getInstance() {
         if(instance == null)
@@ -27,6 +31,9 @@ public class WrapperFactory {
     }
 
     public UnknownFunctionExecutor getInvocator(JavaMethodSignature sig) {
+
+        LOGGER.debug("look for {}", sig.toBCString());
+
         if(!this.invocators.containsKey(sig)) {
             this.invocators.put(sig, new UnknownFunctionExecutor(sig));
         }

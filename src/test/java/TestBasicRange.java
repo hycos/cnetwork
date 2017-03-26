@@ -12,8 +12,8 @@ public class TestBasicRange {
 
     final static Logger LOGGER = LoggerFactory.getLogger(TestBasicRange.class);
 
-    public static BooleanRange trange = new BooleanRange(BoolCut.TRUE.clone());
-    public static BooleanRange frange = new BooleanRange(BoolCut.FALSE.clone());
+    public static BooleanRange trange = new BooleanRange(BooleanCut.TRUE.clone());
+    public static BooleanRange frange = new BooleanRange(BooleanCut.FALSE.clone());
     public static BooleanRange vrange = new BooleanRange();
 
 

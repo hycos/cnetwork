@@ -71,8 +71,8 @@ public class DomainUtils {
 
     public static Automaton getBoolAutomatonForRange(BooleanRange r) {
 
-        String strue = BoolCut.TRUE.getValue();
-        String sfalse = BoolCut.FALSE.getValue();
+        String strue = BooleanCut.TRUE.getValue();
+        String sfalse = BooleanCut.FALSE.getValue();
 
         if(r.isAlwaysTrue()) {
             return new Automaton(strue);

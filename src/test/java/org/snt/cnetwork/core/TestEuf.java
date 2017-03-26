@@ -256,7 +256,7 @@ public class TestEuf {
 
         Node a = cn.addOperand(NodeKind.STRVAR, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");
-        Node one = cn.addOperand(NodeKind.NUMLIT, "1");
+        Node one = cn.addOperand(NodeKind.STRVAR, "1");
         Node i = cn.addOperand(NodeKind.NUMVAR, "i");
         Node five = cn.addOperand(NodeKind.NUMVAR, "5");
         Node k = cn.addOperand(NodeKind.NUMVAR, "k");
@@ -293,7 +293,8 @@ public class TestEuf {
         Node a = cn.addOperand(NodeKind.STRVAR, "a");
         Node b = cn.addOperand(NodeKind.STRVAR, "b");
 
-        Node one = cn.addOperand(NodeKind.NUMLIT, "1");
+        Node five = cn.addOperand(NodeKind.NUMLIT, "5");
+        Node one = cn.addOperand(NodeKind.STRLIT, "1");
         Node i = cn.addOperand(NodeKind.NUMVAR, "i");
         Node k = cn.addOperand(NodeKind.NUMVAR, "k");
 
@@ -303,7 +304,7 @@ public class TestEuf {
             Node aliasidxof = cn.addOperation(NodeKind.INDEXOF, b, one);
             cn.addConstraint(NodeKind.EQUALS, aliasidxof, k);
             cn.addConstraint(NodeKind.EQUALS, a, b);
-            cn.addConstraint(NodeKind.GREATER, k, one);
+            cn.addConstraint(NodeKind.GREATER, k, five);
 
             LOGGER.debug(cn.getEufLattice().toDot());
             LOGGER.debug(cn.getConstraintNetwork().toDot());

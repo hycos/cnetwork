@@ -2,50 +2,50 @@ package org.snt.cnetwork.core;
 
 
 import org.snt.cnetwork.core.domain.DomainKind;
-import org.snt.cnetwork.exception.IllegalDomainException;
 
 public enum NodeKind {
 
-    UNKNOWN("unkown", DomainKind.UNKNOWN),
+
+    UNKNOWN("unkown",DomainKind.UNKNOWN),
 
     // Operands
-    NUMVAR("numvar", DomainKind.NUMERIC_Z),
-    STRVAR("strvar", DomainKind.STRING),
-    STRREXP("strexp", DomainKind.STRING),
-    NUMLIT("numlit", DomainKind.NUMERIC_Z),
-    STRLIT("strlit", DomainKind.STRING),
-    BOOLLIT("boollit", DomainKind.BOOLEAN),
-    BOOLVAR("boolvar", DomainKind.BOOLEAN),
+    NUMVAR("numvar",DomainKind.NUMERIC_Z),
+    STRVAR("strvar",DomainKind.STRING),
+    STRREXP("strexp",DomainKind.STRING),
+    NUMLIT("numlit",DomainKind.NUMERIC_Z),
+    STRLIT("strlit",DomainKind.STRING),
+    BOOLLIT("boollit",DomainKind.BOOLEAN),
+    BOOLVAR("boolvar",DomainKind.BOOLEAN),
 
-    XMLI("xmli", DomainKind.STRING),
-    SQLISTR("sqlistr", DomainKind.STRING),
-    SQLINUM("sqlinum", DomainKind.STRING),
-    XPATHSTR("xpathstr", DomainKind.STRING),
-    XPATHNUM("xpathnum", DomainKind.STRING),
-    LDAPI("ldapi", DomainKind.STRING),
-    XSS("xss", DomainKind.STRING),
-    URLI("urli", DomainKind.STRING),
+    XMLI("xmli",DomainKind.STRING),
+    SQLISTR("sqlistr",DomainKind.STRING),
+    SQLINUM("sqlinum",DomainKind.STRING),
+    XPATHSTR("xpathstr",DomainKind.STRING),
+    XPATHNUM("xpathnum",DomainKind.STRING),
+    LDAPI("ldapi",DomainKind.STRING),
+    XSS("xss",DomainKind.STRING),
+    URLI("urli",DomainKind.STRING),
 
     // Operations
-    EXTERNAL("external", DomainKind.STRING),
+    EXTERNAL("external",DomainKind.STRING),
     // overloaded operators
-    EQUALS("==", DomainKind.BOOLEAN),
-    STR_EQUALS("==", DomainKind.BOOLEAN),
+    EQUALS("==",DomainKind.BOOLEAN),
+    STR_EQUALS("==",DomainKind.BOOLEAN),
     NUM_EQUALS("==", DomainKind.BOOLEAN),
-    BOOL_EQUALS("==", DomainKind.BOOLEAN),
+    BOOL_EQUALS("==",DomainKind.BOOLEAN),
     STR_EQUALSIC("~~", DomainKind.BOOLEAN),
 
     NEQUALS("!=", DomainKind.BOOLEAN),
     STR_NEQUALS("!=", DomainKind.BOOLEAN),
     NUM_NEQUALS("!=", DomainKind.BOOLEAN),
-    BOOL_NEQUALS("!=", DomainKind.BOOLEAN),
+    BOOL_NEQUALS("!=",DomainKind.BOOLEAN),
     STR_NEQUALSIC("!~", DomainKind.BOOLEAN),
 
 
-    SMALLER("<", DomainKind.BOOLEAN),
-    GREATER(">", DomainKind.BOOLEAN),
-    SMALLEREQ("<=", DomainKind.BOOLEAN),
-    GREATEREQ(">=", DomainKind.BOOLEAN),
+    SMALLER("<",DomainKind.BOOLEAN),
+    GREATER(">",DomainKind.BOOLEAN),
+    SMALLEREQ("<=",DomainKind.BOOLEAN),
+    GREATEREQ(">=",DomainKind.BOOLEAN),
     MATCHES("matches", DomainKind.BOOLEAN),
     STARTSWITH("startswith", DomainKind.BOOLEAN),
     ENDSWITH("endswith", DomainKind.BOOLEAN),
@@ -55,7 +55,7 @@ public enum NodeKind {
     AND("and", DomainKind.BOOLEAN),
     XOR("xor", DomainKind.BOOLEAN),
     NOT("not", DomainKind.BOOLEAN),
-    ITE("ite", DomainKind.BOOLEAN, true),
+    ITE("ite",DomainKind.BOOLEAN),
     IMPLIES("implies", DomainKind.BOOLEAN),
 
     SUBSTR("substr", DomainKind.STRING),
@@ -64,16 +64,16 @@ public enum NodeKind {
     TOUPPER("toupper", DomainKind.STRING_UPPER),
     CONCAT("concat", DomainKind.STRING),
     TRIM("trim", DomainKind.STRING),
-    LEN("len", DomainKind.NUMERIC_N),
-    REPLACE("relink", DomainKind.STRING),
+    LEN("len",DomainKind.NUMERIC_N),
+    REPLACE("replace", DomainKind.STRING),
     STRINV("strinv", DomainKind.STRING),
     CHARAT("charat", DomainKind.STRING),
 
     VALUEOF("valueof", DomainKind.NUMERIC_Z),
     TOSTR("tostr", DomainKind.STRING),
 
-    ADD("add", DomainKind.NUMERIC_Z),
-    SUB("sub", DomainKind.NUMERIC_Z),
+    ADD("add",DomainKind.NUMERIC_Z),
+    SUB("sub",DomainKind.NUMERIC_Z),
 
     APACHE_ESCHTML("apache_eschtml", DomainKind.STRING),
     APACHE_UESCHTML("apache_ueschtml", DomainKind.STRING),
@@ -91,34 +91,21 @@ public enum NodeKind {
     ESAPI_ESCXPATH("esapi_escxpath", DomainKind.STRING),
     ESAPI_ESCSQL("esapi_escsql", DomainKind.STRING),
 
-    EMTPY("emtpy", DomainKind.BOOLEAN),
+    EMTPY("emtpy",DomainKind.BOOLEAN),
 
     // special search procedure
     SEARCH("search", DomainKind.BOOLEAN),
 
-    DIV("div", DomainKind.NUMERIC_Z);
+    DIV("div",DomainKind.NUMERIC_Z);
 
 
     private final String sval;
-    private final boolean changeable;
     private DomainKind dkind;
 
-    NodeKind(String sval, DomainKind type) {
-        this(sval, type, false);
-    }
 
-    NodeKind(String sval, DomainKind type, boolean changeable) {
+    NodeKind(String sval, DomainKind type) {
         this.sval = sval;
         this.dkind = type;
-        this.changeable = changeable;
-    }
-
-    public void setDomainKind(DomainKind kind) throws IllegalDomainException {
-        if(!changeable)
-            throw new IllegalDomainException("domain is not supposed to be " +
-                    "changed for " + this.toString());
-
-        dkind = kind;
     }
 
 

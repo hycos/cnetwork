@@ -1,14 +1,14 @@
 package org.snt.cnetwork.core.domain;
 
-public class BoolCut extends NumCut {
+public class BooleanCut extends NumCut {
 
     private final String sval;
 
-    public static BoolCut TRUE = new BoolCut(0,"true");
-    public static BoolCut FALSE = new BoolCut(1,"false");
+    public static BooleanCut TRUE = new BooleanCut(0,"true");
+    public static BooleanCut FALSE = new BooleanCut(1,"false");
 
 
-    public BoolCut(long ival, String sval) {
+    public BooleanCut(long ival, String sval) {
         super(ival);
         this.sval = sval;
     }
@@ -21,7 +21,7 @@ public class BoolCut extends NumCut {
         return this.sval;
     }
 
-    public static BoolCut KindFromString(String kind) {
+    public static BooleanCut KindFromString(String kind) {
         switch(kind) {
             case "true" : return TRUE.clone();
             case "false" : return FALSE.clone();
@@ -34,7 +34,7 @@ public class BoolCut extends NumCut {
     }
 
     @Override
-    public BoolCut negate() {
+    public BooleanCut negate() {
         if(isTrue()){
             return FALSE.clone();
         }
@@ -43,8 +43,8 @@ public class BoolCut extends NumCut {
 
 
     @Override
-    public BoolCut clone() {
-        return new BoolCut(this.endpoint, this.sval);
+    public BooleanCut clone() {
+        return new BooleanCut(this.endpoint, this.sval);
     }
 
     public String getValue() {

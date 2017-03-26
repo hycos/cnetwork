@@ -21,7 +21,7 @@ public class UnknownFunctionExecutor implements Executor {
 
     public UnknownFunctionExecutor(JavaMethodSignature sig) {
         Class c = null;
-        //LOGGER.info("Load " + sig.getDeclaringType().toHRString());
+        LOGGER.debug("Load " + sig.getDeclaringType().toHRString());
         try {
             c = Class.forName(sig.getDeclaringType().toHRString());
         } catch (ClassNotFoundException e) {
