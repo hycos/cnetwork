@@ -18,6 +18,7 @@ public class Operation extends Node {
 
     public Operation(Operation op) {
         super(op);
+        this.sig = op.getSig();
     }
 
     public Operation(NodeKind kind) {
@@ -25,6 +26,7 @@ public class Operation extends Node {
         LOGGER.debug("Node kind {}", kind);
         assert kind.isOperation() || kind.isComparative() || kind.isBranch();
         this.sig = StandardWrappers.getSigForOperation(this.kind);
+        assert(this.sig != null);
     }
 
     public Operation(String name, JavaMethodSignature sig) {
@@ -117,6 +119,12 @@ public class Operation extends Node {
 
     @Override
     public Operation clone() { return new Operation(this); };
+
+    @Override
+    public void setKind(NodeKind kind) {
+        super.setKind(kind);
+        this.sig = StandardWrappers.getSigForOperation(this.kind);
+    }
 
 
 }
