@@ -11,7 +11,7 @@ import org.snt.cnetwork.core.consistency.ConsistencyChecker;
 import java.util.List;
 
 
-public class IndexOf implements ConsistencyChecker {
+public class IndexOf extends ConsistencyChecker {
 
     final static Logger LOGGER = LoggerFactory.getLogger(IndexOf.class);
 

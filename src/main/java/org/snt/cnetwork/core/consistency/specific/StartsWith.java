@@ -7,10 +7,8 @@ import org.snt.cnetwork.core.consistency.ConsistencyChecker;
 
 import java.util.List;
 
-/**
- * Created by julian on 26/03/2017.
- */
-public class StartsWith  implements ConsistencyChecker {
+
+public class StartsWith extends ConsistencyChecker {
     @Override
     public boolean check(ConstraintNetworkBuilder cb, Node n) {
         List<Node> params = cb.getParametersFor(n);

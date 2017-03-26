@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by julian on 26/03/2017.
  */
-public class ToStr implements ConsistencyChecker {
+public class ToStr extends ConsistencyChecker {
     @Override
     public boolean check(ConstraintNetworkBuilder cb, Node n) {
 

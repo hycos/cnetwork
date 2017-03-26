@@ -17,6 +17,7 @@ public enum ConsistencyCheckerFactory {
     private static ConsistencyChecker ok = new Ok();
     private static ConsistencyChecker bbo = new BooleanBinaryOp();
     private static ConsistencyChecker buo = new BooleanUnaryOp();
+    private static ConsistencyChecker bno = new BooleanNaryOp();
     private static ConsistencyChecker nbo = new NumericBinaryOp();
     private static ConsistencyChecker nco = new NumericCompOp();
     private static ConsistencyChecker sbo = new StringBinaryOp();
@@ -51,8 +52,10 @@ public enum ConsistencyCheckerFactory {
             case SEARCH:
                 return ok;
 
-            case OR:
             case AND:
+                return bno;
+
+            case OR:
             case XOR:
             case IMPLIES:
                return bbo;

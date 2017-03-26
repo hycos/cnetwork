@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by julian on 26/03/2017.
  */
-public class Ite  implements ConsistencyChecker {
+public class Ite extends ConsistencyChecker {
     @Override
     public boolean check(ConstraintNetworkBuilder cb, Node n) {
         List<Node> params = cb.getParametersFor(n);

@@ -1,18 +1,22 @@
 package org.snt.cnetwork.core.consistency.general;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.ConstraintNetworkBuilder;
 import org.snt.cnetwork.core.Node;
 import org.snt.cnetwork.core.consistency.ConsistencyChecker;
 
-/**
- * Created by julian on 26/03/2017.
- */
-public class StringBinaryOp  extends ConsistencyChecker {
+
+public class BooleanNaryOp extends ConsistencyChecker {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(BooleanNaryOp.class);
+
     @Override
     public boolean check(ConstraintNetworkBuilder cb, Node n) {
 
-        return checkNary(cb, n, 2, x ->x.getKind().isString(), p -> p
+        return checkNary(cb, n, -1, x ->x.getKind().isBoolean(), p -> p
                 .getKind()
-                .isString());
+                .isBoolean());
+
     }
 }

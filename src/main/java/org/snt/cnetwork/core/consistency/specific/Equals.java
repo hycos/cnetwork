@@ -10,7 +10,7 @@ import org.snt.cnetwork.core.consistency.ConsistencyChecker;
 import java.util.List;
 
 
-public class Equals implements ConsistencyChecker {
+public class Equals extends ConsistencyChecker {
 
 
     final static Logger LOGGER = LoggerFactory.getLogger(Equals.class);

@@ -8,7 +8,7 @@ import org.snt.cnetwork.core.consistency.ConsistencyChecker;
 import java.util.List;
 
 
-public class Empty  implements ConsistencyChecker {
+public class Empty extends ConsistencyChecker {
 
     @Override
     public boolean check(ConstraintNetworkBuilder cb, Node n) {

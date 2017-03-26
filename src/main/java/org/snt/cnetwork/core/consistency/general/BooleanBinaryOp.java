@@ -1,28 +1,22 @@
 package org.snt.cnetwork.core.consistency.general;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.ConstraintNetworkBuilder;
 import org.snt.cnetwork.core.Node;
 import org.snt.cnetwork.core.consistency.ConsistencyChecker;
 
-import java.util.List;
 
-/**
- * Created by julian on 26/03/2017.
- */
-public class BooleanBinaryOp implements ConsistencyChecker {
+public class BooleanBinaryOp extends ConsistencyChecker {
+
+    final static Logger LOGGER = LoggerFactory.getLogger(BooleanBinaryOp.class);
+
     @Override
     public boolean check(ConstraintNetworkBuilder cb, Node n) {
 
-        List<Node> params = cb.getParametersFor(n);
+        return checkNary(cb, n, 2, x ->x.getKind().isBoolean(), p -> p
+                .getKind()
+                .isBoolean());
 
-        if(params.size() != 2)
-            return false;
-
-        Node par0 = params.get(0);
-        Node par1 = params.get(1);
-
-
-        return par0.getKind().isBoolean() && par1.getKind().isBoolean() &&
-                n.getKind().isBoolean();
     }
 }
