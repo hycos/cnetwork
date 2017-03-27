@@ -65,7 +65,8 @@ public class ConstraintNetworkBuilder implements Cloneable {
         return addOperation(kind, lst);
     }
 
-    public Edge addConnection(Edge e) {
+    public Edge addConnection(Edge e) throws EUFInconsistencyException {
+
         return cn.addConnection(e);
     }
 
@@ -109,9 +110,15 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
     public Node addOperation(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
+
         Node op = cn.addOperation(kind, params);
         LOGGER.debug("check node {}:{}", op.getLabel(), op.getId());
-        return infer(op);
+
+        Node nop = infer(op);
+
+        assert ConsistencyCheckerFactory.INSTANCE.isConsistent(this,nop);
+
+        return nop;
     }
 
     public Node addConstraint(NodeKind kind, List<Node> params) throws
@@ -153,7 +160,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
         return euf.getLattice();
     }
 
-    public Edge addConnection(Node src, Node target, EdgeKind kind, int prio) {
+    public Edge addConnection(Node src, Node target, EdgeKind kind, int prio) throws EUFInconsistencyException {
         return cn.addConnection(src, target, kind, prio);
     }
 

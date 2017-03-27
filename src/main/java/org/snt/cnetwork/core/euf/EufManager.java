@@ -207,16 +207,25 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
     private void remap(Element firste, Collection<Element> toremap) throws
     EUFInconsistencyException {
 
+        //LOGGER.debug(cb.getConstraintNetwork().toDot());
+
         Node first = firste.getMappedNode();
 
         assert cb.vertexSet().contains(first);
 
-        LOGGER.debug("FRIST {}", firste.getLabel());
+        LOGGER.debug("FRIST {}:{}", firste.getLabel(), first.getId());
 
         assert !toremap.contains(first);
 
         for (Element e : toremap) {
-            LOGGER.debug("REMAP {}", e.getLabel());
+
+            if(!cb.vertexSet().contains(e.getMappedNode())) {
+                e.setMappedNode(first);
+                continue;
+            }
+
+            assert cb.vertexSet().contains(e.getMappedNode());
+            LOGGER.debug("REMAP {}:{}", e.getLabel(), e.getMappedNode().getId());
 
             Node mapped = e.getMappedNode();
 
@@ -307,7 +316,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
         LOGGER.debug(">> update {}", n.getDotLabel());
 
 
-        LOGGER.debug(this.cb.getConstraintNetwork().toDot());
+        //LOGGER.debug(this.cb.getConstraintNetwork().toDot());
 
         if(n.isNumeric()) {
             LOGGER.debug(n.getLabel());
@@ -318,7 +327,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
         if (n.isNumeric() && n.getRange().isSingleton()) {
 
 
-            LOGGER.debug("RAN " + n.getLabel() + " " + n.getRange()
+            /**LOGGER.debug("RAN " + n.getLabel() + " " + n.getRange()
                     .toString
                             ());
             elementFact.createEquiClass(n);
@@ -333,11 +342,11 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
 
             LOGGER.debug("new eq {}", eq.toString());
 
-            lattice.addEquiClass(eq);
+            lattice.addEquiClass(eq);**/
 
         } else if (n.isString() && n.getAutomaton().isSingleton()) {
 
-            elementFact.createEquiClass(n);
+            /**elementFact.createEquiClass(n);
 
             EquiClass eq = null;
 
@@ -349,7 +358,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
 
             LOGGER.debug("new eq {}", eq.toString());
 
-            lattice.addEquiClass(eq);
+            lattice.addEquiClass(eq);**/
         } else if (n.isBoolean()) {
 
             if (n.getKind().isInequality()) {

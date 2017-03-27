@@ -81,10 +81,12 @@ public class Operation extends Node {
                 .getDomainKind() == DomainKind.NUMERIC_NM1 || kind
                 .getDomainKind() == DomainKind.NUMERIC_Z;
     }
+
     @Override
     public boolean isBoolean() {
         return this.kind.getDomainKind() == DomainKind.BOOLEAN;
     }
+
 
     @Override
     public boolean isVariable() {

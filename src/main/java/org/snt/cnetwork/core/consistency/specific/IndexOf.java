@@ -7,6 +7,7 @@ import org.snt.cnetwork.core.EdgeKind;
 import org.snt.cnetwork.core.Node;
 import org.snt.cnetwork.core.NodeKind;
 import org.snt.cnetwork.core.consistency.ConsistencyChecker;
+import org.snt.cnetwork.exception.EUFInconsistencyException;
 
 import java.util.List;
 
@@ -31,7 +32,11 @@ public class IndexOf extends ConsistencyChecker {
             par2 = params.get(2);
         } else {
             par2 = cb.addOperand(NodeKind.NUMLIT, "0");
-            cb.addConnection(par2, n, EdgeKind.PAR_IN, 2);
+            try {
+                cb.addConnection(par2, n, EdgeKind.PAR_IN, 2);
+            } catch (EUFInconsistencyException e) {
+                assert false;
+            }
         }
 
         LOGGER.debug("idx {}:{}:{}", par0.getKind(),par1.getKind(),par2.getKind());
