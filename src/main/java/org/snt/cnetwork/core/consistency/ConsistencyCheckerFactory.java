@@ -43,7 +43,7 @@ public enum ConsistencyCheckerFactory {
 
     public ConsistencyChecker getConsistencyCheckerFor(NodeKind kind){
 
-        LOGGER.debug("kind {}", kind);
+        //LOGGER.debug("kind {}", kind);
 
         switch (kind) {
 
