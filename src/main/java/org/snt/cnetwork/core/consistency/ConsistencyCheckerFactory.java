@@ -53,9 +53,9 @@ public enum ConsistencyCheckerFactory {
                 return ok;
 
             case AND:
+            case OR:
                 return bno;
 
-            case OR:
             case XOR:
             case IMPLIES:
                return bbo;

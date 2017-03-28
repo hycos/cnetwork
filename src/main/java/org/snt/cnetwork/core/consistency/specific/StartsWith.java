@@ -2,7 +2,6 @@ package org.snt.cnetwork.core.consistency.specific;
 
 import org.snt.cnetwork.core.ConstraintNetworkBuilder;
 import org.snt.cnetwork.core.Node;
-import org.snt.cnetwork.core.NodeKind;
 import org.snt.cnetwork.core.consistency.ConsistencyChecker;
 
 import java.util.List;
@@ -21,6 +20,6 @@ public class StartsWith extends ConsistencyChecker {
 
 
         return par0.getKind().isString() && par1.getKind().isString() &&
-                n.getKind().isBoolean() && n.getKind() == NodeKind.STARTSWITH;
+                n.getKind().isBoolean();
     }
 }

@@ -59,8 +59,6 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
     /**
      * API
      **/
-
-
     private EquiClass union(Collection<EquiClass> e) {
         assert !e.isEmpty();
         return e.stream().reduce(EquiClass::union).get();
@@ -718,6 +716,12 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
         LOGGER.debug("REPLACE");
 
+        LOGGER.debug("+BEFORE &&&&&&&&&&&&&&&&&&&&&&&&&");
+        LOGGER.debug(this.toDot());
+        LOGGER.debug("-BEFORE &&&&&&&&&&&&&&&&&&&&&&&&&");
+
+
+
         for (EquiClass t : toReplace) {
             LOGGER.debug("to relink {}:{}", t.getDotLabel(), t.getId());
         }
@@ -731,6 +735,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
         for (EquiClass torep : toReplace) {
             edges.addAll(replace(torep, replacement));
         }
+
 
         addEdges(edges);
 

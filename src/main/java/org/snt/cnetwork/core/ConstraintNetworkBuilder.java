@@ -290,7 +290,8 @@ public class ConstraintNetworkBuilder implements Cloneable {
                     .getId());
         }
 
-        NodeDomain isect = toReplace.getDomain().intersect(replacement.getDomain
+        NodeDomain isect = toReplace.getDomain().intersect(replacement
+                .getDomain
                 ());
 
         LOGGER.debug("ISECT {}" + isect.toString());

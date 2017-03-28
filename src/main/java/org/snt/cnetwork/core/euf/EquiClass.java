@@ -347,7 +347,7 @@ public class EquiClass implements Cloneable {
 
 
         for(Element e : set) {
-            if(e.getAnnotation() != null) {
+            if(e.isNested()) {
                 String anno = e.getAnnotation();
                 if(!m.containsKey(anno)) {
                     m.put(e.getAnnotation(), new Vector<>());

@@ -62,6 +62,10 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
         List<Node> r = n.stream().filter(x -> !isRedundantPar(x, val)).collect
                 (Collectors
                         .toList());
+
+        for(Node rr : r) {
+            LOGGER.debug("RR {}", rr.getLabel());
+        }
         return r.toArray(new Node[r.size()]);
     }
 
@@ -317,12 +321,6 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
 
 
         //LOGGER.debug(this.cb.getConstraintNetwork().toDot());
-
-        if(n.isNumeric()) {
-            LOGGER.debug(n.getLabel());
-            assert !n.getRange().isEmpty();
-        }
-
 
         if (n.isNumeric() && n.getRange().isSingleton()) {
 
