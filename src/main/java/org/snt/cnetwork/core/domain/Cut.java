@@ -20,24 +20,11 @@ abstract class Cut<C extends Comparable> implements Comparable<Cut<C>>,
     }
 
 
-    public boolean isSmallerThan(Cut<C> value) {
-        return isSmallerThan(value.endpoint);
-    }
-    public boolean isSmallerEqualsThan(Cut<C> value) {
-        return isSmallerEqualsThan(value.endpoint);
-    }
-    public boolean isGreaterThan(Cut<C> value){
-        return isGreaterThan(value.endpoint);
-    }
-    public boolean isGreaterEqualsThan(Cut<C> value){
-        return isGreaterEqualsThan(value.endpoint);
-    }
+    public abstract boolean isSmallerThan(Cut<C> value);
+    public abstract boolean isSmallerEqualsThan(Cut<C> value);
+    public abstract boolean isGreaterThan(Cut<C> value);
+    public abstract boolean isGreaterEqualsThan(Cut<C> value);
 
-
-    public abstract boolean isSmallerThan(C value);
-    public abstract boolean isSmallerEqualsThan(C value);
-    public abstract boolean isGreaterThan(C value);
-    public abstract boolean isGreaterEqualsThan(C value);
     public abstract boolean isAboveAll();
     public abstract boolean isBelowAll();
 

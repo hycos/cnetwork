@@ -80,7 +80,8 @@ public class StandardWrappers {
             case LEN:
                 return "org.snt.cnetwork.utils.StandardWrappers.len(Ljava/lang/String;)Ljava/lang/String;";
             case REPLACE:
-                return "org.snt.cnetwork.utils.StandardWrappers.relink(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "org.snt.cnetwork.utils.StandardWrappers.replace" +
+                        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case VALUEOF:
                 return "org.snt.cnetwork.utils.StandardWrappers.valueOf(Ljava/lang/String;)Ljava/lang/String;";
             case TOSTR:

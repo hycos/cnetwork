@@ -148,7 +148,7 @@ public enum NodeKind {
             case "concat": return CONCAT;
             case "trim": return TRIM;
             case "len": return LEN;
-            case "relink": return REPLACE;
+            case "merge": return REPLACE;
             case "strinv": return STRINV;
             case "charat": return CHARAT;
 

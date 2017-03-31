@@ -144,7 +144,6 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
         EquiClass cursor = bottom;
 
         while (!cursor.subsumes(e)) {
-
             try {
                 cursor = incomingEdgesOf(cursor).stream()
                         .map(EquiEdge::getSource).
@@ -174,13 +173,19 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
      */
     public EquiClass getCovering(EquiClass o) {
 
+        LOGGER.debug("get covering");
         LOGGER.debug("lmap {}", debug());
 
         // quicker access
-        if(lmap.containsKey(o.getLabel()))
+        if(lmap.containsKey(o.getLabel())) {
+            LOGGER.debug("---");
             return lmap.get(o.getLabel());
+        }
 
+        LOGGER.debug("t");
         try {
+
+            LOGGER.debug("who");
             return getConnectedOutNodesOfKind(top, EquiEdge.Kind.SUB).stream()
                     .filter(x -> x.subsumes(o)).findFirst().get();
         } catch (NoSuchElementException e) {
@@ -286,13 +291,15 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
             //LOGGER.debug(">> {}", e.getDotLabel());
             addEquiClass(e);
         }
-        return findSubsumptionPoint(eq);
+        LOGGER.debug("find submsumption point");
+        return getCovering(eq);
     }
 
 
     protected EquiClass addEquiClass(EquiClass n)
             throws EUFInconsistencyException {
 
+        LOGGER.debug(toDot());
         LOGGER.debug("add equi class {}:{}", n.getDotLabel(), n.getId());
 
 
@@ -485,6 +492,8 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
         // if it does exist
         EquiClass e = getCovering(ec);
 
+        LOGGER.debug("got covering");
+
         if(!e.isNested())
             return Collections.singleton(e);
 
@@ -605,7 +614,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
             //   addEquiClass(nec);
             //   return Collections.singleton(getCovering(nec));
             //} else {
-
+                //eh.onEquiClassInference(ec);
                 return chop;
             //}
         }
@@ -723,7 +732,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
 
         for (EquiClass t : toReplace) {
-            LOGGER.debug("to relink {}:{}", t.getDotLabel(), t.getId());
+            LOGGER.debug("to merge {}:{}", t.getDotLabel(), t.getId());
         }
 
         LOGGER.debug("replacement {}:{}", replacement.getDotLabel(),

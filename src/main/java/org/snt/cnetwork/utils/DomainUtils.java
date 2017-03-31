@@ -132,6 +132,11 @@ public class DomainUtils {
             maxlen = new NumCut(a.getLongestExample());
         }
 
+        if(a.isSingleton()){
+            minlen = new NumCut(a.getShortestExample().length());
+            maxlen = new NumCut(a.getShortestExample().length());
+        }
+
         return new NumRange(new AtomicNumRange(minlen, maxlen));
 
     }

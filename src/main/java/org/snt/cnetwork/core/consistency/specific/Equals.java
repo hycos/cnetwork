@@ -26,14 +26,14 @@ public class Equals extends ConsistencyChecker {
         Node par0 = params.get(0);
         Node par1 = params.get(1);
 
-        LOGGER.debug(">>> {},{},{}", n.getKind().getDesc(),
-                par0.getKind().getDesc(), par1.getKind().getDesc());
+        //LOGGER.debug(">>> {},{},{}", n.getKind().getDesc(),
+        //        par0.getKind().getDesc(), par1.getKind().getDesc());
 
         if(!haveEqualDomains(par0,par1) || !n.getKind().isBoolean())
             return false;
 
 
-        LOGGER.debug("boo");
+        //LOGGER.debug("boo");
         if(n.getKind() == NodeKind.BOOL_EQUALS ||
                 n.getKind() == NodeKind.BOOL_NEQUALS) {
             return boolEquals(par1, par0, n);

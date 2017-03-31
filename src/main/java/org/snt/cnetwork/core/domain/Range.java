@@ -12,7 +12,7 @@ public abstract class Range implements DomainInterface<Range> {
 
     public Range(NumCut min, NumCut max) {
 
-        //LOGGER.debug("new ran min:{} max:{}", min, max);
+        LOGGER.debug("new ran min:{} max:{}", min, max);
         assert min.isSmallerEqualsThan(max);
         this.lb = min;
         this.ub = max;
@@ -45,8 +45,9 @@ public abstract class Range implements DomainInterface<Range> {
     }
 
     public void setMax(long max) {
-        this.lb.isSmallerEqualsThan(max);
-        this.ub = new NumCut(max);
+        NumCut mx = new NumCut(max);
+        this.lb.isSmallerEqualsThan(mx);
+        this.ub = mx;
     }
 
     public abstract boolean contains( long value );
@@ -64,16 +65,18 @@ public abstract class Range implements DomainInterface<Range> {
     }
 
     public boolean isAlwaysGreaterThan(Range other){
-        return lb.isGreaterThan(other.ub.getEndpoint());
+        LOGGER.debug("lb {} > other.ub {}", lb, other.ub);
+
+        return lb.isGreaterThan(other.ub);
     }
 
     public boolean isAlwaysSmallerThan(Range other){
-        return ub.isSmallerThan(other.lb.getEndpoint());
+        return ub.isSmallerThan(other.lb);
     }
 
     public boolean isBetween(long min, long max) {
-        return lb.isGreaterEqualsThan(min) &&
-                ub.isSmallerEqualsThan(max);
+        return lb.isGreaterEqualsThan(new NumCut(min)) &&
+                ub.isSmallerEqualsThan(new NumCut(max));
     }
 
     public boolean isBetween(NumCut min, NumCut max) {

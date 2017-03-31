@@ -250,7 +250,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
     }
 
 
-    public Node relink(Node toReplace, Node replacement) throws EUFInconsistencyException {
+    public Node merge(Node toReplace, Node replacement) throws EUFInconsistencyException {
 
         if (!cn.containsVertex(toReplace) && cn.containsVertex(replacement)) {
             //assert false;

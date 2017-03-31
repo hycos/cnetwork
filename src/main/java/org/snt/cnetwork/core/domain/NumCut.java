@@ -76,7 +76,7 @@ public class NumCut extends Cut<Long> implements Cloneable {
         if(value instanceof BelowAll)
             return false;
 
-        return super.isSmallerThan(value);
+        return this.endpoint < value.endpoint;
     }
     public boolean isSmallerEqualsThan(Cut<Long> value) {
         if(value instanceof AboveAll)
@@ -84,7 +84,7 @@ public class NumCut extends Cut<Long> implements Cloneable {
         if(value instanceof BelowAll)
             return false;
 
-        return super.isSmallerEqualsThan(value);
+        return this.endpoint <= value.endpoint;
     }
 
     public boolean isGreaterThan(Cut<Long> value){
@@ -92,7 +92,7 @@ public class NumCut extends Cut<Long> implements Cloneable {
             return true;
         if(value instanceof AboveAll)
             return false;
-        return super.isGreaterThan(value);
+        return this.endpoint > value.endpoint;
     }
 
     public boolean isGreaterEqualsThan(Cut<Long> value){
@@ -100,27 +100,26 @@ public class NumCut extends Cut<Long> implements Cloneable {
             return true;
         if(value instanceof AboveAll)
             return false;
-        return super.isGreaterEqualsThan(value);
+        return this.endpoint >= value.endpoint;
     }
 
-    @Override
     public boolean isSmallerThan(Long value) {
-        return endpoint < value;
+        return isSmallerThan(new NumCut(value));
     }
 
-    @Override
+
     public boolean isSmallerEqualsThan(Long value) {
-        return endpoint <= value;
+        return isSmallerEqualsThan(new NumCut(value));
     }
 
-    @Override
+
     public boolean isGreaterThan(Long value) {
-        return endpoint > value;
+        return isGreaterThan(new NumCut(value));
     }
 
-    @Override
+
     public boolean isGreaterEqualsThan(Long value) {
-        return endpoint >= value;
+        return isGreaterThan(new NumCut(value));
     }
 
     @Override

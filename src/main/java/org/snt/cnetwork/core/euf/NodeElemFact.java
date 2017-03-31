@@ -7,7 +7,6 @@ import org.snt.cnetwork.core.Node;
 import org.snt.cnetwork.exception.MissingItemException;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * This class is only responsible for creating and caching equi classes from
@@ -166,14 +165,14 @@ public final class NodeElemFact {
         LOGGER.debug("additional equi class {}", top.getDotLabel());
 
         ret.add(top);
-        ret.addAll(top.infer());
+        //ret.addAll(top.infer());
         ret.addAll(s);
 
         // infer additional facts
-        Set<EquiClass> addfacts = s.stream().map(v -> v.infer())
-                .flatMap(x -> x.stream()).collect(Collectors.toSet());
+        //Set<EquiClass> addfacts = s.stream().map(v -> v.infer())
+        //        .flatMap(x -> x.stream()).collect(Collectors.toSet());
 
-        ret.addAll(addfacts);
+        //ret.addAll(addfacts);
 
         return ret;
     }

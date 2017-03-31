@@ -120,12 +120,13 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
         lattice.addIneqEdge(snd, fst);
     }
 
-    private void removeRendundancies(EquiClass c) throws
-            EUFInconsistencyException {
 
+    private void removeOperandRedundancies(EquiClass c) throws EUFInconsistencyException {
         assert lattice != null;
 
         EquiClass covering = lattice.getCovering(c);
+
+        LOGGER.debug("got covering {}", covering.getElements().size());
 
         // group by annotation
         Map<String, LinkedList<Element>> ng = new HashMap<>();
@@ -137,15 +138,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
 
         for (Element ta : covering.getElements()) {
             if (ta.isNested()) {
-                if (!ng.containsKey(ta.getAnnotation())) {
-                    ng.put(ta.getAnnotation(), new LinkedList<>());
-                }
-                ng.get(ta.getAnnotation()).add(ta);
-
-
-                LOGGER.debug("add for {}", ta.getAnnotation());
-                LOGGER.debug("SIZE {}", ng.get(ta.getAnnotation()));
-
+               ;
             } else if (ta.isSingleton()) {
 
                 if (ta.getMappedNode().isLiteral()) {
@@ -160,7 +153,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
                                     ta.getMappedNode().getLabel() +
                                             " should not be in the same " +
                                             "equiclass as " + con.getFirst()
-                                    .getMappedNode().getLabel()
+                                            .getMappedNode().getLabel()
                             );
                         }
 
@@ -174,25 +167,6 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
 
         LOGGER.debug("ngroup to merge {}", ng.size());
 
-        Set<LinkedList<Element>> nestedToMerge = ng.values().stream().filter(
-                s -> s.size() > 1
-        ).collect(Collectors.toSet());
-
-        LOGGER.debug("nested to merge {}", nestedToMerge.size());
-
-
-        // remove redundant nodes in the CN
-        // 1. searching for equivalent functions of the same type (e.g.
-        // indexof(a,b,c), indexof (d,e,f)
-        // 2. remvoing the redundant node form the CN
-        // 3. remapping the corresponding EUF label to the remaining node
-        for (LinkedList<Element> ne : nestedToMerge) {
-            Element min = Collections.min(ne, new IdComparator());
-            // do not consider min object when remapping
-            ne.remove(min);
-            remap(min, ne);
-        }
-
         if (con.size() > 1) {
             throw new EUFInconsistencyException("there cannot be two literals" +
                     " belonging to the same equiclass " + con.toString());
@@ -204,6 +178,53 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
             vars.remove(min);
             remap(min, vars);
         }
+    }
+
+    private void removeOperationRedundancies(EquiClass c) throws EUFInconsistencyException {
+        assert lattice != null;
+
+        EquiClass covering = lattice.getCovering(c);
+
+        LOGGER.debug("got covering {}", covering.getElements().size());
+
+        // group by annotation
+        Map<String, LinkedList<Element>> ng = new HashMap<>();
+
+        LinkedList<Element> vars = new LinkedList<>();
+
+        LinkedList<Element> con = new LinkedList<>();
+
+
+        for (Element ta : covering.getElements()) {
+            if (ta.isNested()) {
+                if (!ng.containsKey(ta.getAnnotation())) {
+                 ng.put(ta.getAnnotation(), new LinkedList<>());
+                 }
+                 ng.get(ta.getAnnotation()).add(ta);
+
+                LOGGER.debug("add for {}", ta.getAnnotation());
+                LOGGER.debug("SIZE {}", ng.get(ta.getAnnotation()));
+            }
+        }
+
+        LOGGER.debug("ngroup to merge {}", ng.size());
+
+        Set<LinkedList<Element>> nestedToMerge = ng.values().stream().filter(
+                s -> s.size() > 1
+        ).collect(Collectors.toSet());
+
+        assert(nestedToMerge.size() == 0);
+
+        LOGGER.debug("nested to merge {}", nestedToMerge.size());
+
+
+        for (LinkedList<Element> ne : nestedToMerge) {
+            Element min = Collections.min(ne, new IdComparator());
+            // do not consider min object when remapping
+            ne.remove(min);
+            remap(min, ne);
+        }
+
     }
 
 
@@ -236,7 +257,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
             if (mapped.getId() != first.getId()) {
 
 
-                cb.relink(mapped, first);
+                cb.merge(mapped, first);
 
                 e.setMappedNode(first);
             }
@@ -254,7 +275,12 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
 
     @Override
     public void onEquiClassAddition(EquiClass ec) throws EUFInconsistencyException{
-        removeRendundancies(ec);
+        removeOperandRedundancies(ec);
+    }
+
+    @Override
+    public void onEquiClassInference(EquiClass ec) throws EUFInconsistencyException {
+        removeOperationRedundancies(ec);
     }
 
     public EquiClass join(Node... e) throws MissingItemException {
@@ -278,8 +304,13 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
         if(snen.size() > 1) {
             EquiClass nec = snen.stream().reduce(EquiClass::union).get().union(ec);
             EquiClass nnec = addEquiClass(nec);
+
+            // remove redunancies just for the operations with parameter
+            // equivalence
+            removeOperationRedundancies(nec);
             return nnec;
         }
+
 
         assert snen.size() == 1;
         return snen.iterator().next();
@@ -312,7 +343,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
 
     public EquiClass addEquiClass(EquiClass e) throws EUFInconsistencyException {
         EquiClass c = lattice.addEquiClass(e);
-        removeRendundancies(c);
+        removeOperandRedundancies(c);
         return c;
     }
 

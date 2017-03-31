@@ -46,6 +46,8 @@ public class TestBasicRange {
         diff = a3.numsub(a4);
 
         Assert.assertTrue(sum.isBetween(-90,200));
+
+        LOGGER.debug("diff {}", diff);
         Assert.assertTrue(diff.isBetween(-40,250));
 
 

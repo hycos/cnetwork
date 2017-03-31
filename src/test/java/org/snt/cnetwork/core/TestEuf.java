@@ -135,7 +135,7 @@ public class TestEuf {
 
         LOGGER.debug(mt.getLattice().toDot());
 
-        Assert.assertEquals(mt.getLattice().vertexSet().size(), 6);
+        Assert.assertEquals(mt.getLattice().vertexSet().size(), 7);
     }
 
     @Test
@@ -448,7 +448,7 @@ public class TestEuf {
 
         LOGGER.debug(cb1.getConstraintNetwork().toDot());
 
-        Assert.assertEquals(cb1.vertexSet().size(), 6);
+        Assert.assertEquals(cb1.vertexSet().size(), 8);
     }
 
     @Test
