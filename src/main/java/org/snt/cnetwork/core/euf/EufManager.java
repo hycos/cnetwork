@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.ConstraintNetworkBuilder;
 import org.snt.cnetwork.core.ConstraintNetworkObserver;
 import org.snt.cnetwork.core.Node;
+import org.snt.cnetwork.core.NodeKind;
 import org.snt.cnetwork.core.domain.BooleanRange;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.exception.MissingItemException;
@@ -120,6 +121,19 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
         lattice.addIneqEdge(snd, fst);
     }
 
+    private void linkEqualNodes(EquiClass c) throws EUFInconsistencyException {
+        Node first = null;
+        for(Element e : c.getElements()) {
+            if(first == null) {
+                first = e.getMappedNode();
+                continue;
+            }
+            Node nxt = e.getMappedNode();
+            if(!nxt.equals(first)) {
+                cb.addConstraint(NodeKind.EQUALS, first, e.getMappedNode());
+            }
+        }
+    }
 
     private void removeOperandRedundancies(EquiClass c) throws EUFInconsistencyException {
         assert lattice != null;
@@ -180,7 +194,11 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
         }
     }
 
-    private void removeOperationRedundancies(EquiClass c) throws EUFInconsistencyException {
+
+
+
+    private void removeOperationRedundancies(EquiClass c) throws
+            EUFInconsistencyException {
         assert lattice != null;
 
         EquiClass covering = lattice.getCovering(c);
@@ -189,11 +207,6 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
 
         // group by annotation
         Map<String, LinkedList<Element>> ng = new HashMap<>();
-
-        LinkedList<Element> vars = new LinkedList<>();
-
-        LinkedList<Element> con = new LinkedList<>();
-
 
         for (Element ta : covering.getElements()) {
             if (ta.isNested()) {
@@ -213,7 +226,6 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
                 s -> s.size() > 1
         ).collect(Collectors.toSet());
 
-        assert(nestedToMerge.size() == 0);
 
         LOGGER.debug("nested to merge {}", nestedToMerge.size());
 
@@ -276,12 +288,9 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
     @Override
     public void onEquiClassAddition(EquiClass ec) throws EUFInconsistencyException{
         removeOperandRedundancies(ec);
+        linkEqualNodes(ec);
     }
 
-    @Override
-    public void onEquiClassInference(EquiClass ec) throws EUFInconsistencyException {
-        removeOperationRedundancies(ec);
-    }
 
     public EquiClass join(Node... e) throws MissingItemException {
         return lattice.join(elementFact.getEquiClassesFor(e));

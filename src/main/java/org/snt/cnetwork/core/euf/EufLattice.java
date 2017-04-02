@@ -143,7 +143,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
         EquiClass cursor = bottom;
 
-        while (!cursor.subsumes(e)) {
+        while (!cursor.subsumes(e) && cursor != top) {
             try {
                 cursor = incomingEdgesOf(cursor).stream()
                         .map(EquiEdge::getSource).

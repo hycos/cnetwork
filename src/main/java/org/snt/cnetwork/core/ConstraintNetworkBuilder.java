@@ -128,8 +128,9 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
         // it seems to be redundant, byt we need this extra node in order to
         // simplify the translation procedure
-        Node contraint = addOperation(NodeKind.EQUALS, op, new Operand("true",
-                NodeKind.BOOLLIT));
+        //Node contraint = addOperation(NodeKind.EQUALS, op, new Operand
+        // ("true",
+        //        NodeKind.BOOLLIT));
         op.setDomain(NodeDomainFactory.DBTRUE.clone());
 
         return op;

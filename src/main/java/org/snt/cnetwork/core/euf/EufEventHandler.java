@@ -11,11 +11,4 @@ public interface EufEventHandler {
      */
     void onEquiClassAddition(EquiClass ec) throws EUFInconsistencyException;
 
-
-    /**
-     * a callback method that is invoked whenever a new equiclass
-     * is added to the euf lattice
-     * @param ec
-     */
-    void onEquiClassInference(EquiClass ec) throws EUFInconsistencyException;
 }

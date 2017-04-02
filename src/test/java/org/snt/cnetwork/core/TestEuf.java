@@ -400,7 +400,9 @@ public class TestEuf {
             e.printStackTrace();
         }
 
-        Assert.assertEquals(cn.vertexSet().size(), 7);
+        Assert.assertEquals(cn.vertexSet().size(), 3);
+
+        LOGGER.debug(cn.getConstraintNetwork().toDot());
 
     }
 
@@ -448,7 +450,7 @@ public class TestEuf {
 
         LOGGER.debug(cb1.getConstraintNetwork().toDot());
 
-        Assert.assertEquals(cb1.vertexSet().size(), 8);
+        Assert.assertEquals(cb1.vertexSet().size(), 7);
     }
 
     @Test
