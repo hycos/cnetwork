@@ -116,9 +116,12 @@ public class DomainUtils {
     public static NumRange getApproxLenRange(Automaton a) {
         assert a != null;
 
-        LOGGER.debug("get approx len range");
-        LOGGER.debug("shortes " + a.getShortestExample());
-        LOGGER.debug("finite " + a.isFinite());
+        //LOGGER.debug(a.toDot());
+
+//        LOGGER.debug("get approx len range");
+//        LOGGER.debug("shortes " + a.getShortestExample());
+//        LOGGER.debug("finite " + a.isFinite());
+//        LOGGER.debug("singleton " + a.isSingleton());
 
         NumCut minlen = new NumCut(0L);
         NumCut maxlen = new AboveAll();

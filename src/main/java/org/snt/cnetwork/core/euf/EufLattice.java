@@ -174,7 +174,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
     public EquiClass getCovering(EquiClass o) {
 
         LOGGER.debug("get covering");
-        LOGGER.debug("lmap {}", debug());
+        //LOGGER.debug("lmap {}", debug());
 
         // quicker access
         if(lmap.containsKey(o.getLabel())) {
@@ -299,7 +299,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
     protected EquiClass addEquiClass(EquiClass n)
             throws EUFInconsistencyException {
 
-        LOGGER.debug(toDot());
+        //LOGGER.debug(toDot());
         LOGGER.debug("add equi class {}:{}", n.getDotLabel(), n.getId());
 
 
@@ -725,9 +725,9 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
         LOGGER.debug("REPLACE");
 
-        LOGGER.debug("+BEFORE &&&&&&&&&&&&&&&&&&&&&&&&&");
-        LOGGER.debug(this.toDot());
-        LOGGER.debug("-BEFORE &&&&&&&&&&&&&&&&&&&&&&&&&");
+        //LOGGER.debug("+BEFORE &&&&&&&&&&&&&&&&&&&&&&&&&");
+        //LOGGER.debug(this.toDot());
+        //LOGGER.debug("-BEFORE &&&&&&&&&&&&&&&&&&&&&&&&&");
 
 
 

@@ -20,6 +20,8 @@ public class Equals extends ConsistencyChecker {
 
         List<Node> params = cb.getParametersFor(n);
 
+        //LOGGER.debug("psize {}", params.size());
+
         if(params.size() != 2)
             return false;
 
@@ -30,6 +32,9 @@ public class Equals extends ConsistencyChecker {
         //        par0.getKind().getDesc(), par1.getKind().getDesc());
 
         if(!haveEqualDomains(par0,par1) || !n.getKind().isBoolean())
+            return false;
+
+        if(!cb.vertexSet().containsAll(params))
             return false;
 
 
@@ -96,10 +101,10 @@ public class Equals extends ConsistencyChecker {
     }
 
     private boolean haveEqualDomains(Node par0, Node par1) {
-        return (par0.isNumeric() && par1.isNumeric()) ||
+        return ((par0.isNumeric() && par1.isNumeric()) ||
                 ((par0.isString() || par0.isRegex())
                         && (par1.isString() || par1.isRegex())) ||
-                        par0.isBoolean() || par1.isBoolean();
+                        par0.isBoolean() || par1.isBoolean());
 
 
     }

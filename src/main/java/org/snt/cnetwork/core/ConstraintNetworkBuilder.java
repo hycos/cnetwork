@@ -92,6 +92,9 @@ public class ConstraintNetworkBuilder implements Cloneable {
         LOGGER.debug("NOP {}:{}", nop, nop.getId());
         LOGGER.debug("OP {}:{}", n, n.getId());
 
+        //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
+
+
         if(!ConsistencyCheckerFactory.INSTANCE.isConsistent(this, nop)) {
             throw new EUFInconsistencyException("malformed operand " + nop
                     .getKind());
@@ -100,9 +103,17 @@ public class ConstraintNetworkBuilder implements Cloneable {
         if (n.equals(nop)) {
             euf.attach(nop);
             euf.update(nop);
+            //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
+
             return nop;
         } else {
-            cn.removeVertex(n);
+
+            //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
+            LOGGER.debug("remove {}", n.getId());
+            //cn.removeVertex(n);
+
+            //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
+
             return nop;
         }
     }
@@ -113,10 +124,11 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
         Node op = cn.addOperation(kind, params);
         LOGGER.debug("check node {}:{}", op.getLabel(), op.getId());
+        //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
 
         Node nop = infer(op);
 
-        assert ConsistencyCheckerFactory.INSTANCE.isConsistent(this,nop);
+        //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
 
         return nop;
     }
@@ -126,12 +138,21 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
         Node op = addOperation(kind, params);
 
+        ConsistencyCheckerFactory.INSTANCE.getConsistencyCheckerFor(kind)
+                .check(this,op);
+
+        LOGGER.debug("add constraint {}", op.getId());
+
         // it seems to be redundant, byt we need this extra node in order to
         // simplify the translation procedure
         //Node contraint = addOperation(NodeKind.EQUALS, op, new Operand
         // ("true",
         //        NodeKind.BOOLLIT));
+
+        //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
+        LOGGER.debug(this.getConstraintNetwork().toDot());
         op.setDomain(NodeDomainFactory.DBTRUE.clone());
+       // assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
 
         return op;
     }
@@ -295,6 +316,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
                 .getDomain
                 ());
 
+        LOGGER.debug("merge {} and {}", toReplace.getId(), replacement.getId());
         LOGGER.debug("ISECT {}" + isect.toString());
 
         if(isect == null || isect.isEmpty()) {

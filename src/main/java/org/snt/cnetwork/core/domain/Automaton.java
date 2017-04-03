@@ -135,7 +135,9 @@ public class Automaton implements DomainInterface<Automaton> {
             // go to the next state
             ptr = next;
         }
-        return ptr.isAccept();
+
+        // final
+        return ptr.getTransitions().size() == 0 && ptr.isAccept();
     }
 
     public Automaton getAllAcceptingSubstringsAutomaton() {

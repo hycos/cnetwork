@@ -39,8 +39,11 @@ public class AtomicNumRange extends Range {
 
     @Override
     public boolean isEmpty() {
-        return lb.equals(new NumCut(0L)) && ub.equals
-                (new NumCut(0L));
+
+        return false;
+        //LOGGER.debug("this {}", toString());
+        //return lb.equals(new NumCut(0L)) && ub.equals
+        //        (new NumCut(0L));
     }
 
     @Override

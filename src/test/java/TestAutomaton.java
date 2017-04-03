@@ -22,6 +22,20 @@ public class TestAutomaton {
 
         LOGGER.debug(a1.getShortestExample());
 
+        Automaton a3 = new Automaton("");
+        Assert.assertTrue(a3.isSingleton());
+        Assert.assertTrue(a3.isEmptyString());
+
+
+        Automaton a4 = new Automaton("hello w(orld)*");
+        Assert.assertFalse(a4.isSingleton());
+        Assert.assertFalse(a4.isEmptyString());
+
+        Automaton a5 = a4.intersect(new Automaton("hello w"));
+        Assert.assertTrue(a5.isSingleton());
+        Assert.assertFalse(a5.isEmptyString());
+
+
     }
 
 }

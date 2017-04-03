@@ -171,5 +171,17 @@ public enum ConsistencyCheckerFactory {
         return ok;
     }
 
+    public boolean checkConsistency(ConstraintNetworkBuilder cb) {
+
+        for(Node v : cb.vertexSet()) {
+            if(getConsistencyCheckerFor(v.getKind()).check(cb,v) == false) {
+                LOGGER.error("failed for {}:{}", v.getLabel(), v.getId());
+                LOGGER.debug(cb.getConstraintNetwork().toDot());
+                return false;
+            }
+        }
+        return true;
+    }
+
 
 }

@@ -123,6 +123,7 @@ public class NumRange extends Range {
 
     @Override
     public boolean isEmpty() {
+        //LOGGER.debug("RM {}", this.getRangeMap().size());
         return this.getRangeMap().isEmpty();
     }
 
@@ -170,8 +171,8 @@ public class NumRange extends Range {
                     other.ran.floorEntry(thismax) : other.ran.ceilingEntry(thismax));
 
 
-            LOGGER.info("SFROM " + sfrom.getValue().toString());
-            LOGGER.info("STO " + sto.getValue().toString());
+            //LOGGER.info("SFROM " + sfrom.getValue().toString());
+            //LOGGER.info("STO " + sto.getValue().toString());
 
             if(sfrom == null || sto == null)
                 continue;
@@ -431,6 +432,7 @@ public class NumRange extends Range {
     }
 
     public TreeMap<NumCut, AtomicNumRange> getRangeMap() {
+        //LOGGER.debug("SI {}", this.ran.size());
         return this.ran;
     }
 

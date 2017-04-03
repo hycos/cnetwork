@@ -122,6 +122,9 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
     }
 
     private void linkEqualNodes(EquiClass c) throws EUFInconsistencyException {
+
+        LOGGER.debug("link equal nodes");
+
         Node first = null;
         for(Element e : c.getElements()) {
             if(first == null) {
@@ -129,13 +132,20 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
                 continue;
             }
             Node nxt = e.getMappedNode();
+
+            assert cb.containsVertex(nxt);
+            assert cb.containsVertex(first);
+
             if(!nxt.equals(first)) {
-                cb.addConstraint(NodeKind.EQUALS, first, e.getMappedNode());
+                Node t = cb.addConstraint(NodeKind.EQUALS, first, e.getMappedNode());
             }
         }
+
     }
 
     private void removeOperandRedundancies(EquiClass c) throws EUFInconsistencyException {
+
+        LOGGER.debug("remove operand redundancies");
         assert lattice != null;
 
         EquiClass covering = lattice.getCovering(c);
@@ -152,7 +162,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
 
         for (Element ta : covering.getElements()) {
             if (ta.isNested()) {
-               ;
+
             } else if (ta.isSingleton()) {
 
                 if (ta.getMappedNode().isLiteral()) {
@@ -192,6 +202,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
             vars.remove(min);
             remap(min, vars);
         }
+
     }
 
 
@@ -199,7 +210,11 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
 
     private void removeOperationRedundancies(EquiClass c) throws
             EUFInconsistencyException {
+
+        LOGGER.debug("remove operation redundancies");
         assert lattice != null;
+
+
 
         EquiClass covering = lattice.getCovering(c);
 
@@ -262,7 +277,8 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
             }
 
             assert cb.vertexSet().contains(e.getMappedNode());
-            LOGGER.debug("REMAP {}:{}", e.getLabel(), e.getMappedNode().getId());
+            LOGGER.debug("REMAP {}:{}:{}", e.getLabel(), e.getMappedNode()
+                    .getId(), e.getMappedNode().getRange());
 
             Node mapped = e.getMappedNode();
 
@@ -275,6 +291,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
             }
 
         }
+
     }
 
     public EquiClass addEquiClass(Node... toadd)
