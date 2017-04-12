@@ -450,7 +450,7 @@ public class TestEuf {
 
         LOGGER.debug(cb1.getConstraintNetwork().toDot());
 
-        Assert.assertEquals(cb1.vertexSet().size(), 7);
+        Assert.assertEquals(cb1.vertexSet().size(), 6);
     }
 
     @Test

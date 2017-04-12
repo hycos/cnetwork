@@ -35,6 +35,7 @@ public enum ConsistencyCheckerFactory {
     private static ConsistencyChecker tostr = new ToStr();
     private static ConsistencyChecker valueof = new ValueOf();
     private static ConsistencyChecker idxof = new IndexOf();
+    private static ConsistencyChecker lastidxof = new LastIndexOf();
 
 
     public boolean isConsistent(ConstraintNetworkBuilder cb, Node n) {
@@ -121,6 +122,9 @@ public enum ConsistencyCheckerFactory {
 
             case INDEXOF:
                 return idxof;
+
+            case LASTINDEXOF:
+                return lastidxof;
 
             case TOLOWER:
             case TOUPPER:

@@ -69,6 +69,9 @@ public class StandardWrappers {
                 return "org.snt.cnetwork.utils.StandardWrappers.substring(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case INDEXOF:
                 return "org.snt.cnetwork.utils.StandardWrappers.indexof(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+            case LASTINDEXOF:
+                return "org.snt.cnetwork.utils.StandardWrappers.lastindexof" +
+                        "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case TOLOWER:
                 return "org.snt.cnetwork.utils.StandardWrappers.toLower(Ljava/lang/String;)Ljava/lang/String;";
             case TOUPPER:
@@ -271,6 +274,10 @@ public class StandardWrappers {
 
     public static String indexOf(String a, String b, String c) {
         return String.valueOf(a.indexOf(b, Integer.parseInt(c)));
+    }
+
+    public static String lastindexof(String a, String b, String c) {
+        return String.valueOf(a.lastIndexOf(b, Integer.parseInt(c)));
     }
 
     public static String concat(String a, String b) {

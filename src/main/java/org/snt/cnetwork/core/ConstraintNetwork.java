@@ -269,16 +269,6 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
 
         //LOGGER.debug(toDot());
         if (containsVertex(n)) {
-            boolean ok = false;
-            for (Node k : vertexSet()) {
-                if (k.getId() == n.getId()) {
-                    LOGGER.debug("k {}:{}", k.getLabel(), k.getId());
-                    LOGGER.debug("n {}:{}", n.getLabel(), n.getId());
-                    ok = true;
-                }
-            }
-            assert ok;
-            LOGGER.debug("remove V {}:{}", n.getLabel(), n.getId());
             //nodeLookup.remove(n.getLabel());
             return super.removeVertex(n);
         } else {

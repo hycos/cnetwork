@@ -14,7 +14,7 @@ public class BooleanNaryOp extends ConsistencyChecker {
     @Override
     public boolean check(ConstraintNetworkBuilder cb, Node n) {
 
-        return checkNary(cb, n, -1, x ->x.getKind().isBoolean(), p -> p
+        return checkNaryPlus2(cb, n, x ->x.getKind().isBoolean(), p -> p
                 .getKind()
                 .isBoolean());
 

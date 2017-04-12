@@ -4,6 +4,7 @@ package org.snt.cnetwork.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.consistency.ConsistencyCheckerFactory;
+import org.snt.cnetwork.core.domain.BooleanRange;
 import org.snt.cnetwork.core.domain.NodeDomain;
 import org.snt.cnetwork.core.domain.NodeDomainFactory;
 import org.snt.cnetwork.core.euf.EquiClass;
@@ -22,6 +23,9 @@ public class ConstraintNetworkBuilder implements Cloneable {
     //private NodeElemFact nf;
     private EufManager euf;
 
+    private Set<ConstraintNetworkEventListener> listeners = new HashSet<>();
+
+    // Note that listeners are no copied
     public ConstraintNetworkBuilder(ConstraintNetworkBuilder cnb) {
         this.cn = new ConstraintNetwork(cnb.cn);
         //this.nf = new NodeElemFact(this, cnb.nf);
@@ -50,7 +54,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
     public String getLabelForNode(Node n) {
         EquiClass e = euf.getEquiClassForNode(n);
-        return e.getCorrespondingElement(n).getLabel()  ;
+        return e.getCorrespondingElement(n).getLabel() ;
     }
 
     public Node addConstraint(NodeKind kind, Node... params) throws
@@ -66,8 +70,15 @@ public class ConstraintNetworkBuilder implements Cloneable {
     }
 
     public Edge addConnection(Edge e) throws EUFInconsistencyException {
-
         return cn.addConnection(e);
+    }
+
+    public void addListener(ConstraintNetworkEventListener listener) {
+        this.listeners.add(listener);
+    }
+
+    public void addListener(Set<ConstraintNetworkEventListener> listeners) {
+        this.listeners.addAll(listeners);
     }
 
 
@@ -76,6 +87,8 @@ public class ConstraintNetworkBuilder implements Cloneable {
         LOGGER.debug("add operand {}:{}", n, s);
         Node op = cn.addOperand(n, s);
 
+        LOGGER.debug("lbl for node {}:{}", op.getId(), op.getLabel());
+
         try {
             euf.addEquiClass(op);
             return infer(op);
@@ -83,6 +96,11 @@ public class ConstraintNetworkBuilder implements Cloneable {
             LOGGER.error(e.getMessage());
             assert false;
         }
+
+
+        String lbl = getLabelForNode(op);
+
+        LOGGER.debug("added node {}", lbl);
         return null;
     }
 
@@ -126,7 +144,14 @@ public class ConstraintNetworkBuilder implements Cloneable {
         LOGGER.debug("check node {}:{}", op.getLabel(), op.getId());
         //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
 
+        //if(op.getId() == 233)
+        //    System.exit(-1);
         Node nop = infer(op);
+
+        // there is a node with a differnt
+        if(nop.getId() != op.getId()) {
+            cn.removeVertex(op);
+        }
 
         //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
 
@@ -135,26 +160,17 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
     public Node addConstraint(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
-
         Node op = addOperation(kind, params);
 
-        ConsistencyCheckerFactory.INSTANCE.getConsistencyCheckerFor(kind)
-                .check(this,op);
+        BooleanRange br = (BooleanRange) op.getRange();
 
-        LOGGER.debug("add constraint {}", op.getId());
+        if(br.isAlwaysFalse()){
+            throw new EUFInconsistencyException("UNSAT");
+        }
 
-        // it seems to be redundant, byt we need this extra node in order to
-        // simplify the translation procedure
-        //Node contraint = addOperation(NodeKind.EQUALS, op, new Operand
-        // ("true",
-        //        NodeKind.BOOLLIT));
-
-        //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
-        LOGGER.debug(this.getConstraintNetwork().toDot());
-        op.setDomain(NodeDomainFactory.DBTRUE.clone());
-       // assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
-
+        op.setDomain(NodeDomainFactory.DBTRUE);
         return op;
+
     }
 
     public Operation addExtOperation(String identifier, List<Node> params) {
@@ -162,7 +178,13 @@ public class ConstraintNetworkBuilder implements Cloneable {
     }
 
     public boolean removeAllVertices(Collection<? extends Node> n) {
-        return cn.removeAllVertices(n);
+
+        //for(Node nd : n) {
+        //    removeVertex(nd);
+        //}
+
+        cn.removeAllVertices(n);
+        return true;
     }
 
     public boolean removeAllEdges(Collection<? extends Edge> e) {
@@ -172,6 +194,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
     public Set<Edge> getAllEdges(Node n1, Node n2) {
         return cn.getAllEdges(n1, n2);
     }
+
 
 
     public ConstraintNetwork getConstraintNetwork() {
@@ -217,7 +240,22 @@ public class ConstraintNetworkBuilder implements Cloneable {
     }
 
     public boolean removeVertex(Node n) {
-        LOGGER.debug("remove vertex {}", n.getId());
+        /**LOGGER.debug("remove vertex {}", n.getId());
+
+        try {
+            EquiClass nn = euf.inferActualEquiClassForNode(n);
+            EquiClass nnn = new EquiClass();
+            for(Element ele : nn.getElements()) {
+                if (!ele.getMappedNode().equals(n)) {
+                    nnn.addElement(ele);
+                }
+            }
+            euf.removeEquiClass(nn);
+            euf.addEquiClass(nnn);
+        } catch (EUFInconsistencyException e) {
+            assert false;
+        }**/
+
         return cn.removeVertex(n);
     }
 
@@ -272,7 +310,10 @@ public class ConstraintNetworkBuilder implements Cloneable {
     }
 
 
-    public Node merge(Node toReplace, Node replacement) throws EUFInconsistencyException {
+    public Node merge(Node toReplace, Node replacement) throws
+            EUFInconsistencyException {
+
+        assert !toReplace.equals(replacement);
 
         if (!cn.containsVertex(toReplace) && cn.containsVertex(replacement)) {
             //assert false;
@@ -289,6 +330,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
         Set<Edge> toAdd = new HashSet<>();
 
         for (Edge e : out) {
+            assert !replacement.equals(e.getTarget());
             toAdd.add(new Edge(replacement, e.getTarget(), e.getSequence()));
         }
 
@@ -296,10 +338,9 @@ public class ConstraintNetworkBuilder implements Cloneable {
         //    toAdd.add(new Edge(e.getSource(),replacement, e.getSequence()));
         //}
 
-        if (containsVertex(toReplace)) {
-            removeVertex(toReplace);
-        }
+        assert containsVertex(toReplace);
 
+        removeVertex(toReplace);
         addConnections(toAdd);
 
         assert vertexSet().stream().filter(x -> x
@@ -324,6 +365,9 @@ public class ConstraintNetworkBuilder implements Cloneable {
                     replacement.getId() + " and " + toReplace.getId());
         }
         replacement.setDomain(isect);
+
+        // send a signal to all listeners
+        listeners.forEach(e -> e.onNodeMerge(toReplace,replacement));
 
         return replacement;
     }

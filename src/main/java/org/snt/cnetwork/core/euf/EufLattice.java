@@ -1,7 +1,6 @@
 package org.snt.cnetwork.core.euf;
 
 
-import org.apache.commons.collections.CollectionUtils;
 import org.jgrapht.graph.DirectedPseudograph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -171,7 +170,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
      * @param o
      * @return
      */
-    public EquiClass getCovering(EquiClass o) {
+    public EquiClass getTopCovering(EquiClass o) {
 
         LOGGER.debug("get covering");
         //LOGGER.debug("lmap {}", debug());
@@ -192,6 +191,30 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
             return o;
         }
     }
+
+
+    public EquiClass getBottomCovering(EquiClass o) {
+
+        LOGGER.debug("get covering");
+        //LOGGER.debug("lmap {}", debug());
+
+        // quicker access
+        if(lmap.containsKey(o.getLabel())) {
+            LOGGER.debug("---");
+            return lmap.get(o.getLabel());
+        }
+
+        LOGGER.debug("t");
+        try {
+
+            LOGGER.debug("who");
+            return getConnectedInNodesOfKind(bottom, EquiEdge.Kind.SUB).stream()
+                    .filter(x -> x.subsumes(o)).findFirst().get();
+        } catch (NoSuchElementException e) {
+            return o;
+        }
+    }
+
 
     public boolean hasCovering(EquiClass o) {
 
@@ -292,7 +315,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
             addEquiClass(e);
         }
         LOGGER.debug("find submsumption point");
-        return getCovering(eq);
+        return getTopCovering(eq);
     }
 
 
@@ -305,7 +328,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
         if (isAlreadySubsumed(n) || n.isEmpty()) {
             LOGGER.debug("{}:{} already subsumed", n.getLabel(), n.getId());
-            return getCovering(n);
+            return getTopCovering(n);
         }
 
         LOGGER.debug("find max ov for {}", n.getDotLabel());
@@ -479,25 +502,174 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
     protected Collection<EquiClass> getCoveringSplit(EquiClass e) {
         return e.split().stream().map(v ->
+                getTopCovering(v)).collect(Collectors.toList());
+    }
+
+    protected Collection<EquiClass> getOverlappingSplit(EquiClass e) {
+        return e.split().stream().map(v ->
                 getOverlapping(v)).collect(Collectors.toList());
     }
 
     // given a nested equiclass infer the equivalent based on parameter
     // equivalence
-    protected Set<EquiClass> inferEquiClassFor(EquiClass ec) throws EUFInconsistencyException {
+//    protected Set<EquiClass> inferEquiClassFor(EquiClass ec) throws EUFInconsistencyException {
+//        //assert e.isNested();
+//        //assert e.getElements().size() == 1;
+//
+//        // first -- search for the corresponding equi class
+//        // if it does exist
+//        EquiClass e = getTopCovering(ec);
+//
+//        LOGGER.debug("got covering");
+//
+//        if(!e.isNested())
+//            return Collections.singleton(e);
+//
+//        Predicate<EquiEdge> p = k -> k.getKind() == EquiEdge.Kind.SPLIT;
+//
+//        Set<EquiClass> ret = new HashSet<>();
+//
+//        LOGGER.debug("infer equivalence class for {}", e.getDotLabel());
+//
+//        final String anno = e.getElements().iterator().next().getAnnotation();
+//
+//
+//        // if there exist an alias, it has to be among this elems
+//        Set<EquiClass> srccrit = vertexSet().stream()
+//                .filter(v -> v.isNested())
+//                .filter(v -> !v.equals(e))
+//                .filter(v -> v.getElements().iterator().next().getAnnotation
+//                        ().equals(anno)).collect(Collectors.toSet());
+//
+//        //LOGGER.debug("srccrit {}", srccrit);
+//
+//        // do not consider join elements from e as source crits
+//        if (containsVertex(e))
+//            srccrit.removeAll(bwslice(Collections.singleton(e), p));
+//
+//
+//        if (srccrit.isEmpty()) {
+//            ret.add(e);
+//            return ret;
+//        }
+//
+//        //LOGGER.debug("srccrit {}", srccrit);
+//        assert e.getElements().size() == 1;
+//
+//        //LOGGER.debug("card {}", e.getCardinality());
+//
+//        //LOGGER.debug("spl {}", e.split().size());
+//
+//
+//        // an ordered list of v's parameters
+//        Collection<EquiClass> plist = getCoveringSplit(e);
+//
+//        assert plist.size() == e.split().size();
+//
+//        LOGGER.debug("plist {}", plist.size());
+//
+//        Set<EquiClass> tcrit = new HashSet<>();
+//
+//
+//        for (EquiClass par : plist) {
+//
+//            LOGGER.debug("check par {}:{}", par.getDotLabel(), par.getId());
+//
+//            if (!containsVertex(par)) {
+//                ret.add(e);
+//                return ret;
+//            }
+//
+//            Set<EquiClass> check = incomingEdgesOf(par).stream()
+//                    .filter(t -> t.getKind() == EquiEdge.Kind.SPLIT)
+//                    .filter(t -> !t.getSource().equals(top))
+//                    .filter(t -> !t.getSource().equals(e))
+//                    .filter(t -> t.getSource().isNested())
+//                    .filter(t ->
+//                            CollectionUtils.isEqualCollection(getCoveringSplit(t.getSource()),
+//                                    plist))
+//                    .map(EquiEdge::getTarget)
+//                    .collect(Collectors.toSet());
+//
+//
+//            tcrit.addAll(check);
+//        }
+//
+//
+//        LOGGER.debug("tcrit {}", tcrit);
+//
+//        if (srccrit.isEmpty() || tcrit.isEmpty()) {
+//
+//            LOGGER.debug("tcrit, scrcrit empty");
+//            ret.add(e);
+//            return ret;
+//        }
+//
+//        Set<EquiClass> fw = fwslice(srccrit, p);
+//        Set<EquiClass> bw = bwslice(tcrit, p);
+//
+//        LOGGER.debug("FW {}", fw);
+//        LOGGER.debug("BW {}", bw);
+//
+//        Set<EquiClass> chop = new HashSet<>();
+//        chop.addAll(fw);
+//        chop.retainAll(bw);
+//
+//
+//        try {
+//            chop = chop.stream()
+//                    .filter(v -> v.isNested())
+//                    .filter(v -> !v.equals(top))
+//                    .filter(v -> !v.equals(bottom))
+//                    .filter(v -> v.getElements().iterator().next().getAnnotation
+//                            ().equals(anno)).collect(Collectors.toSet());
+//        } catch (NoSuchElementException x) {
+//            ret.add(e);
+//            return ret;
+//        }
+//
+//        LOGGER.debug("chop {}", chop);
+//
+//
+//        if (chop.isEmpty()) {
+//            ret.add(e);
+//            return ret;
+//        } else {
+//
+//            //if(chop.size() > 1) {
+//            //   EquiClass nec = chop.stream().reduce(EquiClass::union).get()
+//            //           .union(e);
+//            //   addEquiClass(nec);
+//            //   return Collections.singleton(getTopCovering(nec));
+//            //} else {
+//                //eh.onEquiClassInference(ec);
+//                return chop;
+//            //}
+//        }
+//    }
+
+
+    // given a nested equiclass infer the equivalent based on parameter
+    // equivalence
+    protected Set<EquiClass> inferEquiClassFor(EquiClass ec) throws
+            EUFInconsistencyException {
         //assert e.isNested();
         //assert e.getElements().size() == 1;
 
         // first -- search for the corresponding equi class
         // if it does exist
-        EquiClass e = getCovering(ec);
+        EquiClass e = getBottomCovering(ec);
+
+        if(e.equals(top))
+            return Collections.singleton(ec);
+
 
         LOGGER.debug("got covering");
 
         if(!e.isNested())
             return Collections.singleton(e);
 
-        Predicate<EquiEdge> p = k -> k.getKind() == EquiEdge.Kind.SPLIT;
+        Predicate<EquiEdge> p = k -> k.getKind() == EquiEdge.Kind.SUB;
 
         Set<EquiClass> ret = new HashSet<>();
 
@@ -513,7 +685,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
                 .filter(v -> v.getElements().iterator().next().getAnnotation
                         ().equals(anno)).collect(Collectors.toSet());
 
-        LOGGER.debug("srccrit {}", srccrit);
+        //LOGGER.debug("srccrit {}", srccrit);
 
         // do not consider join elements from e as source crits
         if (containsVertex(e))
@@ -525,16 +697,21 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
             return ret;
         }
 
-        LOGGER.debug("srccrit {}", srccrit);
+        //LOGGER.debug("srccrit {}", srccrit);
         assert e.getElements().size() == 1;
 
-        LOGGER.debug("card {}", e.getCardinality());
+        //LOGGER.debug("card {}", e.getCardinality());
 
-        LOGGER.debug("spl {}", e.split().size());
+        //LOGGER.debug("spl {}", e.split().size());
 
 
         // an ordered list of v's parameters
         Collection<EquiClass> plist = getCoveringSplit(e);
+
+        if(plist.size() != e.split().size()) {
+            ret.add(e);
+            return ret;
+        }
 
         assert plist.size() == e.split().size();
 
@@ -542,8 +719,9 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
         Set<EquiClass> tcrit = new HashSet<>();
 
-
+        int idx = 0;
         for (EquiClass par : plist) {
+            idx ++;
 
             LOGGER.debug("check par {}:{}", par.getDotLabel(), par.getId());
 
@@ -552,19 +730,21 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
                 return ret;
             }
 
+            final int fidx = idx;
+
             Set<EquiClass> check = incomingEdgesOf(par).stream()
+                    .filter(t -> t.getSequence() == fidx)
                     .filter(t -> t.getKind() == EquiEdge.Kind.SPLIT)
                     .filter(t -> !t.getSource().equals(top))
                     .filter(t -> !t.getSource().equals(e))
                     .filter(t -> t.getSource().isNested())
-                    .filter(t ->
-                            CollectionUtils.isEqualCollection(getCoveringSplit(t.getSource()),
-                                    plist))
-                    .map(EquiEdge::getTarget)
+                    .map(EquiEdge::getSource)
                     .collect(Collectors.toSet());
 
-
-            tcrit.addAll(check);
+            if(idx == 1)
+                tcrit.addAll(check);
+            else
+                tcrit.retainAll(check);
         }
 
 
@@ -612,13 +792,16 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
             //   EquiClass nec = chop.stream().reduce(EquiClass::union).get()
             //           .union(e);
             //   addEquiClass(nec);
-            //   return Collections.singleton(getCovering(nec));
+            //   return Collections.singleton(getTopCovering(nec));
             //} else {
-                //eh.onEquiClassInference(ec);
-                return chop;
+            //eh.onEquiClassInference(ec);
+            return chop;
             //}
         }
     }
+
+
+
 
     private Set<EquiClass> bwslice(Collection<EquiClass> crit,
                                    Predicate<EquiEdge> p) {
@@ -772,11 +955,11 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
         }
     }
 
-    private void removeEquiClasses(Collection<EquiClass> v) {
+    protected void removeEquiClasses(Collection<EquiClass> v) {
         v.forEach(e -> removeEquiClass(e));
     }
 
-    private void removeEquiClass(EquiClass v) {
+    protected void removeEquiClass(EquiClass v) {
         //LOGGER.debug("remove vertex {}:{}", v.getDotLabel(), v.getId());
         lmap.remove(v.getLabel());
         super.removeVertex(v);

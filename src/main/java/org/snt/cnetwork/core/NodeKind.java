@@ -60,6 +60,7 @@ public enum NodeKind {
 
     SUBSTR("substr", DomainKind.STRING),
     INDEXOF("indexof", DomainKind.NUMERIC_NM1),
+    LASTINDEXOF("lastindexof", DomainKind.NUMERIC_NM1),
     TOLOWER("tolower", DomainKind.STRING_LOWER),
     TOUPPER("toupper", DomainKind.STRING_UPPER),
     CONCAT("concat", DomainKind.STRING),
@@ -141,6 +142,7 @@ public enum NodeKind {
 
             case "substr": return SUBSTR;
             case "indexof": return INDEXOF;
+            case "lastindexof": return LASTINDEXOF;
 
             case "tolower": return TOLOWER;
             case "toupper": return TOUPPER;
@@ -253,7 +255,7 @@ public enum NodeKind {
                 == TOUPPER || this == CONCAT || this == TRIM|| this == LEN ||
                 this == REPLACE || this == STRINV || this == CHARAT || this
                 == VALUEOF || this == TOSTR || this == ADD || this == SUB ||
-                this == EXTERNAL;
+                this == EXTERNAL || this == LASTINDEXOF;
     }
 
     public boolean isBranch() {

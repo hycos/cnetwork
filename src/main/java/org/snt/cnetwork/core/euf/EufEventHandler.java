@@ -10,5 +10,4 @@ public interface EufEventHandler {
      * @param ec
      */
     void onEquiClassAddition(EquiClass ec) throws EUFInconsistencyException;
-
 }

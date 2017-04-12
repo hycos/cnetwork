@@ -27,23 +27,23 @@ public class NumCut extends Cut<Long> implements Cloneable {
     }
 
     private static NumCut max(NumCut a, NumCut b) {
-        LOGGER.debug("NumCut max {} -- {}", a, b);
+        //LOGGER.debug("NumCut max {} -- {}", a, b);
         if(a.isGreaterThan(b)) {
-            LOGGER.debug("1");
+            //LOGGER.debug("1");
             return a;
         } else {
-            LOGGER.debug("2");
+            //LOGGER.debug("2");
             return b;
         }
     }
 
     private static NumCut min(NumCut a, NumCut b) {
-        LOGGER.debug("NumCut min {} -- {}", a, b);
+        //LOGGER.debug("NumCut min {} -- {}", a, b);
         if(a.isSmallerThan(b)) {
-            LOGGER.debug("1");
+            //LOGGER.debug("1");
             return a;
         } else {
-            LOGGER.debug("2");
+            //LOGGER.debug("2");
             return b;
         }
     }

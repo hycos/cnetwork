@@ -31,4 +31,21 @@ public abstract class ConsistencyChecker {
 
     }
 
+    protected boolean checkNaryPlus2(ConstraintNetworkBuilder cb,
+                                Node op,
+                                Predicate<Node> paramPredicate,
+                                Predicate<Node> opPredicate) {
+
+        List<Node> params = cb.getParametersFor(op);
+
+        if(params.size() < 2) {
+            return false;
+        }
+
+
+        return params.stream().filter(paramPredicate).count() == params.size
+                () && opPredicate.test(op);
+
+    }
+
 }

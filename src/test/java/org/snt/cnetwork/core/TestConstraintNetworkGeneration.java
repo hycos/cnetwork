@@ -117,7 +117,7 @@ public class TestConstraintNetworkGeneration {
 
 
         Assert.assertEquals(cb1.vertexSet().size(), 5);
-        Assert.assertEquals(cb2.vertexSet().size(), 7);
+        Assert.assertEquals(cb2.vertexSet().size(), 6);
 
         Node d = cb1.addOperand(NodeKind.STRVAR, "d");
 

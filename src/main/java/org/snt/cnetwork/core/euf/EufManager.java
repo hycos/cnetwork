@@ -13,8 +13,7 @@ import org.snt.cnetwork.exception.MissingItemException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class EufManager extends ConstraintNetworkObserver<Node> implements
-        EufEventHandler {
+public class EufManager extends ConstraintNetworkObserver<Node> implements EufEventHandler {
 
 
     final static Logger LOGGER = LoggerFactory.getLogger(EufManager.class);
@@ -43,7 +42,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
     public EufManager(EufManager mgr, ConstraintNetworkBuilder cb) {
         // copy element fact and updating reference to new cn
         assert (mgr.lattice != null);
-        this.lattice = new EufLattice(this,mgr.lattice);
+        this.lattice = new EufLattice(this, mgr.lattice);
         assert this.lattice != null;
         this.elementFact = new NodeElemFact(mgr.elementFact, cb);
         assert this.lattice.vertexSet().size() == mgr.lattice.vertexSet().size();
@@ -64,7 +63,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
                 (Collectors
                         .toList());
 
-        for(Node rr : r) {
+        for (Node rr : r) {
             LOGGER.debug("RR {}", rr.getLabel());
         }
         return r.toArray(new Node[r.size()]);
@@ -97,8 +96,8 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
 
         assert ec.length == 2;
 
-        EquiClass fst = lattice.getCovering(ec[0]);
-        EquiClass snd = lattice.getCovering(ec[1]);
+        EquiClass fst = lattice.getTopCovering(ec[0]);
+        EquiClass snd = lattice.getTopCovering(ec[1]);
 
 
         LOGGER.debug("fst {} par {}", ec[0].getDotLabel(), fst.getDotLabel());
@@ -126,8 +125,8 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
         LOGGER.debug("link equal nodes");
 
         Node first = null;
-        for(Element e : c.getElements()) {
-            if(first == null) {
+        for (Element e : c.getElements()) {
+            if (first == null) {
                 first = e.getMappedNode();
                 continue;
             }
@@ -136,8 +135,8 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
             assert cb.containsVertex(nxt);
             assert cb.containsVertex(first);
 
-            if(!nxt.equals(first)) {
-                Node t = cb.addConstraint(NodeKind.EQUALS, first, e.getMappedNode());
+            if (!nxt.equals(first)) {
+                cb.addConstraint(NodeKind.EQUALS, first, e.getMappedNode());
             }
         }
 
@@ -148,7 +147,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
         LOGGER.debug("remove operand redundancies");
         assert lattice != null;
 
-        EquiClass covering = lattice.getCovering(c);
+        EquiClass covering = lattice.getTopCovering(c);
 
         LOGGER.debug("got covering {}", covering.getElements().size());
 
@@ -171,7 +170,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
                         con.add(ta);
 
                     if (con.size() >= 1)
-                        if(ta.getMappedNode().getId()
+                        if (ta.getMappedNode().getId()
                                 != con.getFirst().getMappedNode().getId()) {
                             throw new EUFInconsistencyException(
                                     ta.getMappedNode().getLabel() +
@@ -198,14 +197,13 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
             // remap all variables to the constant value
             remap(con.iterator().next(), vars);
         } else if (vars.size() > 1) {
-            Element min = Collections.min(vars, new IdComparator());
+            // Element min = Collections.min(vars, new IdComparator());
+            Element min = findFirst(vars);
             vars.remove(min);
             remap(min, vars);
         }
 
     }
-
-
 
 
     private void removeOperationRedundancies(EquiClass c) throws
@@ -215,63 +213,75 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
         assert lattice != null;
 
 
-
-        EquiClass covering = lattice.getCovering(c);
+        EquiClass covering = lattice.getTopCovering(c);
 
         LOGGER.debug("got covering {}", covering.getElements().size());
 
         // group by annotation
-        Map<String, LinkedList<Element>> ng = new HashMap<>();
+        Map<String, Map<Integer, LinkedList<Element>>> ng = new HashMap<>();
 
         for (Element ta : covering.getElements()) {
+            int id = ta.split().length;
+
             if (ta.isNested()) {
                 if (!ng.containsKey(ta.getAnnotation())) {
-                 ng.put(ta.getAnnotation(), new LinkedList<>());
-                 }
-                 ng.get(ta.getAnnotation()).add(ta);
+                    ng.put(ta.getAnnotation(), new HashMap<>());
+                }
+
+                if(!ng.get(ta.getAnnotation()).containsKey(id)) {
+                    ng.get(ta.getAnnotation()).put(id, new
+                            LinkedList<>());
+                }
+
+                ng.get(ta.getAnnotation()).get(id).add(ta);
 
                 LOGGER.debug("add for {}", ta.getAnnotation());
                 LOGGER.debug("SIZE {}", ng.get(ta.getAnnotation()));
             }
         }
 
-        LOGGER.debug("ngroup to merge {}", ng.size());
 
-        Set<LinkedList<Element>> nestedToMerge = ng.values().stream().filter(
-                s -> s.size() > 1
-        ).collect(Collectors.toSet());
-
-
-        LOGGER.debug("nested to merge {}", nestedToMerge.size());
-
-
-        for (LinkedList<Element> ne : nestedToMerge) {
-            Element min = Collections.min(ne, new IdComparator());
+        for (Map<Integer, LinkedList<Element>> e : ng.values()) {
+            //Element min = Collections.min(ne, new IdComparator());
             // do not consider min object when remapping
-            ne.remove(min);
-            remap(min, ne);
+
+            for(LinkedList<Element> ne : e.values()) {
+                if(ne.size() > 1) {
+                    LOGGER.debug("ngroup to merge {}", ne.size());
+                    Element min = findFirst(ne);
+                    ne.remove(min);
+                    remap(min, ne);
+                }
+            }
         }
 
+    }
+
+    // get the element wit the smallest id that is present in
+    // the constraint network
+    private Element findFirst(Collection<Element> ele) {
+        return ele.stream().sorted(new IdComparator()).filter(e -> cb
+                .containsVertex(e.getMappedNode())).findFirst().get();
     }
 
 
     // map all elements in list to the one at the first positon
     private void remap(Element firste, Collection<Element> toremap) throws
-    EUFInconsistencyException {
+            EUFInconsistencyException {
 
-        //LOGGER.debug(cb.getConstraintNetwork().toDot());
+        LOGGER.debug(cb.getConstraintNetwork().toDot());
 
         Node first = firste.getMappedNode();
 
-        assert cb.vertexSet().contains(first);
-
         LOGGER.debug("FRIST {}:{}", firste.getLabel(), first.getId());
+
+        assert cb.vertexSet().contains(first);
 
         assert !toremap.contains(first);
 
         for (Element e : toremap) {
 
-            if(!cb.vertexSet().contains(e.getMappedNode())) {
+            if (!cb.vertexSet().contains(e.getMappedNode())) {
                 e.setMappedNode(first);
                 continue;
             }
@@ -283,10 +293,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
             Node mapped = e.getMappedNode();
 
             if (mapped.getId() != first.getId()) {
-
-
                 cb.merge(mapped, first);
-
                 e.setMappedNode(first);
             }
 
@@ -303,9 +310,9 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
     }
 
     @Override
-    public void onEquiClassAddition(EquiClass ec) throws EUFInconsistencyException{
+    public void onEquiClassAddition(EquiClass ec) throws EUFInconsistencyException {
         removeOperandRedundancies(ec);
-        linkEqualNodes(ec);
+        //linkEqualNodes(ec);
     }
 
 
@@ -325,9 +332,10 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
         elementFact.createEquiClass(n);
         EquiClass ec = elementFact.getEquiClassFor(n);
         Set<EquiClass> snen = lattice.inferEquiClassFor(ec);
+
         LOGGER.debug("ieq {}:{}", snen, snen.size());
 
-        if(snen.size() > 1) {
+        if (snen.size() >= 1) {
             EquiClass nec = snen.stream().reduce(EquiClass::union).get().union(ec);
             EquiClass nnec = addEquiClass(nec);
 
@@ -443,9 +451,11 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
                         addInequialityConstraint(pars.get(0), pars.get(1));
                 }
             }
-        } else if (!n.isBoolean() && n.isOperation()) {
-            addEquiClass(n);
         }
+
+        //if (n.isOperation()) {
+        //    addEquiClass(n);
+        //}
 
     }
 
@@ -453,6 +463,12 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements
     public void attach(Node n) {
         LOGGER.debug("Attach listener to {}", n.getLabel());
         n.attach(this);
+    }
+
+    public void removeEquiClass(EquiClass v) {
+        lattice.removeEquiClass(v);
+
+        assert !lattice.containsVertex(v);
     }
 
 

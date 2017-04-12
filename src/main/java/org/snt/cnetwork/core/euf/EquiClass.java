@@ -106,7 +106,7 @@ public class EquiClass implements Cloneable {
     private final int id;
 
     // elements are ordered in alphabetical order
-    protected final Set<Element> set = new HashSet<>();
+    protected final TreeSet<Element> set = new TreeSet<>();
 
     public EquiClass(Element ... nods) {
         this.id = nid++;
