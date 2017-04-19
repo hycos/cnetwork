@@ -7,12 +7,14 @@ import org.snt.cnetwork.core.consistency.ConsistencyCheckerFactory;
 import org.snt.cnetwork.core.domain.BooleanRange;
 import org.snt.cnetwork.core.domain.NodeDomain;
 import org.snt.cnetwork.core.domain.NodeDomainFactory;
+import org.snt.cnetwork.core.euf.Element;
 import org.snt.cnetwork.core.euf.EquiClass;
 import org.snt.cnetwork.core.euf.EufLattice;
 import org.snt.cnetwork.core.euf.EufManager;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 
 public class ConstraintNetworkBuilder implements Cloneable {
@@ -54,7 +56,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
     public String getLabelForNode(Node n) {
         EquiClass e = euf.getEquiClassForNode(n);
-        return e.getCorrespondingElement(n).getLabel() ;
+        return e.getCorrespondingElement(n).getLabel();
     }
 
     public Node addConstraint(NodeKind kind, Node... params) throws
@@ -81,7 +83,6 @@ public class ConstraintNetworkBuilder implements Cloneable {
         this.listeners.addAll(listeners);
     }
 
-
     public Node addOperand(NodeKind n, String s) {
 
         LOGGER.debug("add operand {}:{}", n, s);
@@ -97,9 +98,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
             assert false;
         }
 
-
         String lbl = getLabelForNode(op);
-
         LOGGER.debug("added node {}", lbl);
         return null;
     }
@@ -113,7 +112,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
         //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
 
 
-        if(!ConsistencyCheckerFactory.INSTANCE.isConsistent(this, nop)) {
+        if (!ConsistencyCheckerFactory.INSTANCE.isConsistent(this, nop)) {
             throw new EUFInconsistencyException("malformed operand " + nop
                     .getKind());
         }
@@ -136,11 +135,20 @@ public class ConstraintNetworkBuilder implements Cloneable {
         }
     }
 
+    private List<Node> inferParams(List<Node> params) throws EUFInconsistencyException {
+        List<Node> plist = new Vector<>();
+
+        for(Node p : params) {
+            plist.add(infer(p));
+        }
+        return plist;
+    }
+
 
     public Node addOperation(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
 
-        Node op = cn.addOperation(kind, params);
+        Node op = cn.addOperation(kind, inferParams(params));
         LOGGER.debug("check node {}:{}", op.getLabel(), op.getId());
         //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
 
@@ -149,7 +157,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
         Node nop = infer(op);
 
         // there is a node with a differnt
-        if(nop.getId() != op.getId()) {
+        if (nop.getId() != op.getId()) {
             cn.removeVertex(op);
         }
 
@@ -164,7 +172,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
         BooleanRange br = (BooleanRange) op.getRange();
 
-        if(br.isAlwaysFalse()){
+        if (br.isAlwaysFalse()) {
             throw new EUFInconsistencyException("UNSAT");
         }
 
@@ -194,7 +202,6 @@ public class ConstraintNetworkBuilder implements Cloneable {
     public Set<Edge> getAllEdges(Node n1, Node n2) {
         return cn.getAllEdges(n1, n2);
     }
-
 
 
     public ConstraintNetwork getConstraintNetwork() {
@@ -242,19 +249,19 @@ public class ConstraintNetworkBuilder implements Cloneable {
     public boolean removeVertex(Node n) {
         /**LOGGER.debug("remove vertex {}", n.getId());
 
-        try {
-            EquiClass nn = euf.inferActualEquiClassForNode(n);
-            EquiClass nnn = new EquiClass();
-            for(Element ele : nn.getElements()) {
-                if (!ele.getMappedNode().equals(n)) {
-                    nnn.addElement(ele);
-                }
-            }
-            euf.removeEquiClass(nn);
-            euf.addEquiClass(nnn);
-        } catch (EUFInconsistencyException e) {
-            assert false;
-        }**/
+         try {
+         EquiClass nn = euf.inferActualEquiClassForNode(n);
+         EquiClass nnn = new EquiClass();
+         for(Element ele : nn.getElements()) {
+         if (!ele.getMappedNode().equals(n)) {
+         nnn.addElement(ele);
+         }
+         }
+         euf.removeEquiClass(nn);
+         euf.addEquiClass(nnn);
+         } catch (EUFInconsistencyException e) {
+         assert false;
+         }**/
 
         return cn.removeVertex(n);
     }
@@ -347,7 +354,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
                 .getId() == id).count() == 0;
 
 
-        if(!ConsistencyCheckerFactory.INSTANCE.isConsistent(this,
+        if (!ConsistencyCheckerFactory.INSTANCE.isConsistent(this,
                 replacement)) {
             throw new EUFInconsistencyException("malformed operand " + replacement
                     .getId());
@@ -355,28 +362,44 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
         NodeDomain isect = toReplace.getDomain().intersect(replacement
                 .getDomain
-                ());
+                        ());
 
         LOGGER.debug("merge {} and {}", toReplace.getId(), replacement.getId());
         LOGGER.debug("ISECT {}" + isect.toString());
 
-        if(isect == null || isect.isEmpty()) {
+        if (isect == null || isect.isEmpty()) {
             throw new EUFInconsistencyException("could not merge " +
                     replacement.getId() + " and " + toReplace.getId());
         }
         replacement.setDomain(isect);
 
         // send a signal to all listeners
-        listeners.forEach(e -> e.onNodeMerge(toReplace,replacement));
+        listeners.forEach(e -> e.onNodeMerge(toReplace, replacement));
 
         return replacement;
     }
 
+    private Node getCorrespondingNode(EquiClass c, Node n) {
+
+        Predicate<Element> f;
+        if (n.isOperation()) {
+            f = e -> e.getAnnotation().equals(n.getLabel());
+        } else {
+            f = e -> e.getLabel().equals(n.getLabel());
+        }
+
+        return c.getElements().stream().filter(f).filter(e -> cn
+                .containsVertex(e
+                        .getMappedNode())).findFirst().get().getMappedNode();
+
+    }
 
     // @TODO: make inference work properly for operands as well -- we need
     // to ensure that the returned nodes are definetely present in the CN
     public Node inferEquivalentNode(Node n) throws EUFInconsistencyException {
 
+        LOGGER.debug("infer {}", n.getId());
+        LOGGER.debug(getEufLattice().toDot());
         EquiClass nen = euf.inferActualEquiClassForNode(n);
 
         EquiClass nn = euf.getEquiClassForNode(n);
@@ -391,7 +414,12 @@ public class ConstraintNetworkBuilder implements Cloneable {
         if (nen.equals(euf.getTop()))
             return n;
 
+
+        //Node emap = getCorrespondingNode(nn,n);
         Node emap = nen.getCorrespondingElement(n).getMappedNode();
+
+        //LOGGER.debug("emap {}", nen.getDotLabel());
+        //assert cn.containsVertex(emap);
 
         // whenever we infer a new fact it will be added to our euf
         // lattice
@@ -406,7 +434,6 @@ public class ConstraintNetworkBuilder implements Cloneable {
         }
         return emap;
     }
-
 
 
 }

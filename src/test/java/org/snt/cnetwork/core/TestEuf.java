@@ -399,11 +399,9 @@ public class TestEuf {
         } catch (EUFInconsistencyException e) {
             e.printStackTrace();
         }
-
-        Assert.assertEquals(cn.vertexSet().size(), 3);
-
         LOGGER.debug(cn.getConstraintNetwork().toDot());
 
+        Assert.assertEquals(cn.vertexSet().size(), 3);
     }
 
     @Test

@@ -65,6 +65,8 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements EufEv
 
         for (Node rr : r) {
             LOGGER.debug("RR {}", rr.getLabel());
+            LOGGER.debug("EQ {}", getEquiClassForNode(rr)
+                    .getCorrespondingElement(rr).getMappedNode().getLabel());
         }
         return r.toArray(new Node[r.size()]);
     }
@@ -311,8 +313,39 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements EufEv
 
     @Override
     public void onEquiClassAddition(EquiClass ec) throws EUFInconsistencyException {
+
         removeOperandRedundancies(ec);
         //linkEqualNodes(ec);
+
+
+
+
+    }
+
+    @Override
+    public void onEquiClassReplace(Set<EquiClass> old, EquiClass enew) throws
+            EUFInconsistencyException {
+
+        Set<EquiClass> in = lattice.getConnectedInNodesOfKind(enew, EquiEdge
+                .Kind
+                .SPLIT);
+
+        LOGGER.debug("on equiclass add {}", enew);
+
+        for(EquiClass c : in) {
+            assert c.isNested();
+            Set<EquiClass> snen = lattice.inferEquiClassFor(c);
+            EquiClass nec = snen.stream().reduce(EquiClass::union).get()
+                    .union(c);
+
+            LOGGER.debug("nec {}", nec);
+
+            EquiClass nnec = addEquiClass(nec);
+
+            // remove redunancies just for the operations with parameter
+            // equivalence
+            //removeOperationRedundancies(nec);
+        }
     }
 
 
@@ -333,9 +366,10 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements EufEv
         EquiClass ec = elementFact.getEquiClassFor(n);
         Set<EquiClass> snen = lattice.inferEquiClassFor(ec);
 
-        LOGGER.debug("ieq {}:{}", snen, snen.size());
+        LOGGER.debug("ieq {}:|{}| -- {}:{}", snen, snen.size(), ec, ec, n
+                .getId());
 
-        if (snen.size() >= 1) {
+        //if (snen.size() >= 1) {
             EquiClass nec = snen.stream().reduce(EquiClass::union).get().union(ec);
             EquiClass nnec = addEquiClass(nec);
 
@@ -343,11 +377,11 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements EufEv
             // equivalence
             removeOperationRedundancies(nec);
             return nnec;
-        }
+        //}
 
 
-        assert snen.size() == 1;
-        return snen.iterator().next();
+        //assert snen.size() == 1;
+        //return snen.iterator().next();
     }
 
     public EufLattice getLattice() {
