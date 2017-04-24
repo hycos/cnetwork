@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.ConstraintNetworkBuilder;
 import org.snt.cnetwork.core.ConstraintNetworkObserver;
 import org.snt.cnetwork.core.Node;
-import org.snt.cnetwork.core.NodeKind;
+import org.snt.cnetwork.core.consistency.ConsistencyCheckerFactory;
 import org.snt.cnetwork.core.domain.BooleanRange;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.exception.MissingItemException;
@@ -122,28 +122,6 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements EufEv
         lattice.addIneqEdge(snd, fst);
     }
 
-    private void linkEqualNodes(EquiClass c) throws EUFInconsistencyException {
-
-        LOGGER.debug("link equal nodes");
-
-        Node first = null;
-        for (Element e : c.getElements()) {
-            if (first == null) {
-                first = e.getMappedNode();
-                continue;
-            }
-            Node nxt = e.getMappedNode();
-
-            assert cb.containsVertex(nxt);
-            assert cb.containsVertex(first);
-
-            if (!nxt.equals(first)) {
-                cb.addConstraint(NodeKind.EQUALS, first, e.getMappedNode());
-            }
-        }
-
-    }
-
     private void removeOperandRedundancies(EquiClass c) throws EUFInconsistencyException {
 
         LOGGER.debug("remove operand redundancies");
@@ -252,6 +230,8 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements EufEv
                     LOGGER.debug("ngroup to merge {}", ne.size());
                     Element min = findFirst(ne);
                     ne.remove(min);
+
+                    LOGGER.debug("remap {}:{}", min,ne);
                     remap(min, ne);
                 }
             }
@@ -313,13 +293,8 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements EufEv
 
     @Override
     public void onEquiClassAddition(EquiClass ec) throws EUFInconsistencyException {
-
         removeOperandRedundancies(ec);
         //linkEqualNodes(ec);
-
-
-
-
     }
 
     @Override
@@ -369,7 +344,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements EufEv
         LOGGER.debug("ieq {}:|{}| -- {}:{}", snen, snen.size(), ec, ec, n
                 .getId());
 
-        //if (snen.size() >= 1) {
+        if (snen.size() >= 1) {
             EquiClass nec = snen.stream().reduce(EquiClass::union).get().union(ec);
             EquiClass nnec = addEquiClass(nec);
 
@@ -377,11 +352,11 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements EufEv
             // equivalence
             removeOperationRedundancies(nec);
             return nnec;
-        //}
+        }
 
 
-        //assert snen.size() == 1;
-        //return snen.iterator().next();
+        assert snen.size() == 1;
+        return snen.iterator().next();
     }
 
     public EufLattice getLattice() {
@@ -418,6 +393,8 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements EufEv
     public void update(Node n) throws EUFInconsistencyException {
         LOGGER.debug(">> update {}", n.getDotLabel());
 
+        if(!cb.vertexSet().contains(n))
+            return;
 
         //LOGGER.debug(this.cb.getConstraintNetwork().toDot());
 
@@ -474,7 +451,8 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements EufEv
                 LOGGER.debug("n {}", n.getDotLabel());
                 assert n.getRange() instanceof BooleanRange;
                 if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
-                    List<Node> pars = cb.getParametersFor(n);
+
+                    List<Node> pars = cb.inferParams(cb.getParametersFor(n));
                     assert pars.size() == 2;
                     addEquiClass(getParList(pars, true));
                 }
@@ -487,6 +465,8 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements EufEv
             }
         }
 
+        ConsistencyCheckerFactory.INSTANCE.checkConsistency(cb);
+
         //if (n.isOperation()) {
         //    addEquiClass(n);
         //}
@@ -498,12 +478,5 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements EufEv
         LOGGER.debug("Attach listener to {}", n.getLabel());
         n.attach(this);
     }
-
-    public void removeEquiClass(EquiClass v) {
-        lattice.removeEquiClass(v);
-
-        assert !lattice.containsVertex(v);
-    }
-
 
 }

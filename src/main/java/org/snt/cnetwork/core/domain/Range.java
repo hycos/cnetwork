@@ -12,7 +12,7 @@ public abstract class Range implements DomainInterface<Range> {
 
     public Range(NumCut min, NumCut max) {
 
-        LOGGER.debug("new ran min:{} max:{}", min, max);
+        //LOGGER.debug("new ran min:{} max:{}", min, max);
         assert min.isSmallerEqualsThan(max);
         this.lb = min;
         this.ub = max;

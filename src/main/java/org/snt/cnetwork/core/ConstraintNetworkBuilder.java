@@ -98,18 +98,18 @@ public class ConstraintNetworkBuilder implements Cloneable {
             assert false;
         }
 
-        String lbl = getLabelForNode(op);
-        LOGGER.debug("added node {}", lbl);
+
         return null;
     }
 
     private Node infer(Node n) throws EUFInconsistencyException {
+
         Node nop = inferEquivalentNode(n);
 
         LOGGER.debug("NOP {}:{}", nop, nop.getId());
         LOGGER.debug("OP {}:{}", n, n.getId());
 
-        //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
+        assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
 
 
         if (!ConsistencyCheckerFactory.INSTANCE.isConsistent(this, nop)) {
@@ -126,7 +126,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
         } else {
 
             //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
-            LOGGER.debug("remove {}", n.getId());
+            LOGGER.debug("BOOOOO {}", n.getId());
             //cn.removeVertex(n);
 
             //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
@@ -135,12 +135,19 @@ public class ConstraintNetworkBuilder implements Cloneable {
         }
     }
 
-    private List<Node> inferParams(List<Node> params) throws EUFInconsistencyException {
+    public List<Node> inferParams(List<Node> params) throws
+            EUFInconsistencyException {
         List<Node> plist = new Vector<>();
-
+        LOGGER.debug("infer params");
         for(Node p : params) {
-            plist.add(infer(p));
+
+            Node i = infer(p);
+
+            LOGGER.debug("inferred {}:{}", p.getId(), i.getId());
+            plist.add(i);
         }
+
+        assert plist.size() == params.size();
         return plist;
     }
 
@@ -148,16 +155,24 @@ public class ConstraintNetworkBuilder implements Cloneable {
     public Node addOperation(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
 
+
         Node op = cn.addOperation(kind, inferParams(params));
+
+        //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
         LOGGER.debug("check node {}:{}", op.getLabel(), op.getId());
+
         //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
 
         //if(op.getId() == 233)
         //    System.exit(-1);
         Node nop = infer(op);
 
+        LOGGER.debug("nop {}", nop.getId());
+        LOGGER.debug("op {}", op.getId());
+
         // there is a node with a differnt
         if (nop.getId() != op.getId()) {
+            LOGGER.debug("** remove {}", nop.getId());
             cn.removeVertex(op);
         }
 
@@ -168,6 +183,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
     public Node addConstraint(NodeKind kind, List<Node> params) throws
             EUFInconsistencyException {
+
         Node op = addOperation(kind, params);
 
         BooleanRange br = (BooleanRange) op.getRange();
@@ -177,8 +193,8 @@ public class ConstraintNetworkBuilder implements Cloneable {
         }
 
         op.setDomain(NodeDomainFactory.DBTRUE);
-        return op;
 
+        return op;
     }
 
     public Operation addExtOperation(String identifier, List<Node> params) {
@@ -320,10 +336,16 @@ public class ConstraintNetworkBuilder implements Cloneable {
     public Node merge(Node toReplace, Node replacement) throws
             EUFInconsistencyException {
 
+        replacement.setNote(toReplace.getNote());
         assert !toReplace.equals(replacement);
+        LOGGER.debug("merge {}:{} and {}:{}", toReplace, toReplace.getId(),
+                replacement, replacement.getId());
+
 
         if (!cn.containsVertex(toReplace) && cn.containsVertex(replacement)) {
             //assert false;
+
+            LOGGER.debug("return");
             return replacement;
         }
 
@@ -347,8 +369,9 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
         assert containsVertex(toReplace);
 
-        removeVertex(toReplace);
+        LOGGER.debug("-- remove {}", toReplace);
         addConnections(toAdd);
+        removeVertex(toReplace);
 
         assert vertexSet().stream().filter(x -> x
                 .getId() == id).count() == 0;
@@ -376,6 +399,17 @@ public class ConstraintNetworkBuilder implements Cloneable {
         // send a signal to all listeners
         listeners.forEach(e -> e.onNodeMerge(toReplace, replacement));
 
+        if (!ConsistencyCheckerFactory.INSTANCE.isConsistent(this,
+                replacement)) {
+            throw new EUFInconsistencyException("malformed operand " + replacement
+                    .getId());
+        }
+
+
+        LOGGER.debug("AFTER MERGEING ()()()()()()");
+
+        LOGGER.debug(cn.toDot());
+
         return replacement;
     }
 
@@ -398,14 +432,16 @@ public class ConstraintNetworkBuilder implements Cloneable {
     // to ensure that the returned nodes are definetely present in the CN
     public Node inferEquivalentNode(Node n) throws EUFInconsistencyException {
 
-        LOGGER.debug("infer {}", n.getId());
-        LOGGER.debug(getEufLattice().toDot());
+        LOGGER.debug("infer {}:{}", n.getLabel(),n.getId());
+        //LOGGER.debug(getEufLattice().toDot());
+        // equiclass which is present
+        //EquiClass nn = null;
         EquiClass nen = euf.inferActualEquiClassForNode(n);
 
         EquiClass nn = euf.getEquiClassForNode(n);
 
         LOGGER.debug("actual {}:{}", nen.getLabel(), nen.getId());
-        LOGGER.debug("new {}:{}", nn.getLabel(), nn.getId());
+        //LOGGER.debug("new {}:{}", nn.getLabel(), nn.getId());
 
         assert nen != null;
         assert nen != euf.getBottom();
@@ -414,11 +450,13 @@ public class ConstraintNetworkBuilder implements Cloneable {
         if (nen.equals(euf.getTop()))
             return n;
 
+        LOGGER.debug(getEufLattice().toDot());
+        //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
 
         //Node emap = getCorrespondingNode(nn,n);
         Node emap = nen.getCorrespondingElement(n).getMappedNode();
 
-        //LOGGER.debug("emap {}", nen.getDotLabel());
+        LOGGER.debug("mapped node {}:{}", nen.getDotLabel(),nen.getId());
         //assert cn.containsVertex(emap);
 
         // whenever we infer a new fact it will be added to our euf

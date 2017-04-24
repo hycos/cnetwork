@@ -62,11 +62,11 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return ret;
     }
 
-    protected ConstraintNetwork subgraph(Collection<Node> vertices) {
+    public ConstraintNetwork subgraph(Collection<Node> vertices) {
         ConstraintNetwork g = new ConstraintNetwork();
 
         for (Node n : vertices) {
-            LOGGER.debug("add vertex {}", n.getId());
+            //LOGGER.debug("add vertex {}", n.getId());
             g.addVertex(n);
         }
 
@@ -283,6 +283,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     }
 
     protected Node addNode(Node n) {
+
         addVertex(n);
         return n;
     }

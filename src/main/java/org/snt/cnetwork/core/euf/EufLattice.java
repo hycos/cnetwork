@@ -473,6 +473,9 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
         if (outSubDegreeOf(dst) == 0)
             linkToBottom(dst);
+
+        if(!src.equals(top))
+            removeEdge(top,dst);
     }
 
     protected void addIneqEdge(EquiClass src, EquiClass dst) {
@@ -555,12 +558,22 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
                 .filter(v -> v.getElements().iterator().next().getAnnotation
                         ().equals(anno)).collect(Collectors.toSet());
 
-        LOGGER.debug("srccrit {}", srccrit);
+//        LOGGER.debug("srccrit [");
+//        for(EquiClass sc : srccrit) {
+//            LOGGER.debug(sc.getDotLabel());
+//        }
+//        LOGGER.debug("]");
 
         // do not consider join elements from e as source crits
         if (containsVertex(e))
             srccrit.removeAll(bwslice(Collections.singleton(e), p));
 
+
+        LOGGER.debug("srccrit [");
+        for(EquiClass sc : srccrit) {
+            LOGGER.debug(sc.getDotLabel());
+        }
+        LOGGER.debug("]");
 
         if (srccrit.isEmpty()) {
             ret.add(e);
@@ -576,7 +589,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
 
         // an ordered list of v's parameters
-        Collection<EquiClass> plist = getCoveringSplit(e);
+        Collection<EquiClass> plist = getOverlappingSplit(e);
 
         if(plist.size() != e.split().size()) {
             ret.add(e);
