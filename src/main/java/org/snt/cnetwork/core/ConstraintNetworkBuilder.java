@@ -396,6 +396,12 @@ public class ConstraintNetworkBuilder implements Cloneable {
         }
         replacement.setDomain(isect);
 
+        if(replacement.getRange().isEmpty()) {
+
+            throw new EUFInconsistencyException("could not merge " +
+                    replacement.getId() + " and " + toReplace.getId());
+        }
+
         // send a signal to all listeners
         listeners.forEach(e -> e.onNodeMerge(toReplace, replacement));
 
@@ -406,9 +412,9 @@ public class ConstraintNetworkBuilder implements Cloneable {
         }
 
 
-        LOGGER.debug("AFTER MERGEING ()()()()()()");
-
-        LOGGER.debug(cn.toDot());
+//        LOGGER.debug("AFTER MERGEING ()()()()()()");
+//
+//        LOGGER.debug(cn.toDot());
 
         return replacement;
     }

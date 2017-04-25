@@ -132,6 +132,21 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
         } else {
             replace(sub, mo);
         }
+
+        boolean x1 = false;
+        boolean x2 = false;
+        for(Element ele : mo.getElements()) {
+            if(ele.getLabel().equals("index1"))
+                x1 = true;
+
+            if(ele.getLabel().equals("0"))
+                x2 = true;
+        }
+
+        LOGGER.debug("insert {}", mo.toString());
+
+        LOGGER.debug("add {}", mo.toString());
+        assert !(x1 && x2);
         split(mo);
     }
 
@@ -306,7 +321,6 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
     protected EquiClass addEquiClass(Collection<EquiClass> toadd) throws
             EUFInconsistencyException {
-
 
         EquiClass eq = union(toadd);
 
