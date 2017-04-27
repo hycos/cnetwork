@@ -13,6 +13,7 @@ import org.snt.cnetwork.core.graph.Node;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.utils.EscapeUtils;
 
+import java.util.Collection;
 import java.util.List;
 
 
@@ -38,23 +39,37 @@ public class ExecDag extends DirectedAcyclicGraph<Node,
 
     public ExecDag(ExecDag t, ConstraintNetworkBuilder cn) {
         this(cn);
-        vertexSet().addAll(t.vertexSet());
-        edgeSet().addAll(t.edgeSet());
+        addAllVertices(cn.vertexSet());
+        addAllEdges(t.edgeSet());
         this.cn = t.cn;
+    }
+
+    public void addAllVertices(Collection<Node> n) {
+        n.stream().forEach(v -> addVertex(v));
+    }
+
+    public void addAllEdges(Collection<ExecEdge> edges) {
+        try {
+            for (ExecEdge e : edges) {
+                addDagEdge(e.getSource(), e.getTarget());
+            }
+        } catch (CycleFoundException e1) {
+            assert false;
+        }
     }
 
     @Override
     public boolean addVertex(Node n) {
 
-        if(containsVertex(n))
+        if (containsVertex(n))
             return false;
         else super.addVertex(n);
 
-        if(n.isOperation()){
+        if (n.isOperation()) {
 
             List<Node> pars = cn.getParametersFor(n);
 
-            for(Node p : pars) {
+            for (Node p : pars) {
                 try {
                     addVertex(p);
                     addDagEdge(n, p);
@@ -130,7 +145,7 @@ public class ExecDag extends DirectedAcyclicGraph<Node,
 
     @Override
     public void update(Node n) throws EUFInconsistencyException {
-        if(n.isConstraint()) {
+        if (n.isConstraint()) {
             addVertex(n);
         }
     }
