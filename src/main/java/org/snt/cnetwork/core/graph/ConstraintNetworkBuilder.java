@@ -1,16 +1,17 @@
-package org.snt.cnetwork.core;
+package org.snt.cnetwork.core.graph;
 
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.consistency.ConsistencyCheckerFactory;
-import org.snt.cnetwork.core.domain.BooleanRange;
+import org.snt.cnetwork.core.domain.range.BooleanRange;
 import org.snt.cnetwork.core.domain.NodeDomain;
 import org.snt.cnetwork.core.domain.NodeDomainFactory;
 import org.snt.cnetwork.core.euf.Element;
 import org.snt.cnetwork.core.euf.EquiClass;
 import org.snt.cnetwork.core.euf.EufLattice;
 import org.snt.cnetwork.core.euf.EufManager;
+import org.snt.cnetwork.core.execdag.ExecDag;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 
 import java.util.*;
@@ -24,21 +25,49 @@ public class ConstraintNetworkBuilder implements Cloneable {
     private ConstraintNetwork cn;
     //private NodeElemFact nf;
     private EufManager euf;
+    private ExecDag tree;
 
+    // observer structural changes to on the cn
     private Set<ConstraintNetworkEventListener> listeners = new HashSet<>();
+
+    // Observe variables and operations
+    private Set<ConstraintNetworkObserver<Node>> observers = new HashSet<>();
 
     // Note that listeners are no copied
     public ConstraintNetworkBuilder(ConstraintNetworkBuilder cnb) {
         this.cn = new ConstraintNetwork(cnb.cn);
         //this.nf = new NodeElemFact(this, cnb.nf);
         this.euf = new EufManager(cnb.euf, this);
+        this.tree = new ExecDag(cnb.tree, this);
+
         assert cnb.vertexSet().size() == this.cn.vertexSet().size();
-        this.cn.vertexSet().forEach(v -> euf.attach(v));
+
+        this.observers.add(this.euf);
+        this.observers.add(this.tree);
+
+        attachObservers();
     }
 
     public ConstraintNetworkBuilder() {
         this.cn = new ConstraintNetwork();
         this.euf = new EufManager(this);
+        this.tree = new ExecDag(this);
+        this.observers.add(this.euf);
+        this.observers.add(this.tree);
+    }
+
+    private void attachObservers() {
+        cn.vertexSet().forEach(v -> attachObservers(v));
+    }
+
+    private void attachObservers(Node n) {
+        this.observers.forEach(o -> n.attach(o));
+    }
+
+    private void updateObservers(Node n) throws EUFInconsistencyException {
+        for(ConstraintNetworkObserver<Node> o : observers) {
+            o.update(n);
+        }
     }
 
     public Node getNodeById(int id) {
@@ -98,7 +127,6 @@ public class ConstraintNetworkBuilder implements Cloneable {
             assert false;
         }
 
-
         return null;
     }
 
@@ -118,8 +146,10 @@ public class ConstraintNetworkBuilder implements Cloneable {
         }
 
         if (n.equals(nop)) {
-            euf.attach(nop);
-            euf.update(nop);
+            attachObservers(nop);
+            updateObservers(nop);
+//            euf.attach(nop);
+//            euf.update(nop);
             //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
 
             return nop;
@@ -193,7 +223,6 @@ public class ConstraintNetworkBuilder implements Cloneable {
         }
 
         op.setDomain(NodeDomainFactory.DBTRUE);
-
         return op;
     }
 
@@ -226,6 +255,10 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
     public EufLattice getEufLattice() {
         return euf.getLattice();
+    }
+
+    public ExecDag getExecutionTree() {
+        return tree;
     }
 
     public Edge addConnection(Node src, Node target, EdgeKind kind, int prio) throws EUFInconsistencyException {
@@ -263,22 +296,6 @@ public class ConstraintNetworkBuilder implements Cloneable {
     }
 
     public boolean removeVertex(Node n) {
-        /**LOGGER.debug("remove vertex {}", n.getId());
-
-         try {
-         EquiClass nn = euf.inferActualEquiClassForNode(n);
-         EquiClass nnn = new EquiClass();
-         for(Element ele : nn.getElements()) {
-         if (!ele.getMappedNode().equals(n)) {
-         nnn.addElement(ele);
-         }
-         }
-         euf.removeEquiClass(nn);
-         euf.addEquiClass(nnn);
-         } catch (EUFInconsistencyException e) {
-         assert false;
-         }**/
-
         return cn.removeVertex(n);
     }
 

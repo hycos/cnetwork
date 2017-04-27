@@ -1,7 +1,8 @@
-package org.snt.cnetwork.core.domain;
+package org.snt.cnetwork.core.domain.range;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.domain.automaton.SimpleAutomaton;
 import org.snt.cnetwork.utils.DomainUtils;
 
 
@@ -240,17 +241,17 @@ public class AtomicNumRange extends Range {
         return intersect(zran);
     }
 
-    public Automaton getAutomaton() {
+    public SimpleAutomaton getAutomaton() {
         return DomainUtils.getNumAutomatonForRange(this);
     }
 
-    public Automaton getLenAutomaton() {
+    public SimpleAutomaton getLenAutomaton() {
 
         AtomicNumRange isect = intersect(N.clone());
         LOGGER.debug("isect {}", isect);
 
         if(isect == null || isect.isEmpty()) {
-            return new Automaton(".{0}");
+            return new SimpleAutomaton(".{0}");
         }
 
         LOGGER.info("getlenauto" + isect.toString());
@@ -258,13 +259,13 @@ public class AtomicNumRange extends Range {
         //@TODO:Julian this is a heuristic -- building a len automaton
         //is quite expensive
         if(isect.getMax().isAboveAll()) {
-            return new Automaton(".*");
+            return new SimpleAutomaton(".*");
         } else {
             String rexp = ".{"  + isect.getMin().endpoint  + "," + isect
                     .getMax().endpoint +
                     "}";
             LOGGER.debug("return rexp {}", rexp);
-            return new Automaton(rexp);
+            return new SimpleAutomaton(rexp);
         }
     }
 

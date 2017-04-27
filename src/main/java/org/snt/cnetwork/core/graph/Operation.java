@@ -1,8 +1,8 @@
-package org.snt.cnetwork.core;
+package org.snt.cnetwork.core.graph;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.domain.BooleanRange;
+import org.snt.cnetwork.core.domain.range.BooleanRange;
 import org.snt.cnetwork.core.domain.DomainKind;
 import org.snt.cnetwork.core.domain.NodeDomainFactory;
 import org.snt.cnetwork.exception.EUFInconsistencyException;

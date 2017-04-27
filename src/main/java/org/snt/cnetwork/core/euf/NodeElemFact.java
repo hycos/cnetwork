@@ -2,8 +2,8 @@ package org.snt.cnetwork.core.euf;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.ConstraintNetworkBuilder;
-import org.snt.cnetwork.core.Node;
+import org.snt.cnetwork.core.graph.ConstraintNetworkBuilder;
+import org.snt.cnetwork.core.graph.Node;
 import org.snt.cnetwork.exception.MissingItemException;
 
 import java.util.*;
@@ -98,7 +98,7 @@ public final class NodeElemFact {
 
         LOGGER.debug("compute label {}", computeParList(elems));
 
-        String label = n.getKind().getDesc() + computeParList(elems);
+        String label = n.getKind() + computeParList(elems);
 
         NestedElement nested = new NestedElement(n, label, n
                 .getKind()

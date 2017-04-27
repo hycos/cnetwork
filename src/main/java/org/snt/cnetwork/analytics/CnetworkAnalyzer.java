@@ -6,10 +6,10 @@ import org.jgrapht.graph.AsUndirectedGraph;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.ConstraintNetwork;
-import org.snt.cnetwork.core.ConstraintNetworkBuilder;
-import org.snt.cnetwork.core.Edge;
-import org.snt.cnetwork.core.Node;
+import org.snt.cnetwork.core.graph.ConstraintNetwork;
+import org.snt.cnetwork.core.graph.ConstraintNetworkBuilder;
+import org.snt.cnetwork.core.graph.Edge;
+import org.snt.cnetwork.core.graph.Node;
 
 import java.util.*;
 import java.util.stream.Collectors;

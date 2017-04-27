@@ -12,8 +12,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-//@TODO: Julian simplify the implementation later on. Split the code in Model
-// and Controller
 public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> implements Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(EufLattice.class);
@@ -26,7 +24,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
 
 
     public EufLattice(EufEventHandler eh) {
-        super(new EdgeFact());
+        super(new EquiEdgeFact());
         super.addVertex(top);
         super.addVertex(bottom);
         super.addEdge(top, bottom, init);

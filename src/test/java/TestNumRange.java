@@ -3,6 +3,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.*;
+import org.snt.cnetwork.core.domain.automaton.SimpleAutomaton;
+import org.snt.cnetwork.core.domain.range.*;
 
 
 public class TestNumRange {
@@ -386,7 +388,7 @@ public class TestNumRange {
     public void testAutomaton() {
         NumRange rs0 = new NumRange(new AtomicNumRange(100, 100));
 
-        Automaton a = rs0.toAutomaton();
+        SimpleAutomaton a = rs0.toAutomaton();
 
         LOGGER.debug(a.getShortestExample());
 

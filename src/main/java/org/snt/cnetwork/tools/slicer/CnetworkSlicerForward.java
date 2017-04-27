@@ -1,7 +1,7 @@
 package org.snt.cnetwork.tools.slicer;
 
-import org.snt.cnetwork.core.ConstraintNetwork;
-import org.snt.cnetwork.core.Node;
+import org.snt.cnetwork.core.graph.ConstraintNetwork;
+import org.snt.cnetwork.core.graph.Node;
 
 import java.util.Collection;
 import java.util.HashSet;

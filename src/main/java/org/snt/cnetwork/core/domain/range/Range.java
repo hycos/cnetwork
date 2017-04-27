@@ -1,7 +1,8 @@
-package org.snt.cnetwork.core.domain;
+package org.snt.cnetwork.core.domain.range;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.domain.DomainInterface;
 
 public abstract class Range implements DomainInterface<Range> {
 

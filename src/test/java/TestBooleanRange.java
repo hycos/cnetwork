@@ -1,8 +1,8 @@
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.NodeKind;
-import org.snt.cnetwork.core.Operand;
+import org.snt.cnetwork.core.graph.NodeKind;
+import org.snt.cnetwork.core.graph.Operand;
 
 
 public class TestBooleanRange {

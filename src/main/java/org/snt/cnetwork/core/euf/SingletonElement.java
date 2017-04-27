@@ -1,7 +1,7 @@
 package org.snt.cnetwork.core.euf;
 
 
-import org.snt.cnetwork.core.Node;
+import org.snt.cnetwork.core.graph.Node;
 
 public class SingletonElement extends Element {
 

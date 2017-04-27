@@ -2,7 +2,7 @@ package org.snt.cnetwork.core.exec;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.Operation;
+import org.snt.cnetwork.core.graph.Operation;
 import org.snt.cnetwork.sig.JavaMethodSignature;
 
 import java.util.HashMap;

@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.graph.*;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 
 
@@ -40,6 +41,7 @@ public class TestConstraintNetworkGeneration {
         }
         LOGGER.debug(tm2.getEufLattice().toDot());
         LOGGER.info(tm2.getConstraintNetwork().toDot());
+        LOGGER.debug(tm2.getExecutionTree().toDot());
     }
 
 

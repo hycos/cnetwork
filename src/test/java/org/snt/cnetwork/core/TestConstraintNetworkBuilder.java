@@ -4,6 +4,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.graph.ConstraintNetworkBuilder;
+import org.snt.cnetwork.core.graph.Node;
+import org.snt.cnetwork.core.graph.NodeKind;
+import org.snt.cnetwork.core.graph.Operand;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.utils.EscapeUtils;
 
@@ -43,6 +47,8 @@ public class TestConstraintNetworkBuilder {
 
             //LOGGER.debug(cb.getConstraintNetwork().toDot());
             LOGGER.debug(cb.getEufLattice().toDot());
+
+            LOGGER.debug(cb.getExecutionTree().toDot());
 
         } catch (EUFInconsistencyException e) {
             Assert.assertTrue(true);

@@ -3,6 +3,8 @@ package org.snt.cnetwork.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.*;
+import org.snt.cnetwork.core.domain.automaton.SimpleAutomaton;
+import org.snt.cnetwork.core.domain.range.*;
 
 import java.util.*;
 
@@ -18,7 +20,7 @@ public class DomainUtils {
     private static Set<Character> special = new HashSet<Character>(Arrays.asList(sarray));
 
 
-    public static Automaton getLenAutomaton(NumCut min, NumCut max) {
+    public static SimpleAutomaton getLenAutomaton(NumCut min, NumCut max) {
 
         String rexp = "";
         if(max.isFixed()) {
@@ -33,22 +35,22 @@ public class DomainUtils {
 
         LOGGER.debug("rexp {}", rexp);
 
-        return new Automaton(rexp);
+        return new SimpleAutomaton(rexp);
     }
 
 
-    public static Automaton getBoolAutomatonForBoolRange(BooleanRange r) {
+    public static SimpleAutomaton getBoolAutomatonForBoolRange(BooleanRange r) {
         if(r.isAlwaysTrue()) {
-            return new Automaton("[Tt][Rr][Uu][Ee]");
+            return new SimpleAutomaton("[Tt][Rr][Uu][Ee]");
         } else if (r.isAlwaysFalse()) {
-            return new Automaton("[Ff][Aa][Ll][Ss][Ee]");
+            return new SimpleAutomaton("[Ff][Aa][Ll][Ss][Ee]");
         } else {
-            return new Automaton("([Tt][Rr][Uu][Ee]|[Ff][Aa][Ll][Ss][Ee])");
+            return new SimpleAutomaton("([Tt][Rr][Uu][Ee]|[Ff][Aa][Ll][Ss][Ee])");
         }
     }
 
-    private static Automaton getNumAutomatonForNumRange(NumRange r) {
-        Automaton a = new Automaton();
+    private static SimpleAutomaton getNumAutomatonForNumRange(NumRange r) {
+        SimpleAutomaton a = new SimpleAutomaton();
         r.getRangeMap().values().forEach(
                 v -> a.union(getNumAutomatonForRange(v))
         );
@@ -56,7 +58,7 @@ public class DomainUtils {
     }
 
 
-    public static Automaton getNumAutomatonForRange(Range r) {
+    public static SimpleAutomaton getNumAutomatonForRange(Range r) {
 
         if(r instanceof AtomicNumRange) {
             return getNumAutomatonForRange(r.getMin(), r.getMax());
@@ -69,32 +71,32 @@ public class DomainUtils {
         return null;
     }
 
-    public static Automaton getBoolAutomatonForRange(BooleanRange r) {
+    public static SimpleAutomaton getBoolAutomatonForRange(BooleanRange r) {
 
         String strue = BooleanCut.TRUE.getValue();
         String sfalse = BooleanCut.FALSE.getValue();
 
         if(r.isAlwaysTrue()) {
-            return new Automaton(strue);
+            return new SimpleAutomaton(strue);
         } else if (r.isAlwaysFalse()) {
-            return new Automaton(sfalse);
+            return new SimpleAutomaton(sfalse);
         }
 
-        return new Automaton(strue + "|" + sfalse);
+        return new SimpleAutomaton(strue + "|" + sfalse);
     }
 
-    public static Automaton getNumAutomatonForRange(long min, long max) {
+    public static SimpleAutomaton getNumAutomatonForRange(long min, long max) {
         return getNumAutomatonForRange(new NumCut(min), new NumCut(max));
     }
 
 
-    public static Automaton getNumAutomatonForRange(NumCut min, NumCut max) {
+    public static SimpleAutomaton getNumAutomatonForRange(NumCut min, NumCut max) {
 
         assert max.isGreaterEqualsThan(min);
 
         if (max.equals(min)) {
             if(max.isFixed() && (max instanceof AboveAll))
-                return new Automaton(min.toString());
+                return new SimpleAutomaton(min.toString());
         }
         String mins = "";
         String maxs = "";
@@ -106,14 +108,14 @@ public class DomainUtils {
             maxs = RexpUtils.getRexpForMax(max.getEndpoint());
         //LOGGER.info("MAXS " + maxs);
 
-        Automaton mina = new Automaton(mins);
-        Automaton maxa = new Automaton(maxs);
+        SimpleAutomaton mina = new SimpleAutomaton(mins);
+        SimpleAutomaton maxa = new SimpleAutomaton(maxs);
 
 
         return mina.intersect(maxa);
     }
 
-    public static NumRange getApproxLenRange(Automaton a) {
+    public static NumRange getApproxLenRange(SimpleAutomaton a) {
         assert a != null;
 
         //LOGGER.debug(a.toDot());
@@ -144,7 +146,7 @@ public class DomainUtils {
 
     }
 
-    public static NumRange getExactLenRange(Automaton a) {
+    public static NumRange getExactLenRange(SimpleAutomaton a) {
         assert (a != null);
 
         Set<String> result = a.getFiniteStrings();
@@ -157,11 +159,11 @@ public class DomainUtils {
         return new NumRange(ar);
     }
 
-    public static NumRange getNumRangeForAutomaton(Automaton a) {
+    public static NumRange getNumRangeForAutomaton(SimpleAutomaton a) {
 
         String r = NodeDomainFactory.Z_REXP;
 
-        Automaton ra =  new Automaton(r);
+        SimpleAutomaton ra =  new SimpleAutomaton(r);
 
         if(!ra.intersect(a).equals(a))
             return null;

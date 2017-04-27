@@ -6,6 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.euf.EquiClass;
 import org.snt.cnetwork.core.euf.EufManager;
+import org.snt.cnetwork.core.graph.ConstraintNetworkBuilder;
+import org.snt.cnetwork.core.graph.Node;
+import org.snt.cnetwork.core.graph.NodeKind;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.exception.MissingItemException;
 

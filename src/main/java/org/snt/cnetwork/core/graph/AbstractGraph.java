@@ -5,7 +5,7 @@
  * For further details on licensing please read the information at
  * http://joana.ipd.kit.edu or contact the authors.
  */
-package org.snt.cnetwork.core;
+package org.snt.cnetwork.core.graph;
 
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.EdgeFactory;

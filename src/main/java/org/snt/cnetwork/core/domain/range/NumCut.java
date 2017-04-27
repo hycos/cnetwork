@@ -1,4 +1,4 @@
-package org.snt.cnetwork.core.domain;
+package org.snt.cnetwork.core.domain.range;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

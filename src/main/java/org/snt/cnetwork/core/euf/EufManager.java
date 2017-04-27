@@ -2,18 +2,18 @@ package org.snt.cnetwork.core.euf;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.ConstraintNetworkBuilder;
-import org.snt.cnetwork.core.ConstraintNetworkObserver;
-import org.snt.cnetwork.core.Node;
+import org.snt.cnetwork.core.graph.ConstraintNetworkBuilder;
+import org.snt.cnetwork.core.graph.ConstraintNetworkObserver;
+import org.snt.cnetwork.core.graph.Node;
 import org.snt.cnetwork.core.consistency.ConsistencyCheckerFactory;
-import org.snt.cnetwork.core.domain.BooleanRange;
+import org.snt.cnetwork.core.domain.range.BooleanRange;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.exception.MissingItemException;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class EufManager extends ConstraintNetworkObserver<Node> implements EufEventHandler {
+public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Node> {
 
 
     final static Logger LOGGER = LoggerFactory.getLogger(EufManager.class);
@@ -447,6 +447,7 @@ public class EufManager extends ConstraintNetworkObserver<Node> implements EufEv
                     if (!hasRedundantPars(pars, true))
                         addInequialityConstraint(pars.get(0), pars.get(1));
                 }
+
             } else if (n.getKind().isEquality()) {
                 LOGGER.debug("n {}", n.getDotLabel());
                 assert n.getRange() instanceof BooleanRange;

@@ -1,6 +1,6 @@
 package org.snt.cnetwork.core.euf;
 
-import org.snt.cnetwork.core.Node;
+import org.snt.cnetwork.core.graph.Node;
 import org.snt.cnetwork.utils.BiMap;
 
 public class NodeCache {

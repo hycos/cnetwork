@@ -1,7 +1,8 @@
-package org.snt.cnetwork.core.domain;
+package org.snt.cnetwork.core.domain.range;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.domain.automaton.SimpleAutomaton;
 
 import java.util.*;
 
@@ -436,10 +437,10 @@ public class NumRange extends Range {
         return this.ran;
     }
 
-    public Automaton toAutomaton() {
+    public SimpleAutomaton toAutomaton() {
 
         LOGGER.debug("-- {}", this);
-        Automaton automaton = new Automaton(".*");
+        SimpleAutomaton automaton = new SimpleAutomaton(".*");
         for(Map.Entry<NumCut, AtomicNumRange> e : this.ran.entrySet()) {
             if(automaton == null) {
                 automaton = e.getValue().getAutomaton();
@@ -450,9 +451,9 @@ public class NumRange extends Range {
         return automaton;
     }
 
-    public Automaton toApproxLenAutomaton() {
+    public SimpleAutomaton toApproxLenAutomaton() {
         LOGGER.debug("get approximate automaton");
-        Automaton a =  new AtomicNumRange(getMin(), getMax()).getLenAutomaton();
+        SimpleAutomaton a =  new AtomicNumRange(getMin(), getMax()).getLenAutomaton();
         LOGGER.debug("return approx automaotn");
         return a;
     }

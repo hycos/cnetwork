@@ -2,8 +2,10 @@ package org.snt.cnetwork.core.domain;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.Node;
-import org.snt.cnetwork.core.NodeKind;
+import org.snt.cnetwork.core.graph.Node;
+import org.snt.cnetwork.core.graph.NodeKind;
+import org.snt.cnetwork.core.domain.automaton.SimpleAutomaton;
+import org.snt.cnetwork.core.domain.range.*;
 import org.snt.cnetwork.utils.DomainUtils;
 import org.snt.cnetwork.utils.EscapeUtils;
 
@@ -41,41 +43,41 @@ public enum NodeDomainFactory {
 
 
     public static NodeDomain DB = new NodeDomain(DomainKind.BOOLEAN,
-            new Automaton(BOOL_REXP),
+            new SimpleAutomaton(BOOL_REXP),
             new BooleanRange());
 
     public static NodeDomain DBTRUE = new NodeDomain(DomainKind.BOOLEAN,
-            new Automaton(BOOL_TRUE),
+            new SimpleAutomaton(BOOL_TRUE),
             TRUE.clone());
 
     public static NodeDomain DBFALSE = new NodeDomain(DomainKind.BOOLEAN,
-            new Automaton(BOOL_FALSE),
+            new SimpleAutomaton(BOOL_FALSE),
             FALSE.clone());
 
     public static NodeDomain DN = new NodeDomain(DomainKind.NUMERIC_N,
-            new Automaton(N_REXP), N.clone());
+            new SimpleAutomaton(N_REXP), N.clone());
 
     public static NodeDomain DNM1 = new NodeDomain(DomainKind.NUMERIC_NM1,
-            new Automaton(NM1_REXP), NM1.clone());
+            new SimpleAutomaton(NM1_REXP), NM1.clone());
 
     public static NodeDomain DZ = new NodeDomain(DomainKind.NUMERIC_Z,
-            new Automaton(Z_REXP), Z.clone());
+            new SimpleAutomaton(Z_REXP), Z.clone());
 
-    public static NodeDomain DSTR = new NodeDomain(DomainKind.STRING,new Automaton
+    public static NodeDomain DSTR = new NodeDomain(DomainKind.STRING,new SimpleAutomaton
             (STR_REXP), N.clone());
 
     public static NodeDomain DSTRU = new NodeDomain(DomainKind.STRING_UPPER,new
-            Automaton (STR_REXP_UPPER), N.clone());
+            SimpleAutomaton(STR_REXP_UPPER), N.clone());
 
     public static NodeDomain DSTRL = new NodeDomain(DomainKind.STRING_LOWER,new
-            Automaton (STR_REXP_LOWER), N.clone());
+            SimpleAutomaton(STR_REXP_LOWER), N.clone());
 
     public static NodeDomain DSTRT = new NodeDomain(DomainKind.STRING_TRIMMED,new
-            Automaton (STR_REXP_TRIMMED), N.clone());
+            SimpleAutomaton(STR_REXP_TRIMMED), N.clone());
 
     public static NodeDomain DSTRE = new NodeDomain(DomainKind
             .STRING,new
-            Automaton (STR_EMPTY), E.clone());
+            SimpleAutomaton(STR_EMPTY), E.clone());
 
     public static Map<DomainKind, NodeDomain> dkindLookup = new HashMap();
 
@@ -147,7 +149,7 @@ public enum NodeDomainFactory {
                     assert lbl.matches(Z_REXP);
                     int value = Integer.parseInt(lbl);
                     return new NodeDomain(n.getDomainKind(),
-                            new Automaton(lbl),
+                            new SimpleAutomaton(lbl),
                             new NumRange (value));
                 } else {
                     assert n.isOperation() || n.isVariable() || n.isRegex();
@@ -156,12 +158,12 @@ public enum NodeDomainFactory {
             case STRING:
                 assert lbl != null;
                 if (n.isLiteral()) {
-                    Automaton a = new Automaton(EscapeUtils.escapeSpecialCharacters(lbl));
+                    SimpleAutomaton a = new SimpleAutomaton(EscapeUtils.escapeSpecialCharacters(lbl));
                     return new NodeDomain(DomainKind.STRING,
                             a,
                             DomainUtils.getApproxLenRange(a));
                 } else if (n.isRegex()) {
-                    Automaton a = new Automaton(lbl);
+                    SimpleAutomaton a = new SimpleAutomaton(lbl);
                     return new NodeDomain(DomainKind.STRING,
                             a,
                             DomainUtils.getApproxLenRange(a));
@@ -181,7 +183,7 @@ public enum NodeDomainFactory {
                     assert lbl != null && lbl.matches("(true|false)");
                     BooleanCut bv = BooleanCut.KindFromString(lbl);
 
-                    return new NodeDomain(n.getDomainKind(),new Automaton(bv
+                    return new NodeDomain(n.getDomainKind(),new SimpleAutomaton(bv
                             .getValue()), new
                             BooleanRange(bv));
                 } else {

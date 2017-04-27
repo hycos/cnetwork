@@ -1,4 +1,4 @@
-package org.snt.cnetwork.core.domain;
+package org.snt.cnetwork.core.domain.automaton;
 
 
 import dk.brics.automaton.State;
@@ -6,6 +6,7 @@ import dk.brics.automaton.Transition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.autorex.Autorex;
+import org.snt.cnetwork.core.domain.DomainInterface;
 
 import java.util.*;
 
@@ -13,23 +14,24 @@ import java.util.*;
  * This class is used in order to dispatch to dk.brics (we would like to stay
  * independent w.r.t. the underlying automaton library.
  */
-public class Automaton implements DomainInterface<Automaton> {
+public class SimpleAutomaton implements Automaton<SimpleAutomaton>, DomainInterface<SimpleAutomaton> {
 
-    final static Logger LOGGER = LoggerFactory.getLogger(Automaton.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(SimpleAutomaton.class);
 
-    private static Automaton ALL_ACCEPT = new Automaton(".*");
+    private static SimpleAutomaton ALL_ACCEPT = new SimpleAutomaton(".*");
 
     private dk.brics.automaton.Automaton a = null;
 
-    public Automaton(String rexp) {
+
+    public SimpleAutomaton(String rexp) {
         this(new dk.brics.automaton.RegExp(rexp).toAutomaton());
     }
 
-    public Automaton() {
+    public SimpleAutomaton() {
         this.a = new dk.brics.automaton.Automaton();
     }
 
-    public Automaton(dk.brics.automaton.Automaton a){
+    public SimpleAutomaton(dk.brics.automaton.Automaton a){
         this.a = a;
     }
 
@@ -45,38 +47,38 @@ public class Automaton implements DomainInterface<Automaton> {
     @Override
     public boolean equals(Object o) {
 
-        if(!(o instanceof  Automaton))
+        if(!(o instanceof SimpleAutomaton))
             return false;
 
-        return this.a.equals(((Automaton)o).a);
+        return this.a.equals(((SimpleAutomaton)o).a);
     }
 
-    public Automaton concatenate(Automaton y) {
-        return new Automaton(this.a.concatenate(y.a));
-    }
-
-    @Override
-    public Automaton intersect(Automaton y) {
-        return new Automaton(this.a.intersection(y.a));
+    public SimpleAutomaton concatenate(SimpleAutomaton y) {
+        return new SimpleAutomaton(this.a.concatenate(y.a));
     }
 
     @Override
-    public Automaton union(Automaton y) {
-        return new Automaton(this.a.union(y.a));
+    public SimpleAutomaton intersect(SimpleAutomaton y) {
+        return new SimpleAutomaton(this.a.intersection(y.a));
     }
 
     @Override
-    public Automaton minus(Automaton y) {
-        return new Automaton(this.a.minus(y.a));
+    public SimpleAutomaton union(SimpleAutomaton y) {
+        return new SimpleAutomaton(this.a.union(y.a));
     }
 
     @Override
-    public Automaton complement() {
-        return new Automaton(a.complement());
+    public SimpleAutomaton minus(SimpleAutomaton y) {
+        return new SimpleAutomaton(this.a.minus(y.a));
     }
 
     @Override
-    public boolean subsumes(Automaton y) {
+    public SimpleAutomaton complement() {
+        return new SimpleAutomaton(a.complement());
+    }
+
+    @Override
+    public boolean subsumes(SimpleAutomaton y) {
         return a.intersection(y.a).equals(y.a);
     }
 
@@ -96,8 +98,8 @@ public class Automaton implements DomainInterface<Automaton> {
     }
 
     @Override
-    public Automaton clone() {
-        return new Automaton(this.a.clone());
+    public SimpleAutomaton clone() {
+        return new SimpleAutomaton(this.a.clone());
     }
 
     public Set<String> getFiniteStrings(){
@@ -140,47 +142,47 @@ public class Automaton implements DomainInterface<Automaton> {
         return ptr.getTransitions().size() == 0 && ptr.isAccept();
     }
 
-    public Automaton getAllAcceptingSubstringsAutomaton() {
-        return new Automaton(Autorex.getSubstringAutomaton(this.a));
+    public SimpleAutomaton getAllAcceptingSubstringsAutomaton() {
+        return new SimpleAutomaton(Autorex.getSubstringAutomaton(this.a));
     }
 
-    public Automaton getAllAcceptingSuffixAutomaton() {
-        return new Automaton(Autorex.getSuffixAutomaton(this.a));
+    public SimpleAutomaton getAllAcceptingSuffixAutomaton() {
+        return new SimpleAutomaton(Autorex.getSuffixAutomaton(this.a));
     }
 
-    public Automaton getSubstringAutomaton() {
-        Automaton pfx = ALL_ACCEPT.clone();
-        Automaton sfx = ALL_ACCEPT.clone();
+    public SimpleAutomaton getSubstringAutomaton() {
+        SimpleAutomaton pfx = ALL_ACCEPT.clone();
+        SimpleAutomaton sfx = ALL_ACCEPT.clone();
 
-        Automaton result = pfx.concatenate(this).concatenate(sfx);
+        SimpleAutomaton result = pfx.concatenate(this).concatenate(sfx);
         result.a.minimize();
         return result;
     }
 
-    public Automaton getPfxAutomaton() {
-        Automaton pfx = ALL_ACCEPT.clone();
-        Automaton result = this.clone().concatenate(pfx);
+    public SimpleAutomaton getPfxAutomaton() {
+        SimpleAutomaton pfx = ALL_ACCEPT.clone();
+        SimpleAutomaton result = this.clone().concatenate(pfx);
         result.a.minimize();
         return result;
     }
 
-    public Automaton getSfxAutomaton() {
-        Automaton sfx = ALL_ACCEPT.clone();
-        Automaton result = sfx.concatenate(this.clone());
+    public SimpleAutomaton getSfxAutomaton() {
+        SimpleAutomaton sfx = ALL_ACCEPT.clone();
+        SimpleAutomaton result = sfx.concatenate(this.clone());
         result.a.minimize();
         return result;
     }
 
-    public Automaton getWrappedInSpacesAutomaton() {
-        Automaton pfx = ALL_ACCEPT.clone();
-        Automaton sfx = ALL_ACCEPT.clone();
-        Automaton result = pfx.concatenate(this).concatenate(sfx);
+    public SimpleAutomaton getWrappedInSpacesAutomaton() {
+        SimpleAutomaton pfx = ALL_ACCEPT.clone();
+        SimpleAutomaton sfx = ALL_ACCEPT.clone();
+        SimpleAutomaton result = pfx.concatenate(this).concatenate(sfx);
         result.a.minimize();
         return result;
     }
 
-    public Automaton getCamelCaseAutomaton() {
-        return new Automaton(Autorex.getCamelCaseAutomaton(this.a));
+    public SimpleAutomaton getCamelCaseAutomaton() {
+        return new SimpleAutomaton(Autorex.getCamelCaseAutomaton(this.a));
     }
 
     public int getLongestExample() {

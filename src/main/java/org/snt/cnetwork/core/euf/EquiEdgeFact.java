@@ -22,7 +22,7 @@ package org.snt.cnetwork.core.euf;
 
 import org.jgrapht.EdgeFactory;
 
-public class EdgeFact implements EdgeFactory<EquiClass,EquiEdge> {
+public class EquiEdgeFact implements EdgeFactory<EquiClass,EquiEdge> {
 
     @Override
     public EquiEdge createEdge(EquiClass sourceVertex,

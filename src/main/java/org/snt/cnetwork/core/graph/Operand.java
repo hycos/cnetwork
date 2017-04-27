@@ -1,4 +1,4 @@
-package org.snt.cnetwork.core;
+package org.snt.cnetwork.core.graph;
 
 
 import org.snt.cnetwork.utils.EscapeUtils;

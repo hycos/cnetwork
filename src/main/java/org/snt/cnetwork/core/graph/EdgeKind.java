@@ -1,4 +1,4 @@
-package org.snt.cnetwork.core;
+package org.snt.cnetwork.core.graph;
 
 public enum EdgeKind {
     UNKNOWN(0,"unknown"),

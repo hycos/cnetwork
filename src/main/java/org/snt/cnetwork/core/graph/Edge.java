@@ -1,4 +1,4 @@
-package org.snt.cnetwork.core;
+package org.snt.cnetwork.core.graph;
 
 import org.jgrapht.graph.DefaultEdge;
 import org.slf4j.Logger;

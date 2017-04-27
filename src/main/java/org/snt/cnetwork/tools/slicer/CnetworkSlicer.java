@@ -1,7 +1,7 @@
 package org.snt.cnetwork.tools.slicer;
 
-import org.snt.cnetwork.core.ConstraintNetwork;
-import org.snt.cnetwork.core.Node;
+import org.snt.cnetwork.core.graph.ConstraintNetwork;
+import org.snt.cnetwork.core.graph.Node;
 
 import java.util.*;
 
@@ -28,22 +28,17 @@ public abstract class CnetworkSlicer implements Slicer {
         assert this.cn != null;
 
         Set<Node> bw = new HashSet();
-        //bw.addAll(criteria);
         LinkedList<Node> incoming = new LinkedList();
 
         incoming.addAll(criteria);
 
         while(!incoming.isEmpty()) {
             Node e = incoming.pop();
-            //if(!bw.contains(e)) {
-            //    bw.add(e);
-
             if(!bw.contains(e)) {
                 incoming.addAll(getNext(Collections.singleton(e)));
                 bw.add(e);
             }
 
-            //}
         }
         return bw;
     }

@@ -1,8 +1,10 @@
-package org.snt.cnetwork.core;
+package org.snt.cnetwork.core.graph;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.*;
+import org.snt.cnetwork.core.domain.automaton.SimpleAutomaton;
+import org.snt.cnetwork.core.domain.range.Range;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 
 public abstract class Node extends ConstraintNetworkSubject<Node> implements
@@ -153,10 +155,10 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
     }
 
     //@TODO:Julian just for convenience -- have to refactor this
-    public Automaton getAutomaton() {
+    public SimpleAutomaton getAutomaton() {
         DomainInterface iface = this.dom.getDomain("automaton");
-        assert iface instanceof Automaton;
-        return (Automaton)iface;
+        assert iface instanceof SimpleAutomaton;
+        return (SimpleAutomaton)iface;
     }
 
     //@TODO:Julian just for convenience -- have to refactor this
@@ -166,7 +168,7 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
     }
 
     //@TODO:Julian just for convenience -- have to refactor this
-    public void setAutomaton(Automaton a) throws EUFInconsistencyException {
+    public void setAutomaton(SimpleAutomaton a) throws EUFInconsistencyException {
         this.dom.setDomain(a);
         notifyAllObservers(this);
     }

@@ -1,4 +1,4 @@
-package org.snt.cnetwork.core;
+package org.snt.cnetwork.core.graph;
 
 /**
  * Created by julian on 12/04/2017.

@@ -2,6 +2,8 @@ package org.snt.cnetwork.core.domain;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.domain.automaton.SimpleAutomaton;
+import org.snt.cnetwork.core.domain.range.BooleanRange;
 import org.snt.cnetwork.utils.DomainUtils;
 import org.snt.cnetwork.utils.EscapeUtils;
 
@@ -106,7 +108,7 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
 
         BooleanRange n = br.negate();
 
-        Automaton a = DomainUtils.getNumAutomatonForRange(br);
+        SimpleAutomaton a = DomainUtils.getNumAutomatonForRange(br);
 
 
         return new NodeDomain(this.kind,a,n);

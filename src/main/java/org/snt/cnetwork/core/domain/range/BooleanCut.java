@@ -1,4 +1,4 @@
-package org.snt.cnetwork.core.domain;
+package org.snt.cnetwork.core.domain.range;
 
 public class BooleanCut extends NumCut {
 
