@@ -2,10 +2,10 @@ package org.snt.cnetwork.core.domain;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.graph.Node;
-import org.snt.cnetwork.core.graph.NodeKind;
 import org.snt.cnetwork.core.domain.automaton.SimpleAutomaton;
 import org.snt.cnetwork.core.domain.range.*;
+import org.snt.cnetwork.core.graph.Node;
+import org.snt.cnetwork.core.graph.NodeKind;
 import org.snt.cnetwork.utils.DomainUtils;
 import org.snt.cnetwork.utils.EscapeUtils;
 
@@ -54,11 +54,12 @@ public enum NodeDomainFactory {
             new SimpleAutomaton(BOOL_FALSE),
             FALSE.clone());
 
-    public static NodeDomain DN = new NodeDomain(DomainKind.NUMERIC_N,
-            new SimpleAutomaton(N_REXP), N.clone());
+    public static NodeDomain DN = new NodeDomain(DomainKind.NUMERIC_N, new
+            SimpleAutomaton(N_REXP), N.clone());
 
     public static NodeDomain DNM1 = new NodeDomain(DomainKind.NUMERIC_NM1,
-            new SimpleAutomaton(NM1_REXP), NM1.clone());
+            new SimpleAutomaton(NM1_REXP),
+            NM1.clone());
 
     public static NodeDomain DZ = new NodeDomain(DomainKind.NUMERIC_Z,
             new SimpleAutomaton(Z_REXP), Z.clone());
@@ -67,7 +68,8 @@ public enum NodeDomainFactory {
             (STR_REXP), N.clone());
 
     public static NodeDomain DSTRU = new NodeDomain(DomainKind.STRING_UPPER,new
-            SimpleAutomaton(STR_REXP_UPPER), N.clone());
+            SimpleAutomaton(STR_REXP_UPPER), N
+            .clone());
 
     public static NodeDomain DSTRL = new NodeDomain(DomainKind.STRING_LOWER,new
             SimpleAutomaton(STR_REXP_LOWER), N.clone());
@@ -100,11 +102,14 @@ public enum NodeDomainFactory {
         //@TODO: Julian this is damn ugly
         if(n.isLiteral() && n.isString())
             n.setLabel("\"" + n.getLabel() + "\"");
+
+
         return nd;
     }
 
 
     public NodeDomain getDomain(DomainKind kind) {
+        LOGGER.debug("get domain for kind {}", kind);
         switch (kind) {
             case UNKNOWN:
                 return DSTR.clone();
@@ -130,14 +135,16 @@ public enum NodeDomainFactory {
 
     }
 
-    public NodeDomain getDomain(NodeKind n) {
-        return getDomain(n,null);
+    public NodeDomain getDomainForKind(NodeKind n) {
+        return getDomain(n, null);
     }
+
 
 
     public NodeDomain getDomain(NodeKind n, String lbl) {
 
-        LOGGER.debug("getDomain " + n.getDomainKind() + " " + lbl);
+
+        LOGGER.debug("getDomainForKind " + n.getDomainKind() + " " + lbl);
 
         switch (n.getDomainKind()) {
             case NUMERIC_Z:

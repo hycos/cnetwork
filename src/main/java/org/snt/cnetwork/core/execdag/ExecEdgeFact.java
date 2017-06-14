@@ -28,6 +28,6 @@ public class ExecEdgeFact implements EdgeFactory<Node,ExecEdge> {
     @Override
     public ExecEdge createEdge(Node sourceVertex,
                                              Node targetVertex) {
-        return new ExecEdge(sourceVertex, targetVertex);
+        return new ExecEdge(sourceVertex, targetVertex, 0);
     }
 }

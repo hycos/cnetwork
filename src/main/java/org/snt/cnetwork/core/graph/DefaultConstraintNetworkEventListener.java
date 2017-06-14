@@ -8,4 +8,14 @@ public class DefaultConstraintNetworkEventListener implements ConstraintNetworkE
     public void onNodeMerge(Node toReplace, Node replacement) {
 
     }
+
+    @Override
+    public void onNodeDelete(Node deleted) {
+
+    }
+
+    @Override
+    public void onAddConnection(Edge e) {
+
+    }
 }

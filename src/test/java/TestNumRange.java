@@ -2,7 +2,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.domain.*;
+import org.snt.cnetwork.core.domain.NodeDomainFactory;
 import org.snt.cnetwork.core.domain.automaton.SimpleAutomaton;
 import org.snt.cnetwork.core.domain.range.*;
 
@@ -386,12 +386,15 @@ public class TestNumRange {
 
     @Test
     public void testAutomaton() {
-        NumRange rs0 = new NumRange(new AtomicNumRange(100, 100));
 
-        SimpleAutomaton a = rs0.toAutomaton();
+        AtomicNumRange ar =  new AtomicNumRange(new NumCut(21), new AboveAll
+                ());
 
-        LOGGER.debug(a.getShortestExample());
+        LOGGER.debug("ar {}", ar);
 
 
+        SimpleAutomaton auto = ar.getAutomaton();
+
+        LOGGER.debug(auto.getAutomaton().toDot());
     }
 }

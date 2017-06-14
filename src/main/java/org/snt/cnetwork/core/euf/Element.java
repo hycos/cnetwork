@@ -21,8 +21,8 @@ public abstract class Element implements Comparable, Cloneable{
 
     public Element(Node emap, String lbl, String annotation) {
         this.lbl = lbl;
+        //LOGGER.debug("element lbl {}", lbl);
         this.annotation = annotation;
-
         this.mappedNode = emap;
     }
 

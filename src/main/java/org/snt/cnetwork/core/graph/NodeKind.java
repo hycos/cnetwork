@@ -239,6 +239,7 @@ public enum NodeKind {
                 STARTSWITH || this == ENDSWITH || this == ITE;
     }
 
+
     public boolean isEquality() {
         return this == EQUALS || this == STR_EQUALS || this == NUM_EQUALS ||
                 this == BOOL_EQUALS;

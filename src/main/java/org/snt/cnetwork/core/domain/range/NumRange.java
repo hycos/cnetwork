@@ -3,6 +3,7 @@ package org.snt.cnetwork.core.domain.range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.automaton.SimpleAutomaton;
+import org.snt.cnetwork.core.graph.Node;
 
 import java.util.*;
 
@@ -128,6 +129,11 @@ public class NumRange extends Range {
         return this.getRangeMap().isEmpty();
     }
 
+
+    @Override
+    public void init(Node n) {
+        // nothing to do
+    }
 
     @Override
     public NumRange intersect(Range dother) {

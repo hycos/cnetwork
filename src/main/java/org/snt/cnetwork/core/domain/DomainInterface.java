@@ -1,7 +1,14 @@
 package org.snt.cnetwork.core.domain;
 
 
+import org.snt.cnetwork.core.graph.Node;
+
 public interface DomainInterface<T> extends Cloneable {
+
+    // initialization which is invoked whenever
+    // the domain is instanciated
+    void init(Node n);
+
 
     T intersect(T y);
     T union(T y);

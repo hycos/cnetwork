@@ -3,6 +3,7 @@ package org.snt.cnetwork.core.domain.range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.automaton.SimpleAutomaton;
+import org.snt.cnetwork.core.graph.Node;
 import org.snt.cnetwork.utils.DomainUtils;
 
 
@@ -165,6 +166,11 @@ public class AtomicNumRange extends Range {
         LOGGER.debug("DIFF {} - {}: {}", getMax(), getMin(), getMax().diff
                 (getMin()));
         return getMax().diff(getMin());
+    }
+
+    @Override
+    public void init(Node n) {
+        // nothing to do
     }
 
     @Override

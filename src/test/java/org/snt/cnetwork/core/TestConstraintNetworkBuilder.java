@@ -126,7 +126,7 @@ public class TestConstraintNetworkBuilder {
             Assert.assertEquals(s, cn.getNodeByLabel(EscapeUtils
                     .escapeSpecialCharacters("\"s\"")));
 
-            Assert.assertEquals(concat, cn.getNodeByLabel(EscapeUtils.escapeSpecialCharacters("concat\\(tostr\\(v\\),\\\"s\\\"\\)")));
+            Assert.assertEquals(concat, cn.getNodeByLabel(EscapeUtils.escapeSpecialCharacters("concat(tostr(v),\"s\")")));
 
             Assert.assertEquals(five, cn.getNodeByLabel("5"));
         } catch (EUFInconsistencyException e) {

@@ -57,8 +57,9 @@ public final class NodeElemFact {
 
 
         if (n.isOperand()) {
+            LOGGER.debug("lbl : " + n.getLabel());
             EquiClass eq = new EquiClass(new SingletonElement(n,n.getLabel()));
-            LOGGER.debug("create equiclass {}:{}", eq.getDotLabel(), eq.getId());
+            LOGGER.debug("create equiclass {}:{}", eq.getLabel(), eq.getId());
 
             nc.put(n, eq);
 
@@ -162,7 +163,7 @@ public final class NodeElemFact {
         }
 
         EquiClass top = new EquiClass(ele);
-        LOGGER.debug("additional equi class {}", top.getDotLabel());
+        //LOGGER.debug("additional equi class {}", top.getLabel());
 
         ret.add(top);
         //ret.addAll(top.infer());

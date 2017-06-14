@@ -35,24 +35,21 @@ public class Operation extends Node {
         switch(sig.getReturnType().toBCString()) {
             case "Ljava/lang/String;":
                 try {
-                    setDomain(NodeDomainFactory.INSTANCE.getDomain
-                            (NodeKind.STRVAR));
+                    setDomain(NodeDomainFactory.INSTANCE.getDomainForKind(NodeKind.STRVAR));
                 } catch (EUFInconsistencyException e) {
                     assert false;
                 }
                 break;
             case "Z":
                 try {
-                    setDomain(NodeDomainFactory.INSTANCE.getDomain
-                            (NodeKind.BOOLVAR));
+                    setDomain(NodeDomainFactory.INSTANCE.getDomainForKind(NodeKind.BOOLVAR));
                 } catch (EUFInconsistencyException e) {
                     assert false;
                 }
                 break;
             case "I":
                 try {
-                    setDomain(NodeDomainFactory.INSTANCE.getDomain
-                            (NodeKind.NUMVAR));
+                    setDomain(NodeDomainFactory.INSTANCE.getDomainForKind(NodeKind.NUMVAR));
                 } catch (EUFInconsistencyException e) {
                     assert false;
                 }

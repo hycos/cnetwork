@@ -2,7 +2,9 @@ package org.snt.cnetwork.core.graph;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.domain.*;
+import org.snt.cnetwork.core.domain.DomainInterface;
+import org.snt.cnetwork.core.domain.NodeDomain;
+import org.snt.cnetwork.core.domain.NodeDomainFactory;
 import org.snt.cnetwork.core.domain.automaton.SimpleAutomaton;
 import org.snt.cnetwork.core.domain.range.Range;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
@@ -40,6 +42,8 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
         //LOGGER.debug(".. " + label + " " + kind.toString());
         // compute the appropriate domain automatically
         this.dom = NodeDomainFactory.INSTANCE.getDomain(this);
+
+        //getTrackingAutomaton().setName("" + id);
     }
 
     public Node(Node other) {
@@ -77,6 +81,12 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
 
     public void setDomain(NodeDomain d) throws EUFInconsistencyException {
         this.dom = d;
+        //getTrackingAutomaton().setName("" + id);
+
+        Range r = getRange();
+//        if(r instanceof NumRange) {
+//            getTrackingAutomaton().setRange((NumRange)getRange());
+//        }
         notifyAllObservers(this);
     }
 
@@ -164,14 +174,27 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
     //@TODO:Julian just for convenience -- have to refactor this
     public void setRange(Range r) throws EUFInconsistencyException {
         this.dom.setDomain(r);
+
+//        if(r instanceof NumRange) {
+//            getTrackingAutomaton().setRange((NumRange)getRange());
+//        }
+
         notifyAllObservers(this);
     }
 
     //@TODO:Julian just for convenience -- have to refactor this
     public void setAutomaton(SimpleAutomaton a) throws EUFInconsistencyException {
         this.dom.setDomain(a);
+
         notifyAllObservers(this);
     }
+
+    //@TODO:Julian just for convenience -- have to refactor this
+//    public TrackingAutomaton getTrackingAutomaton(){
+//        DomainInterface iface = this.dom.getDomain("track-automaton");
+//        assert iface instanceof TrackingAutomaton;
+//        return (TrackingAutomaton)iface;
+//    }
 
 
     @Override

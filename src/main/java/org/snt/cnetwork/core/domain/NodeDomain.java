@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.automaton.SimpleAutomaton;
 import org.snt.cnetwork.core.domain.range.BooleanRange;
+import org.snt.cnetwork.core.graph.Node;
 import org.snt.cnetwork.utils.DomainUtils;
 import org.snt.cnetwork.utils.EscapeUtils;
 
@@ -19,7 +20,7 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
 
     protected DomainKind kind = DomainKind.UNKNOWN;
 
-    private interface DomainAction {
+    private interface DomainActionBinary {
         DomainInterface performOperation(DomainInterface a, DomainInterface b);
     }
 
@@ -32,9 +33,10 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
     }
 
 
-    private static DomainAction ISECT = (a, b) -> (DomainInterface)a.intersect(b);
-    private static DomainAction UNION = (a, b) -> (DomainInterface)a.union(b);
-    private static DomainAction MINUS = (a, b) -> (DomainInterface)a.union(b);
+    private static DomainActionBinary ISECT = (a, b) -> (DomainInterface)a.intersect(b);
+    private static DomainActionBinary UNION = (a, b) -> (DomainInterface)a.union(b);
+    private static DomainActionBinary MINUS = (a, b) -> (DomainInterface)a.union(b);
+
 
     private static DomainCheckBinary SUBSUMPTION = (a, b) -> a.subsumes(b);
     private static DomainCheckUnary EMPTY = a -> a.isEmpty();
@@ -51,6 +53,9 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
     }
 
     public NodeDomain(DomainKind kind, DomainInterface ... ds) {
+
+        LOGGER.debug("kind {}", kind.toString());
+        assert ds.length == 2;
         this.kind = kind;
         for(DomainInterface d : ds) {
             //LOGGER.debug("put domain {}", d.getDomainName());
@@ -65,7 +70,7 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
         }
     }
 
-    private NodeDomain applyForAll(NodeDomain y, DomainAction d) {
+    private NodeDomain applyForAll(NodeDomain y, DomainActionBinary d) {
         assert y.dom.size() == dom.size();
 
         Set<DomainInterface> isects = new HashSet();
@@ -112,6 +117,13 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
 
 
         return new NodeDomain(this.kind,a,n);
+    }
+
+    @Override
+    public void init(Node n) {
+        for(DomainInterface i : dom.values()) {
+           i.init(n);
+        }
     }
 
     @Override
@@ -210,6 +222,10 @@ public class NodeDomain implements DomainInterface<NodeDomain> {
 
     public DomainKind getDomainKind() {
         return kind;
+    }
+
+    public int size() {
+        return this.dom.size();
     }
 
 }

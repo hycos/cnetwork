@@ -21,6 +21,10 @@ public class DomainUtils {
 
 
     public static SimpleAutomaton getLenAutomaton(NumCut min, NumCut max) {
+        return new SimpleAutomaton(getLenStr(min,max));
+    }
+
+    public static String getLenStr(NumCut min, NumCut max) {
 
         String rexp = "";
         if(max.isFixed()) {
@@ -33,10 +37,10 @@ public class DomainUtils {
                     "," + "}";
         }
 
-        LOGGER.debug("rexp {}", rexp);
-
-        return new SimpleAutomaton(rexp);
+        return rexp;
     }
+
+
 
 
     public static SimpleAutomaton getBoolAutomatonForBoolRange(BooleanRange r) {
@@ -90,23 +94,26 @@ public class DomainUtils {
     }
 
 
+
     public static SimpleAutomaton getNumAutomatonForRange(NumCut min, NumCut max) {
 
+
+        LOGGER.debug("get num auto");
         assert max.isGreaterEqualsThan(min);
 
         if (max.equals(min)) {
             if(max.isFixed() && (max instanceof AboveAll))
                 return new SimpleAutomaton(min.toString());
         }
-        String mins = "";
-        String maxs = "";
+        String mins = ".*";
+        String maxs = ".*";
 
         if(min.isFixed())
             mins = RexpUtils.getRexpForMin(min.getEndpoint());
-        //LOGGER.info("MINS " + mins);
+        LOGGER.info("MINS " + mins);
         if(max.isFixed())
             maxs = RexpUtils.getRexpForMax(max.getEndpoint());
-        //LOGGER.info("MAXS " + maxs);
+        LOGGER.info("MAXS " + maxs);
 
         SimpleAutomaton mina = new SimpleAutomaton(mins);
         SimpleAutomaton maxa = new SimpleAutomaton(maxs);

@@ -64,9 +64,9 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
                         .toList());
 
         for (Node rr : r) {
-            LOGGER.debug("RR {}", rr.getLabel());
-            LOGGER.debug("EQ {}", getEquiClassForNode(rr)
-                    .getCorrespondingElement(rr).getMappedNode().getLabel());
+            //LOGGER.debug("RR {}", rr.getLabel());
+            //LOGGER.debug("EQ {}", getEquiClassForNode(rr)
+            //        .getCorrespondingElement(rr).getMappedNode().getLabel());
         }
         return r.toArray(new Node[r.size()]);
     }
@@ -102,8 +102,8 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
         EquiClass snd = lattice.getTopCovering(ec[1]);
 
 
-        LOGGER.debug("fst {} par {}", ec[0].getDotLabel(), fst.getDotLabel());
-        LOGGER.debug("snd {} par {}", ec[1].getDotLabel(), snd.getDotLabel());
+        //LOGGER.debug("fst {} par {}", ec[0].getDotLabel(), fst.getDotLabel());
+        //LOGGER.debug("snd {} par {}", ec[1].getDotLabel(), snd.getDotLabel());
 
 
         // cannot create an ineq edge where source and dest are pointing to the
@@ -124,12 +124,13 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
 
     private void removeOperandRedundancies(EquiClass c) throws EUFInconsistencyException {
 
-        LOGGER.debug("remove operand redundancies");
+        //LOGGER.debug("remove operand redundancies");
         assert lattice != null;
 
         EquiClass covering = lattice.getTopCovering(c);
 
-        LOGGER.debug("got covering {}", covering.getElements().size());
+        //LOGGER.debug("got covering {}", covering.getElements().size());
+        //LOGGER.debug("covering {}", covering);
 
         // group by annotation
         Map<String, LinkedList<Element>> ng = new HashMap<>();
@@ -152,6 +153,8 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
                     if (con.size() >= 1)
                         if (ta.getMappedNode().getId()
                                 != con.getFirst().getMappedNode().getId()) {
+
+                        //LOGGER.debug(lattice.toDot());
                             throw new EUFInconsistencyException(
                                     ta.getMappedNode().getLabel() +
                                             " should not be in the same " +
@@ -179,8 +182,10 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
         } else if (vars.size() > 1) {
             // Element min = Collections.min(vars, new IdComparator());
             Element min = findFirst(vars);
-            vars.remove(min);
-            remap(min, vars);
+            if(min != null) {
+                vars.remove(min);
+                remap(min, vars);
+            }
         }
 
     }
@@ -229,10 +234,13 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
                 if(ne.size() > 1) {
                     LOGGER.debug("ngroup to merge {}", ne.size());
                     Element min = findFirst(ne);
-                    ne.remove(min);
 
-                    LOGGER.debug("remap {}:{}", min,ne);
-                    remap(min, ne);
+                    if(min != null) {
+                        ne.remove(min);
+
+                        LOGGER.debug("remap {}:{}", min, ne);
+                        remap(min, ne);
+                    }
                 }
             }
         }
@@ -242,8 +250,12 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
     // get the element wit the smallest id that is present in
     // the constraint network
     private Element findFirst(Collection<Element> ele) {
-        return ele.stream().sorted(new IdComparator()).filter(e -> cb
-                .containsVertex(e.getMappedNode())).findFirst().get();
+        try {
+            return ele.stream().sorted(new IdComparator()).filter(e -> cb
+                    .containsVertex(e.getMappedNode())).findFirst().get();
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
 
 
@@ -251,11 +263,11 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
     private void remap(Element firste, Collection<Element> toremap) throws
             EUFInconsistencyException {
 
-        LOGGER.debug(cb.getConstraintNetwork().toDot());
+        //LOGGER.debug(cb.getConstraintNetwork().toDot());
 
         Node first = firste.getMappedNode();
 
-        LOGGER.debug("FRIST {}:{}", firste.getLabel(), first.getId());
+        //LOGGER.debug("FRIST {}:{}", firste.getLabel(), first.getId());
 
         assert cb.vertexSet().contains(first);
 
@@ -269,8 +281,8 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
             }
 
             assert cb.vertexSet().contains(e.getMappedNode());
-            LOGGER.debug("REMAP {}:{}:{}", e.getLabel(), e.getMappedNode()
-                    .getId(), e.getMappedNode().getRange());
+//            LOGGER.debug("REMAP {}:{}:{}", e.getLabel(), e.getMappedNode()
+//                    .getId(), e.getMappedNode().getRange());
 
             Node mapped = e.getMappedNode();
 
@@ -301,26 +313,26 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
     public void onEquiClassReplace(Set<EquiClass> old, EquiClass enew) throws
             EUFInconsistencyException {
 
-        Set<EquiClass> in = lattice.getConnectedInNodesOfKind(enew, EquiEdge
-                .Kind
-                .SPLIT);
-
-        LOGGER.debug("on equiclass add {}", enew);
-
-        for(EquiClass c : in) {
-            assert c.isNested();
-            Set<EquiClass> snen = lattice.inferEquiClassFor(c);
-            EquiClass nec = snen.stream().reduce(EquiClass::union).get()
-                    .union(c);
-
-            LOGGER.debug("nec {}", nec);
-
-            EquiClass nnec = addEquiClass(nec);
-
-            // remove redunancies just for the operations with parameter
-            // equivalence
-            //removeOperationRedundancies(nec);
-        }
+//        Set<EquiClass> in = lattice.getConnectedInNodesOfKind(enew, EquiEdge
+//                .Kind
+//                .SPLIT);
+//
+//        LOGGER.debug("on equiclass add {}", enew);
+//
+//        for(EquiClass c : in) {
+//            assert c.isNested();
+//            Set<EquiClass> snen = lattice.inferEquiClassFor(c);
+//            EquiClass nec = snen.stream().reduce(EquiClass::union).get()
+//                    .union(c);
+//
+//            LOGGER.debug("nec {}", nec);
+//
+//            EquiClass nnec = addEquiClass(nec);
+//
+//            // remove redunancies just for the operations with parameter
+//            // equivalence
+//            //removeOperationRedundancies(nec);
+//        }
     }
 
 
@@ -341,8 +353,8 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
         EquiClass ec = elementFact.getEquiClassFor(n);
         Set<EquiClass> snen = lattice.inferEquiClassFor(ec);
 
-        LOGGER.debug("ieq {}:|{}| -- {}:{}", snen, snen.size(), ec, ec, n
-                .getId());
+        //LOGGER.debug("ieq {}:|{}| -- {}:{}", snen, snen.size(), ec, ec, n
+        //        .getId());
 
         if (snen.size() >= 1) {
             EquiClass nec = snen.stream().reduce(EquiClass::union).get().union(ec);
@@ -376,6 +388,7 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
     }
 
     public Node getNodeByLabel(String lbl) {
+        //LOGGER.debug(this.getLattice().toDot());
         EquiClass ec = lattice.getEquiClassByLabel(lbl);
         return ec.getFirstElement().getMappedNode();
     }
@@ -391,7 +404,8 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
     }
 
     public void update(Node n) throws EUFInconsistencyException {
-        LOGGER.debug(">> update {}", n.getDotLabel());
+        //LOGGER.debug(">> update {}", n.getDotLabel());
+        //LOGGER.debug(">> update {}", n.getDotLabel());
 
         if(!cb.vertexSet().contains(n))
             return;

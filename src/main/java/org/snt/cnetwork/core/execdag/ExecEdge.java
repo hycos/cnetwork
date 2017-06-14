@@ -10,10 +10,12 @@ public class ExecEdge extends DefaultEdge {
 
     private Node src;
     private Node dst;
+    private int seq;
 
-    public ExecEdge(Node src, Node dst) {
+    public ExecEdge(Node src, Node dst, int seq) {
         this.src = src;
         this.dst = dst;
+        this.seq = seq;
     }
 
     @Override
@@ -24,6 +26,10 @@ public class ExecEdge extends DefaultEdge {
     @Override
     public Node getTarget() {
         return dst;
+    }
+
+    public int getSequence() {
+        return this.seq;
     }
 
 }

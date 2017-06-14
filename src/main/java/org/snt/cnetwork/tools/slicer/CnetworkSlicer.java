@@ -27,7 +27,7 @@ public abstract class CnetworkSlicer implements Slicer {
 
         assert this.cn != null;
 
-        Set<Node> bw = new HashSet();
+        Set<Node> bw = new LinkedHashSet<>();
         LinkedList<Node> incoming = new LinkedList();
 
         incoming.addAll(criteria);

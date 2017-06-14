@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.snt.autorex.Autorex;
 import org.snt.cnetwork.core.domain.DomainInterface;
+import org.snt.cnetwork.core.graph.Node;
 
 import java.util.*;
 
@@ -55,6 +56,11 @@ public class SimpleAutomaton implements Automaton<SimpleAutomaton>, DomainInterf
 
     public SimpleAutomaton concatenate(SimpleAutomaton y) {
         return new SimpleAutomaton(this.a.concatenate(y.a));
+    }
+
+    @Override
+    public void init(Node n) {
+        // nothing to do
     }
 
     @Override
