@@ -136,6 +136,10 @@ public enum NodeDomainFactory {
     }
 
     public NodeDomain getDomainForKind(NodeKind n) {
+
+        if(n == NodeKind.STRVAR) {
+            return getDomain(n, ".*");
+        }
         return getDomain(n, null);
     }
 
@@ -144,7 +148,7 @@ public enum NodeDomainFactory {
     public NodeDomain getDomain(NodeKind n, String lbl) {
 
 
-        LOGGER.debug("getDomainForKind " + n.getDomainKind() + " " + lbl);
+        LOGGER.debug("getDomainForKind " + n.getDomainKind() + " ");
 
         switch (n.getDomainKind()) {
             case NUMERIC_Z:

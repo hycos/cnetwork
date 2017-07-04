@@ -1,10 +1,11 @@
 package org.snt.cnetwork.core.graph;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.snt.cnetwork.core.domain.DomainKind;
 
 public enum NodeKind {
-
 
     UNKNOWN("unkown",DomainKind.UNKNOWN),
 
@@ -99,6 +100,7 @@ public enum NodeKind {
 
     DIV("div",DomainKind.NUMERIC_Z);
 
+    final static Logger LOGGER = LoggerFactory.getLogger(NodeKind.class);
 
     private final String sval;
     private DomainKind dkind;
@@ -117,7 +119,10 @@ public enum NodeKind {
     public static NodeKind KindFromString(String kind) {
         switch(kind) {
             // operations
-            case "==": return EQUALS;
+            case "==": {
+                LOGGER.debug("eq");
+                return EQUALS;
+            }
             case "!=": return NEQUALS;
 
             case "<": return SMALLER;
@@ -202,9 +207,12 @@ public enum NodeKind {
             case "xss": return XSS;
             case "urli": return URLI;
 
-            default:
-                return UNKNOWN;
+            case "replace": return REPLACE;
+
+            //default:
+            //    return UNKNOWN;
         }
+        return UNKNOWN;
     }
 
     public String getDesc() {

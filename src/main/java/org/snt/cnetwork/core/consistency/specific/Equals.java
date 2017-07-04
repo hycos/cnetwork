@@ -28,14 +28,20 @@ public class Equals extends ConsistencyChecker {
         Node par0 = params.get(0);
         Node par1 = params.get(1);
 
+        LOGGER.debug("n {}", n.getKind().getDesc());
+
         //LOGGER.debug(">>> {},{},{}", n.getKind().getDesc(),
         //        par0.getKind().getDesc(), par1.getKind().getDesc());
 
-        if(!haveEqualDomains(par0,par1) || !n.getKind().isBoolean())
+        if(!haveEqualDomains(par0,par1) || !n.getKind().isBoolean()) {
+            LOGGER.debug("false1");
             return false;
+        }
 
-        if(!cb.vertexSet().containsAll(params))
+        if(!cb.vertexSet().containsAll(params)) {
+            LOGGER.debug("false 2");
             return false;
+        }
 
 
         //LOGGER.debug("boo");
@@ -48,7 +54,10 @@ public class Equals extends ConsistencyChecker {
                 n.getKind() == NodeKind.STR_NEQUALS ||
                 n.getKind() == NodeKind.STR_EQUALSIC ||
                 n.getKind() == NodeKind.STR_NEQUALSIC) {
-            return strEquals(par0, par1, n);
+            boolean ret = strEquals(par0, par1, n);
+
+            LOGGER.debug("RET {}", ret);
+            return ret;
         }
 
         if(n.getKind() == NodeKind.NUM_EQUALS ||
@@ -91,6 +100,9 @@ public class Equals extends ConsistencyChecker {
     }
 
     private boolean strEquals(Node par0, Node par1, Node n) {
+
+        LOGGER.debug("0 {}, 1{}, kind {}", par0.getKind().isString(),
+                par1.isString(), n.getKind().isBoolean());
         return par0.getKind().isString() && par1.getKind().isString() &&
                 n.getKind().isBoolean();
     }

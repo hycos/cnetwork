@@ -482,8 +482,14 @@ public class ConstraintNetworkBuilder implements Cloneable {
         //LOGGER.debug(getEufLattice().toDot());
         //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
 
+        Element cor = nen.getCorrespondingElement(n);
+
+        if(cor == null)
+            return n;
+
         //Node emap = getCorrespondingNode(nn,n);
-        Node emap = nen.getCorrespondingElement(n).getMappedNode();
+        Node emap = cor.getMappedNode();
+
 
         //LOGGER.debug("mapped node {}:{}", nen.getDotLabel(),nen.getId());
         //assert cn.containsVertex(emap);

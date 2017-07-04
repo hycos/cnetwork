@@ -77,6 +77,11 @@ public final class NodeElemFact {
                 .getParametersFor(n).size());
         assert n.isOperation();
 
+        if (nc.hasEquiClass(n)) {
+            es.add(nc.getEquiClass(n));
+            return;
+        }
+
         List<Element> elems = new Vector<>();
         for (Node p : cn.getParametersFor(n)) {
 

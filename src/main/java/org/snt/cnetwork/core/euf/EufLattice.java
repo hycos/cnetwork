@@ -4,6 +4,7 @@ package org.snt.cnetwork.core.euf;
 import org.jgrapht.graph.DirectedPseudograph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.Configuration;
 import org.snt.cnetwork.exception.EUFInconsistencyException;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -342,6 +343,11 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
         //LOGGER.debug(toDot());
         //LOGGER.debug("add equi class {}:{}", n.getDotLabel(), n.getId());
 
+        if(!Configuration.INSTACE.isEufEnabled()) {
+            lmap.put(n.getLabel(),n);
+            return n;
+        }
+
 
         if (isAlreadySubsumed(n) || n.isEmpty()) {
             EquiClass covering = getTopCovering(n);
@@ -541,11 +547,12 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
         //assert e.isNested();
         //assert e.getElements().size() == 1;
 
+
         // first -- search for the corresponding equi class
         // if it does exist
         EquiClass e = getTopCovering(ec);
 
-        if(e.equals(top))
+        if(e.equals(top) || !Configuration.INSTACE.isEufEnabled())
             return Collections.singleton(ec);
 
 
@@ -996,6 +1003,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
         //LOGGER.debug("1 {}", l);
         //LOGGER.debug("lmap ++ {}", debug());
         //LOGGER.debug(toDot());
+        LOGGER.debug(lmap.toString());
         assert lmap.containsKey(l);
         //LOGGER.debug("2");
         return lmap.get(l);

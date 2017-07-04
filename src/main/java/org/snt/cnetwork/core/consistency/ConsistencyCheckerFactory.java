@@ -39,7 +39,10 @@ public enum ConsistencyCheckerFactory {
 
 
     public boolean isConsistent(ConstraintNetworkBuilder cb, Node n) {
-        return getConsistencyCheckerFor(n.getKind()).check(cb, n);
+        LOGGER.debug(n.getLabel());
+        boolean ret = getConsistencyCheckerFor(n.getKind()).check(cb, n);
+        LOGGER.debug("ret2 {}", ret);
+        return ret;
     }
 
     public ConsistencyChecker getConsistencyCheckerFor(NodeKind kind){

@@ -105,15 +105,17 @@ public class DomainUtils {
             if(max.isFixed() && (max instanceof AboveAll))
                 return new SimpleAutomaton(min.toString());
         }
-        String mins = ".*";
-        String maxs = ".*";
+        String mins = "-?[1-9][0-9]+";
+        String maxs = "-?[1-9][0-9]+";
 
         if(min.isFixed())
             mins = RexpUtils.getRexpForMin(min.getEndpoint());
-        LOGGER.info("MINS " + mins);
+
         if(max.isFixed())
             maxs = RexpUtils.getRexpForMax(max.getEndpoint());
+
         LOGGER.info("MAXS " + maxs);
+        LOGGER.info("MINS " + mins);
 
         SimpleAutomaton mina = new SimpleAutomaton(mins);
         SimpleAutomaton maxa = new SimpleAutomaton(maxs);

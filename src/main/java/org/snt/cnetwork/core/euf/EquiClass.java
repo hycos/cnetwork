@@ -322,7 +322,8 @@ public class EquiClass implements Cloneable {
         try {
             ele =  set.stream().filter(f).findFirst().get();
         } catch (NoSuchElementException e) {
-            assert false;
+            LOGGER.debug("no corresponding element");
+            return null;
         }
         return ele;
     }

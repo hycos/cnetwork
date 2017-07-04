@@ -2,6 +2,8 @@ package org.snt.cnetwork.core.graph;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.snt.cnetwork.core.domain.NodeDomainFactory;
+import org.snt.cnetwork.exception.EUFInconsistencyException;
 import org.snt.cnetwork.sig.JavaMethodSignature;
 
 import java.util.*;
@@ -222,6 +224,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     }
 
     protected Node addOperation(NodeKind kind, List<Node> params) {
+        LOGGER.debug("create op {}", kind);
         return createOperation(kind, params);
     }
 
@@ -317,7 +320,12 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
 
         assert (this.vertexSet().contains(cpoint));
 
-        this.addOperation(kind, cpoint, othercn.getStartNode());
+        Node n = this.addOperation(kind, cpoint, othercn.getStartNode());
+        try {
+            n.setDomain(NodeDomainFactory.DBTRUE);
+        } catch (EUFInconsistencyException e) {
+            e.printStackTrace();
+        }
     }
 
 

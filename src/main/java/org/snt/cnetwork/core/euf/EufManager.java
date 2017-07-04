@@ -390,6 +390,7 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
     public Node getNodeByLabel(String lbl) {
         //LOGGER.debug(this.getLattice().toDot());
         EquiClass ec = lattice.getEquiClassByLabel(lbl);
+        LOGGER.debug(ec.getDotLabel());
         return ec.getFirstElement().getMappedNode();
     }
 
