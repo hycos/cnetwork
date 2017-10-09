@@ -192,7 +192,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
             return o;
         }
     }
-    
+
     public EquiClass getTopCovering(EquiClass o) {
 
         //LOGGER.debug("get covering");
