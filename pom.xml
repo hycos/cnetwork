@@ -19,7 +19,7 @@
         <slf4j.version>1.7.25</slf4j.version>
         <junit.version>4.12</junit.version>
         <jgraph.version>1.0.1</jgraph.version>
-        <commonslang.version>3.5</commonslang.version>
+        <commonslang.version>3.6</commonslang.version>
         <esapi.version>2.1.0.1</esapi.version>
         <dkbrics.version>1.11-8</dkbrics.version>
         <autorex.version>1.0</autorex.version>
