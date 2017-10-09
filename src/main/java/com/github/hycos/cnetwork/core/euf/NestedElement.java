@@ -26,12 +26,6 @@ public final class NestedElement extends Element {
 
     protected final Element [] tuple;
 
-    /**
-     * flat copy of a nested element. Deep copy
-     * would be too expensive because of the recursive
-     * nature of this data structure
-     * @param ne
-     */
     public NestedElement(NestedElement ne) {
         this(ne.mappedNode,ne.lbl, ne.annotation, Arrays.copyOf(ne.tuple, ne.tuple
                 .length));

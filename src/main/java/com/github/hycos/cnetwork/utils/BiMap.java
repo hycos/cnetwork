@@ -22,8 +22,8 @@ import java.util.Map;
 
 /**
  * Simple implementation of a bi directional map
- * @param <K>
- * @param <V>
+ * @param <K> key
+ * @param <V> value
  */
 public class BiMap<K,V> {
 

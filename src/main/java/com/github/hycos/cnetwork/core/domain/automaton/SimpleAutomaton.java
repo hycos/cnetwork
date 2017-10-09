@@ -254,15 +254,6 @@ public class SimpleAutomaton implements Automaton<SimpleAutomaton>, DomainInterf
         return max;
     }
 
-
-    /**
-     *
-     * Generates the string based on regex that is passed as
-     * a parameter to the constructor.
-     *
-     * @return the generated string.
-     *
-     */
     public String getRandomString(int minsize) {
         StringBuilder builder = new StringBuilder();
         generate(builder, a.getInitialState(), minsize);

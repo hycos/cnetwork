@@ -357,12 +357,6 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
         return lattice.join(elementFact.getEquiClassesFor(e));
     }
 
-    /**
-     * infer the actual equiclass to which a node belongs to
-     *
-     * @param n
-     * @return
-     */
     public EquiClass inferActualEquiClassForNode(Node n) throws EUFInconsistencyException {
 
         //LOGGER.debug(lattice.toDot());

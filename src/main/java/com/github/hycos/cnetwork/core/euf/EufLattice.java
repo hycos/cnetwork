@@ -71,9 +71,6 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
         return this.top;
     }
 
-    /**
-     * API
-     **/
     private EquiClass union(Collection<EquiClass> e) {
         assert !e.isEmpty();
         return e.stream().reduce(EquiClass::union).get();
@@ -195,12 +192,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
             return o;
         }
     }
-
-    /**
-     * there can only be one covering equi class
-     * @param o
-     * @return
-     */
+    
     public EquiClass getTopCovering(EquiClass o) {
 
         //LOGGER.debug("get covering");

@@ -151,31 +151,10 @@ public final class JavaMethodSignature {
         }
     }
 
-    /**
-     * Given a fully qualified class name, returns the signature of the main method of that class.
-     * The expected format of the class name is (<packageName>(.<packageName>)*.)?<className> where
-     * <packageName> denotes allowed package names in Java and <className> denotes allowed class names
-     * in Java.
-     * @param className fully-qualified name of a class
-     * @return method signature for the main method of the given class
-     */
     public static JavaMethodSignature mainMethodOfClass(String className) {
         return fromString(className+(".main([Ljava/lang/String;)V"));
     }
 
-    /**
-     * Parses a java method signature object from the given string. If parsing fails, {@code null} is returned. The given string's format has to be
-     * one of the following:<br>
-     * <ul>
-     * <li> (&lt;packageName&gt;(.&lt;packageName&gt;)*.)?&lt;className&gt;&lt;methodName&gt;((&lt;typeBC&gt;)*)&lt;typeBC&gt; </li>
-     * <li> &lt;typeHR&gt; (&lt;packageName&gt;(.&lt;packageName&gt;)*.)?&lt;className&gt;&lt;methodName&gt;(&lt;typeHR&gt;(,&lt;typeHR&gt;)*) </li>
-     * </ul>
-     * The symbols &lt;packageName&gt;, &lt;className&gt; and &lt;methodName&gt; denote allowed java package names, class names and method names,
-     * respectively. The symbols &lt;typeBC&gt; and &lt;typeHR&gt; represent java types in bytecode format and human-readable format, respectively.
-     * See {@link JavaType} for a specification of these formats.
-     * @param methodSig string from which a java method signature object is to be parsed
-     * @return java method signature object described by given string, if that string has the right format, {@code null} otherwise.
-     */
     public static JavaMethodSignature fromString(String methodSig) {
         if (isHumanReadable(methodSig)) {
             Matcher m = pMethodHR.matcher(methodSig);
@@ -215,11 +194,7 @@ public final class JavaMethodSignature {
         return ret;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#toString()
-     */
+
     @Override
     public String toString() {
         return toHRString();
@@ -254,21 +229,12 @@ public final class JavaMethodSignature {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         return hash;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -284,9 +250,6 @@ public final class JavaMethodSignature {
         return this.bcString.equals(other.bcString);
     }
 
-    /**
-     * @return a comparator which compares two JavaMethodSignature objects according to their bytecode notation strings
-     */
     public static Comparator<JavaMethodSignature> compareByBCStrings() {
         return new Comparator<JavaMethodSignature>() {
 

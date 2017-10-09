@@ -350,10 +350,7 @@ public class EquiClass implements Cloneable {
         return new EquiClass(this);
     }
 
-    /**
-     * Infer additional facts from the ones present in this set
-     * @return
-     */
+
     public Set<EquiClass> infer() {
 
         LOGGER.debug("Infer additional facts for {} with set size {}", getDotLabel(),

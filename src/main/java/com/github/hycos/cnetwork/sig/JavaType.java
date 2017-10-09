@@ -28,27 +28,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-/**
- * This class represents java types and provides methods to parse a java type from a string. Allowed strings have to meet one
- * of the following formats:
- * <ul>
- * <li><i>human-readable:</i><p/>
- * <b>&lt;typeHR&gt;</b> ::= <b>&lt;baseTypeHR&gt;</b>([])* where <p>
- * <b>&lt;baseTypeHR&gt;</b> ::= <b>&lt;primitiveTypeHR&gt;</b>| &lt;fqRefTypeHR&gt; <p>
- * <b>&lt;primitiveTypeHR&gt;</b> ::= void|boolean|byte|char|short|int|long|float|double<p>
- * <b>&lt;fqRefTypeHR&gt;</b> ::= (<b>&lt;packageName&gt;</b>(.<b>&lt;packageName&gt;</b>)*.)?<b>&lt;className&gt;</b> </li>
- *
- * <li><i>bytecode format:</i><p/>
- * <b>&lt;typeBC&gt;</b> ::= ([)*<b>&lt;baseTypeBC&gt;</b> where <p>
- * <b>&lt;baseTypeBC&gt;</b> ::= <b>&lt;primitiveTypeBC&gt;</b>|<b>&lt;fqRefTypeBC&gt;</b><p>
- * <b>&lt;primitiveTypeBC&gt;</b> ::= V|C|Z|B|C|S|I|J|F|D<p>
- * <b>&lt;fqRefTypeBC&gt;</b> ::= L(<b>&lt;packageName&gt;</b>(\/<b>&lt;packageName&gt;</b>)*\/)?<b>&lt;className&gt;</b>; </li>
- *
- * </ul>
- * &lt;packageName&gt; and &lt;className&gt; represent allowed package and class names, respectively, in Java.
- * @author Martin Mohr
- *
- */
 public class JavaType {
 
     /** Format descriptor */
@@ -231,13 +210,7 @@ public class JavaType {
         }
     }
 
-    /**
-     * Parse a string into a single type. Depending on the given format, the string will either be interpreted as
-     * bytecode-style or human-readable style.
-     * @param s string to parse
-     * @param f format indicating how to interpret the given string
-     * @return {@code JavaType} object representing the java type described by the given string
-     */
+
     public static JavaType parseSingleTypeFromString(String s, Format f) {
         int arrDim;
         String baseType;
@@ -267,14 +240,7 @@ public class JavaType {
         return new JavaType(f, baseType, arrDim);
     }
 
-    /**
-     * Parse a string into a single type. Since no format is given, the right style of notation is guessed. It is assumed,
-     * that the given string does not denote a primitive type.<p>
-     * If no or both the human-readable and the bytecode formats are applicable, then {@code null} is returned.
-     * @param s string to parse
-     * @return {@code JavaType} object representing the java type described by the given string, {@code null} if
-     * given string is neither in human-readable style nor in bytecode style or if both styles are possible.
-     */
+
     public static JavaType parseSingleTypeFromString(String s) {
         if (s.startsWith("[") || (s.startsWith("L") && s.contains("/"))) {
             /**
@@ -357,21 +323,13 @@ public class JavaType {
         return ret;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#hashCode()
-     */
+
     @Override
     public int hashCode() {
         return hashCode;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
