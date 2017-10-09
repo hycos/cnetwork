@@ -2,8 +2,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.domain.NodeDomain;
-import org.snt.cnetwork.core.domain.NodeDomainFactory;
+import com.github.hycos.cnetwork.core.domain.NodeDomain;
+import com.github.hycos.cnetwork.core.domain.NodeDomainFactory;
 
 public class TestNodeDomain {
 

@@ -2,9 +2,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.domain.range.AboveAll;
-import org.snt.cnetwork.core.domain.range.BelowAll;
-import org.snt.cnetwork.core.domain.range.NumCut;
+import com.github.hycos.cnetwork.core.domain.range.AboveAll;
+import com.github.hycos.cnetwork.core.domain.range.BelowAll;
+import com.github.hycos.cnetwork.core.domain.range.NumCut;
 
 
 public class TestCut {

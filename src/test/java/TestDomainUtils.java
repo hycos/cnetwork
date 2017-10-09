@@ -1,11 +1,11 @@
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.domain.range.AboveAll;
-import org.snt.cnetwork.core.domain.automaton.SimpleAutomaton;
-import org.snt.cnetwork.core.domain.range.NumCut;
-import org.snt.cnetwork.core.domain.range.NumRange;
-import org.snt.cnetwork.utils.DomainUtils;
+import com.github.hycos.cnetwork.core.domain.range.AboveAll;
+import com.github.hycos.cnetwork.core.domain.automaton.SimpleAutomaton;
+import com.github.hycos.cnetwork.core.domain.range.NumCut;
+import com.github.hycos.cnetwork.core.domain.range.NumRange;
+import com.github.hycos.cnetwork.utils.DomainUtils;
 
 import java.util.Set;
 

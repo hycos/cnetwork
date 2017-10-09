@@ -2,7 +2,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.domain.automaton.SimpleAutomaton;
+import com.github.hycos.cnetwork.core.domain.automaton.SimpleAutomaton;
 
 
 public class TestAutomaton {

@@ -1,9 +1,9 @@
+import com.github.hycos.cnetwork.core.domain.range.*;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.snt.cnetwork.core.domain.range.*;
-import org.snt.cnetwork.utils.RexpUtils;
+import com.github.hycos.cnetwork.utils.RexpUtils;
 
 import java.util.Set;
 
