@@ -83,7 +83,17 @@ format, you print a graph by means of [graphviz](http://www.graphviz.org) (for
 example by invoking `dot -T pdf <infile> -o <ofile>`). In case you would like
 to automate this task, this
 [script](https://gist.github.com/julianthome/66a31203b9b25493fa2a43889f948212)
-might be useful. The constraint network for the first example would look as
+might be useful. 
+
+```java
+
+ConstraintNetworkBuilder cb = new ConstraintNetworkBuilder();
+// ...
+System.out.println(cb.getConstraintNetwork().toDot());
+```
+
+
+The constraint network for the first example would look as
 follows.
 
 ![Screenshot](img/cnetwork.png)
