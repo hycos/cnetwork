@@ -197,7 +197,7 @@ public class AtomicNumRange extends Range {
 
         AtomicNumRange other = (AtomicNumRange)dother;
 
-        LOGGER.info("get overlap " + this.toString() + " " + other.toString
+        LOGGER.debug("get overlap " + this.toString() + " " + other.toString
                  ());
 
         if(other.getMin().isGreaterThan(getMax()) || other.getMax()
@@ -207,7 +207,7 @@ public class AtomicNumRange extends Range {
         AtomicNumRange overlap = new AtomicNumRange(NumCut.max(getMin(), other
                 .getMin()),
                 NumCut.min(getMax(), other.getMax()));
-        LOGGER.info("Overlap is "+ overlap);
+        LOGGER.debug("Overlap is "+ overlap);
 
         assert overlap.getMax().isGreaterEqualsThan(overlap.getMin());
 
@@ -277,7 +277,7 @@ public class AtomicNumRange extends Range {
             return new SimpleAutomaton(".{0}");
         }
 
-        LOGGER.info("getlenauto" + isect.toString());
+        LOGGER.debug("getlenauto" + isect.toString());
 
         //@TODO:Julian this is a heuristic -- building a len automaton
         //is quite expensive

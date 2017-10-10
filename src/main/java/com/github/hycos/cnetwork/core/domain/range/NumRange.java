@@ -69,7 +69,7 @@ public class NumRange extends Range {
         NumRange other = (NumRange)dother;
         // all the elements that are not contained in this
         NumRange complement = other.complement(this);
-        //LOGGER.info("COMPLEMEN " + complement);
+        //LOGGER.debug("COMPLEMEN " + complement);
 
         if(complement == null)
             return null;
@@ -97,7 +97,7 @@ public class NumRange extends Range {
             next = this.ran.higherEntry(e.getKey());
 
            if(next != null) {
-               //LOGGER.info("NEXT " + next.toString());
+               //LOGGER.debug("NEXT " + next.toString());
                if(ret == null) ret = new NumRange();
                ret.add(new AtomicNumRange(e.getValue().getMax().add(1L), next
                        .getValue().getMin().sub(1L)));
@@ -185,7 +185,7 @@ public class NumRange extends Range {
             thisptr != null;
             thisptr = this.ran.higherEntry(thisptr.getValue().getMin())) {
 
-            LOGGER.info(">> " + thisptr.getValue().toString());
+            LOGGER.debug(">> " + thisptr.getValue().toString());
             NumCut thismin = thisptr.getValue().getMin();
             NumCut thismax = thisptr.getValue().getMax();
 
@@ -195,8 +195,8 @@ public class NumRange extends Range {
                     other.ran.floorEntry(thismax) : other.ran.ceilingEntry(thismax));
 
 
-            //LOGGER.info("SFROM " + sfrom.getValue().toString());
-            //LOGGER.info("STO " + sto.getValue().toString());
+            //LOGGER.debug("SFROM " + sfrom.getValue().toString());
+            //LOGGER.debug("STO " + sto.getValue().toString());
 
             if(sfrom == null || sto == null)
                 continue;
@@ -205,13 +205,13 @@ public class NumRange extends Range {
             for(Map.Entry <NumCut, AtomicNumRange> sptr = sfrom;
                 sptr != null;
                 sptr = other.ran.higherEntry(sptr.getKey())) {
-                //LOGGER.info("++==");
+                //LOGGER.debug("++==");
 
                 Set<AtomicNumRange> toadd = new HashSet<AtomicNumRange>();
 
                 AtomicNumRange ret = sptr.getValue().intersect(thisptr.getValue());
 
-                //LOGGER.info("*** " + sptr);
+                //LOGGER.debug("*** " + sptr);
 
                 if(ret != null)
                     toadd.add(ret);
@@ -231,7 +231,7 @@ public class NumRange extends Range {
             if(thisptr == thisto)
                 break;
         }
-        //LOGGER.info("DONE ");
+        //LOGGER.debug("DONE ");
 
         return rs;
     }
@@ -300,7 +300,7 @@ public class NumRange extends Range {
         }
 
         if(cMin != null) {
-            //LOGGER.info("here");
+            //LOGGER.debug("here");
             AtomicNumRange overlap = cMin.intersect(e);
             if(overlap != null) {
                 NumCut min = NumCut.min(cMin.getMin(), e.getMin());
@@ -315,7 +315,7 @@ public class NumRange extends Range {
         }
 
         if(fMax != null) {
-            //LOGGER.info("there");
+            //LOGGER.debug("there");
             AtomicNumRange overlap = fMax.intersect(e);
             if (overlap != null) {
                 NumCut min = (ceilMin != null ? NumCut.min(ceilMin.getValue().getMin(), e.getMin()) : e.getMin());
@@ -397,7 +397,7 @@ public class NumRange extends Range {
     }
 
     private void cleanupDescending(AtomicNumRange from) {
-        LOGGER.info("cleanup desc " + from) ;
+        LOGGER.debug("cleanup desc " + from) ;
         Map.Entry<NumCut, AtomicNumRange> todel = ran.higherEntry(from.getMin
                 ());
 
@@ -411,7 +411,7 @@ public class NumRange extends Range {
     }
 
     private void cleanupAscending(AtomicNumRange from) {
-        LOGGER.info("cleanup asc " + from);
+        LOGGER.debug("cleanup asc " + from);
         Map.Entry<NumCut, AtomicNumRange> todel = ran.lowerEntry(from.getMax());
 
         while (todel != null &&
@@ -488,7 +488,7 @@ public class NumRange extends Range {
 
                 AtomicNumRange sum = eout.getValue().numadd(ein.getValue());
 
-                LOGGER.info(eout.getValue() + "+" + ein.getValue() + "=" + sum);
+                LOGGER.debug(eout.getValue() + "+" + ein.getValue() + "=" + sum);
                 ret.add(sum);
             }
         }
@@ -502,7 +502,7 @@ public class NumRange extends Range {
 
                 AtomicNumRange sum = eout.getValue().numsub(ein.getValue());
 
-                LOGGER.info(eout.getValue() + "-" + ein.getValue() + "=" + sum);
+                LOGGER.debug(eout.getValue() + "-" + ein.getValue() + "=" + sum);
                 ret.add(sum);
             }
         }
