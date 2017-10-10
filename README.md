@@ -17,6 +17,19 @@ constraint network construction and constraint network manipulation.
 [travis]: https://travis-ci.org/hycos/cnetwork
 [coverage]: https://codecov.io/gh/hycos/cnetwork
 
+# Integration
+
+For the time being, because there are no stable releases yet, there are only
+Maven snapshots available that can be easily integrated into your application.
+
+```xml
+<dependency>
+    <groupId>com.github.hycos</groupId>
+    <artifactId>cnetwork</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+```
+
 
 # Usage
 
