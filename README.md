@@ -75,6 +75,4 @@ to automate this task, this
 might be useful. The constraint network for the first example would look as
 follows.
 
-<p align="center">
-    <img src="https://www.dropbox.com/s/bkeq906n2azph1w/cnetwork.png?dl=1"/>
-</p>
+![Screenshot](img/cnetwork.png)
