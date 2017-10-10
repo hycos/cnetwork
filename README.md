@@ -76,6 +76,6 @@ might be useful. The constraint network for the first example would look as
 follows.
 
 
-![](https://www.dropbox.com/s/bkeq906n2azph1w/cnetwork.png?dl=://www.dropbox.com/s/bkeq906n2azph1w/cnetwork.png?dl=1)
+![](https://www.dropbox.com/s/bkeq906n2azph1w/cnetwork.png?dl=1)
 
 
