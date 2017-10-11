@@ -17,15 +17,14 @@
 
 package com.github.hycos.cnetwork.core.euf;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.github.hycos.cnetwork.core.domain.range.BooleanRange;
 import com.github.hycos.cnetwork.core.graph.ConstraintNetworkBuilder;
 import com.github.hycos.cnetwork.core.graph.ConstraintNetworkObserver;
 import com.github.hycos.cnetwork.core.graph.Node;
-import com.github.hycos.cnetwork.core.consistency.ConsistencyCheckerFactory;
-import com.github.hycos.cnetwork.core.domain.range.BooleanRange;
 import com.github.hycos.cnetwork.exception.EUFInconsistencyException;
 import com.github.hycos.cnetwork.exception.MissingItemException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -492,7 +491,7 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
             }
         }
 
-        ConsistencyCheckerFactory.INSTANCE.checkConsistency(cb);
+        //ConsistencyCheckerFactory.INSTANCE.checkConsistency(cb);
 
         //if (n.isOperation()) {
         //    addEquiClass(n);

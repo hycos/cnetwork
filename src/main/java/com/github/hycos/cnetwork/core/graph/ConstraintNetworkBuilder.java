@@ -50,6 +50,16 @@ public class ConstraintNetworkBuilder implements Cloneable {
     // Observe variables and operations
     private Set<ConstraintNetworkObserver<Node>> observers = new HashSet<>();
 
+    private void addDefaultContraint() {
+        Node ntrue = new Operand("true", NodeKind.BOOLLIT);
+        Node nfalse = new Operand("false", NodeKind.BOOLLIT);
+        try {
+            addConstraint(NodeKind.NEQUALS, ntrue, nfalse);
+        } catch (EUFInconsistencyException e) {
+            assert false;
+        }
+    }
+
     // Note that listeners are no copied
     public ConstraintNetworkBuilder(ConstraintNetworkBuilder cnb) {
         this.cn = new ConstraintNetwork(cnb.cn);
@@ -64,6 +74,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
         this.listeners.add(this.tree);
 
         attachObservers();
+        //addDefaultContraint();
     }
 
     public ConstraintNetworkBuilder() {
@@ -73,6 +84,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
         this.observers.add(this.euf);
         this.observers.add(this.tree);
         this.listeners.add(this.tree);
+        //addDefaultContraint();
     }
 
     private void attachObservers() {

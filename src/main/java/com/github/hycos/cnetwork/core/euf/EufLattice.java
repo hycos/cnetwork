@@ -19,6 +19,9 @@ package com.github.hycos.cnetwork.core.euf;
 
 
 import com.github.hycos.cnetwork.core.Configuration;
+import com.github.hycos.cnetwork.core.graph.Node;
+import com.github.hycos.cnetwork.core.graph.NodeKind;
+import com.github.hycos.cnetwork.core.graph.Operand;
 import com.github.hycos.cnetwork.exception.EUFInconsistencyException;
 import org.jgrapht.graph.DirectedPseudograph;
 import org.slf4j.Logger;

@@ -88,6 +88,8 @@ public class DomainUtils {
         } else if (r instanceof NumRange) {
             return getNumAutomatonForNumRange((NumRange)r);
         }
+
+        LOGGER.debug(r.getClass().toString());
         assert false;
         return null;
     }

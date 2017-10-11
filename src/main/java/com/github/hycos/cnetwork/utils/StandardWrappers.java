@@ -38,109 +38,109 @@ public class StandardWrappers {
             case NEQUALS:
             case ITE:
             case DIV:
-                return "org.snt.cnetwork.utils.StandardWrappers.noOp()Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.noOp()Ljava/lang/String;";
             case STR_EQUALS:
-                return "org.snt.cnetwork.utils.StandardWrappers.strEq(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.strEq(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case STR_EQUALSIC:
-                return "org.snt.cnetwork.utils.StandardWrappers.strEqIc(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.strEqIc(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case STR_NEQUALSIC:
-                return  "org.snt.cnetwork.utils.StandardWrappers.strNeqIc(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return  "com.gihtub.hycos.utils.StandardWrappers.strNeqIc(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case NUM_EQUALS:
-                return "org.snt.cnetwork.utils.StandardWrappers.numEq(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.numEq(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case BOOL_EQUALS:
-                return "org.snt.cnetwork.utils.StandardWrappers.boolEq(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.boolEq(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case STR_NEQUALS:
-                return "org.snt.cnetwork.utils.StandardWrappers.strNeq(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.strNeq(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case NUM_NEQUALS:
-                return "org.snt.cnetwork.utils.StandardWrappers.numNeq(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.numNeq(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case BOOL_NEQUALS:
-                return "org.snt.cnetwork.utils.StandardWrappers.boolNeq(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.boolNeq(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case SMALLER:
-                return "org.snt.cnetwork.utils.StandardWrappers.numSmaller(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.numSmaller(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case GREATER:
-                return "org.snt.cnetwork.utils.StandardWrappers.numGreater(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.numGreater(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case SMALLEREQ:
-                return "org.snt.cnetwork.utils.StandardWrappers.numSmallerEq(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.numSmallerEq(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case GREATEREQ:
-                return "org.snt.cnetwork.utils.StandardWrappers.numGreaterEq(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.numGreaterEq(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case MATCHES:
-                return "org.snt.cnetwork.utils.StandardWrappers.matches(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.matches(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case STARTSWITH:
-                return "org.snt.cnetwork.utils.StandardWrappers.startsWith(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.startsWith(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case ENDSWITH:
-                return "org.snt.cnetwork.utils.StandardWrappers.endsWith(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.endsWith(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case CONTAINS:
-                return "org.snt.cnetwork.utils.StandardWrappers.contains(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.contains(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case OR:
-                return "org.snt.cnetwork.utils.StandardWrappers.or(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.or(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case AND:
-                return "org.snt.cnetwork.utils.StandardWrappers.and(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.and(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case XOR:
-                return "org.snt.cnetwork.utils.StandardWrappers.xor(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.xor(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case NOT:
-                return "org.snt.cnetwork.utils.StandardWrappers.not(Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.not(Ljava/lang/String;)Ljava/lang/String;";
             case IMPLIES:
-                return "org.snt.cnetwork.utils.StandardWrappers.implies" +
+                return "com.gihtub.hycos.utils.StandardWrappers.implies" +
                         "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case SUBSTR:
-                return "org.snt.cnetwork.utils.StandardWrappers.substring(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.substring(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case INDEXOF:
-                return "org.snt.cnetwork.utils.StandardWrappers.indexof(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.indexof(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case LASTINDEXOF:
-                return "org.snt.cnetwork.utils.StandardWrappers.lastindexof" +
+                return "com.gihtub.hycos.utils.StandardWrappers.lastindexof" +
                         "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case TOLOWER:
-                return "org.snt.cnetwork.utils.StandardWrappers.toLower(Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.toLower(Ljava/lang/String;)Ljava/lang/String;";
             case TOUPPER:
-                return "org.snt.cnetwork.utils.StandardWrappers.toUpper(Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.toUpper(Ljava/lang/String;)Ljava/lang/String;";
             case CONCAT:
-                return "org.snt.cnetwork.utils.StandardWrappers.concat(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.concat(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case TRIM:
-                return "org.snt.cnetwork.utils.StandardWrappers.trim(Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.trim(Ljava/lang/String;)Ljava/lang/String;";
             case LEN:
-                return "org.snt.cnetwork.utils.StandardWrappers.len(Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.len(Ljava/lang/String;)Ljava/lang/String;";
             case REPLACE:
-                return "org.snt.cnetwork.utils.StandardWrappers.replace" +
+                return "com.gihtub.hycos.utils.StandardWrappers.replace" +
                         "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case VALUEOF:
-                return "org.snt.cnetwork.utils.StandardWrappers.valueOf(Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.valueOf(Ljava/lang/String;)Ljava/lang/String;";
             case TOSTR:
-                return "org.snt.cnetwork.utils.StandardWrappers.toStr(Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.toStr(Ljava/lang/String;)Ljava/lang/String;";
             case ADD:
-                return "org.snt.cnetwork.utils.StandardWrappers.add(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.add(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case SUB:
-                return "org.snt.cnetwork.utils.StandardWrappers.sub(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.sub(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
             case APACHE_ESCHTML:
-                return "org.snt.cnetwork.utils.StandardWrappers.apacheEscapeHTML(Ljava/lang/String)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.apacheEscapeHTML(Ljava/lang/String)Ljava/lang/String;";
             case APACHE_UESCHTML:
-                return "org.snt.cnetwork.utils.StandardWrappers.apacheUnescapeHTML(Ljava/lang/String)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.apacheUnescapeHTML(Ljava/lang/String)Ljava/lang/String;";
             case APACHE_ESCXML10:
-                return "org.snt.cnetwork.utils.StandardWrappers.apacheEscapeXML10(Ljava/lang/String)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.apacheEscapeXML10(Ljava/lang/String)Ljava/lang/String;";
             case APACHE_ESCXML11:
-                return "org.snt.cnetwork.utils.StandardWrappers.apacheEscapeXML11(Ljava/lang/String)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.apacheEscapeXML11(Ljava/lang/String)Ljava/lang/String;";
             case APACHE_ESCJSON:
-                return "org.snt.cnetwork.utils.StandardWrappers.apacheEscapeJSON(Ljava/lang/String)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.apacheEscapeJSON(Ljava/lang/String)Ljava/lang/String;";
             case APACHE_ESCECMA:
-                return "org.snt.cnetwork.utils.StandardWrappers.apacheEscapeEcmaScript(Ljava/lang/String)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.apacheEscapeEcmaScript(Ljava/lang/String)Ljava/lang/String;";
             case ESAPI_ESCLDAP:
-                return "org.snt.cnetwork.utils.StandardWrappers.owaspEncodeForLDAP(Ljava/lang/String)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.owaspEncodeForLDAP(Ljava/lang/String)Ljava/lang/String;";
             case ESAPI_ESCDN:
-                return "org.snt.cnetwork.utils.StandardWrappers.owaspEncodeForDN(Ljava/lang/String)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.owaspEncodeForDN(Ljava/lang/String)Ljava/lang/String;";
             case ESAPI_ESCHTML:
-                return "org.snt.cnetwork.utils.StandardWrappers.owaspEncodeForHTML(Ljava/lang/String)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.owaspEncodeForHTML(Ljava/lang/String)Ljava/lang/String;";
             case ESAPI_ESCHTMLATTR:
-                return "org.snt.cnetwork.utils.StandardWrappers.owaspEncodeForHTMLAttribute(Ljava/lang/String)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.owaspEncodeForHTMLAttribute(Ljava/lang/String)Ljava/lang/String;";
             case ESAPI_ESCXML:
-                return "org.snt.cnetwork.utils.StandardWrappers.owaspEncodeForXML(Ljava/lang/String)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.owaspEncodeForXML(Ljava/lang/String)Ljava/lang/String;";
             case ESAPI_ESCXMLATTR:
-                return "org.snt.cnetwork.utils.StandardWrappers.owaspEncodeForXMLAttribute(Ljava/lang/String)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.owaspEncodeForXMLAttribute(Ljava/lang/String)Ljava/lang/String;";
             case ESAPI_ESCXPATH:
-                return "org.snt.cnetwork.utils.StandardWrappers.owaspEncodeForXPath(Ljava/lang/String)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.owaspEncodeForXPath(Ljava/lang/String)Ljava/lang/String;";
             case ESAPI_ESCSQL:
-                return "org.snt.cnetwork.utils.StandardWrappers.owaspEncodeForSQL(Ljava/lang/String)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.owaspEncodeForSQL(Ljava/lang/String)Ljava/lang/String;";
 
             case EMTPY:
-                return "org.snt.cnetwork.utils.StandardWrappers.empty(Ljava/lang/String)Ljava/lang/String;";
+                return "com.gihtub.hycos.utils.StandardWrappers.empty(Ljava/lang/String)Ljava/lang/String;";
 
         }
         assert(false);

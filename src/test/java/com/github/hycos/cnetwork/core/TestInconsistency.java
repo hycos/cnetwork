@@ -30,9 +30,36 @@ import com.github.hycos.cnetwork.exception.EUFInconsistencyException;
 public class TestInconsistency {
     final static Logger LOGGER = LoggerFactory.getLogger(TestInconsistency.class);
 
+
+    @Test
+    public void testBooleanInconsistency() {
+        try {
+            ConstraintNetworkBuilder cb = new ConstraintNetworkBuilder();
+            Node ntrue = cb.addOperand(NodeKind.BOOLLIT, "true");
+            Node nfalse = cb.addOperand(NodeKind.BOOLLIT, "false");
+            cb.addConstraint(NodeKind.BOOL_EQUALS,ntrue,nfalse);
+        } catch (EUFInconsistencyException e) {
+            LOGGER.error(e.getMessage());
+            Assert.assertTrue(true);
+        }
+    }
+
+
+    @Test
+    public void testStringInconsistency() {
+        try {
+            ConstraintNetworkBuilder cb = new ConstraintNetworkBuilder();
+            Node ntrue = cb.addOperand(NodeKind.STRLIT, "true");
+            Node nfalse = cb.addOperand(NodeKind.STRLIT, "false");
+            cb.addConstraint(NodeKind.STR_EQUALS,ntrue,nfalse);
+        } catch (EUFInconsistencyException e) {
+            LOGGER.error(e.getMessage());
+            Assert.assertTrue(true);
+        }
+    }
+
     @Test
     public void testNumericInconsistency() {
-
         try {
             ConstraintNetworkBuilder cb = new ConstraintNetworkBuilder();
 
@@ -64,8 +91,6 @@ public class TestInconsistency {
             LOGGER.error(e.getMessage());
             Assert.assertTrue(true);
         }
-
-
     }
 
 
