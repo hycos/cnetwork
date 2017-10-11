@@ -103,7 +103,7 @@ public class StandardWrappers {
             case REPLACE:
                 return "com.github.hycos.cnetwork.utils.StandardWrappers.replace" +
                         "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;";
-            case VALUEOF:
+            case TOINT:
                 return "com.github.hycos.cnetwork.utils.StandardWrappers.valueOf(Ljava/lang/String;)Ljava/lang/String;";
             case TOSTR:
                 return "com.github.hycos.cnetwork.utils.StandardWrappers.toStr(Ljava/lang/String;)Ljava/lang/String;";

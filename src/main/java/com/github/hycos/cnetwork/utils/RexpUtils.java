@@ -22,20 +22,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-
 public class RexpUtils {
 
     final static Logger LOGGER = LoggerFactory.getLogger(RexpUtils.class);
 
-    public static String getRexpForRange(long min, long max) {
-        return getRexpForMin(min) + "&" + getRexpForMax(max);
+    public static String getRexpForRangeExclusive(long min, long max) {
+        return getRexpForMinExclusive(min) + "&" + getRexpForMaxExclusive(max);
+    }
+
+    public static String getRexpForRangeInclusive(long min, long max) {
+        return getRexpForMinInclusive(min) + "&" + getRexpForMaxInclusive(max);
+    }
+
+    public static String getRexpForMinInclusive(long min) {
+        return getRexpForMinExclusive(min-1);
+    }
+
+    public static String getRexpForMaxInclusive(long max) {
+        return getRexpForMaxExclusive(max+1);
     }
 
 
-    public static String getRexpForMin(long min) {
-        if(min < 0) {
+    public static String getRexpForMinExclusive(long min) {
+        if (min < 0) {
             min *= -1;
-            return "("+ getRexpForMax(min, "-") + "|[0-9]|[1-9][0-9]*)";
+            return "(" + getRexpForMax(min, "-") + "|[0-9]|[1-9][0-9]*)";
         } else if (min > 0) {
             // no prefix required
             return "(" + getRexpForMin(min, "") + ")";
@@ -44,10 +55,11 @@ public class RexpUtils {
         }
     }
 
-    public static String getRexpForMax(long max) {
-        if(max < 0) {
+
+    public static String getRexpForMaxExclusive(long max) {
+        if (max < 0) {
             max *= -1;
-            return "("+ getRexpForMin(max, "-") + ")";
+            return "(" + getRexpForMin(max, "-") + ")";
         } else if (max > 0) {
             // no prefix required
             return "(" + getRexpForMax(max, "") + "|0|-[1-9][0-9]*)";
@@ -55,6 +67,7 @@ public class RexpUtils {
             return "(-[1-9]|-[1-9][0-9]+)";
         }
     }
+
 
     private static String getRexpForMin(long min, String pfx) {
 
@@ -89,19 +102,18 @@ public class RexpUtils {
                         carry = "9";
                     }
 
-                    drexp.insert(0,pfx+
+                    drexp.insert(0, pfx +
                             mins.substring(0, l) +
-                                    carry + StringUtils.repeat("[0-9]", mins.length() - l - 1) + option);
+                            carry + StringUtils.repeat("[0-9]", mins.length() - l - 1) + option);
                 }
             }
         }
 
         // Meta rule for matching everything that has more digits
-        if(drexp.length() > 0) {
+        if (drexp.length() > 0) {
             drexp.append("|");
         }
         drexp.append(pfx + "[1-9][0-9]{" + (mins.length()) + ",}");
-
 
 
         return drexp.toString();
@@ -109,7 +121,7 @@ public class RexpUtils {
     }
 
 
-    public static String getRexpForMax(long max, String pfx) {
+    private static String getRexpForMax(long max, String pfx) {
 
         // The procedure below just works for non-negative integers
         assert (max > 0);
@@ -147,20 +159,20 @@ public class RexpUtils {
 
                     String digits = maxs.substring(0, l);
 
-                    drexp.insert(0,pfx +
+                    drexp.insert(0, pfx +
                             digits +
-                                    carry + StringUtils.repeat("[0-9]", maxs.length() - l - 1) + option);
+                            carry + StringUtils.repeat("[0-9]", maxs.length() - l - 1) + option);
                 }
             }
 
 
             if (maxs.length() > 1) {
 
-                if(drexp.length() > 0) {
+                if (drexp.length() > 0) {
                     drexp.append("|");
                 }
 
-                drexp.append(pfx +"[1-9][0-9]{0," + (maxs.length() - 2) + "}");
+                drexp.append(pfx + "[1-9][0-9]{0," + (maxs.length() - 2) + "}");
             }
 
         }

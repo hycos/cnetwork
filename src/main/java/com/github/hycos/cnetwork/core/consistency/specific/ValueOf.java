@@ -40,6 +40,6 @@ public class ValueOf extends ConsistencyChecker {
 
         return (par0.getKind().isString() || par0.getKind().isNumeric() ||
                 par0.getKind().isBoolean()) && n.getKind().isNumeric() && n
-                .getKind() == NodeKind.VALUEOF;
+                .getKind() == NodeKind.TOINT;
     }
 }

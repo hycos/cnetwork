@@ -181,7 +181,7 @@ public enum ConsistencyCheckerFactory {
             case CHARAT:
                 return charat;
 
-            case VALUEOF:
+            case TOINT:
                 return valueof;
 
             case TOSTR:

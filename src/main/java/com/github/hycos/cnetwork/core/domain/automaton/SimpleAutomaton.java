@@ -50,6 +50,7 @@ public class SimpleAutomaton implements Automaton<SimpleAutomaton>, DomainInterf
     }
 
     public SimpleAutomaton(dk.brics.automaton.Automaton a){
+        //LOGGER.debug("**** {}", a.toDot());
         this.a = a;
     }
 

@@ -178,7 +178,7 @@ public class TestBasicRange {
     @Test
     public void testsimple() {
         //BasicRange r1 = new BasicRange(-2147483643,  2147483643);
-        LOGGER.info(RexpUtils.getRexpForRange(-2147483643,  2147483643));
+        LOGGER.info(RexpUtils.getRexpForRangeExclusive(-2147483643,  2147483643));
 
     }
 

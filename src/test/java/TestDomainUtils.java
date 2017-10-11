@@ -48,7 +48,7 @@ public class TestDomainUtils {
            //LOGGER.info(a.toDot());
 
 
-           for(int i = row[0] - NR_RUNS ; i <= row[0]; i++) {
+           for(int i = row[0] - NR_RUNS ; i <= row[0] - 1; i++) {
                //LOGGER.info("[!Match " + i  + "]:Run with " + i);
                assert(!a.run(String.valueOf(i)));
            }

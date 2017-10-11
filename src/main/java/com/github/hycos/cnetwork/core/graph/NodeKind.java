@@ -88,7 +88,7 @@ public enum NodeKind {
     STRINV("strinv", DomainKind.STRING),
     CHARAT("charat", DomainKind.STRING),
 
-    VALUEOF("valueof", DomainKind.NUMERIC_Z),
+    TOINT("toint", DomainKind.NUMERIC_Z),
     TOSTR("tostr", DomainKind.STRING),
 
     ADD("add",DomainKind.NUMERIC_Z),
@@ -176,7 +176,7 @@ public enum NodeKind {
             case "strinv": return STRINV;
             case "charat": return CHARAT;
 
-            case "valueof": return VALUEOF;
+            case "valueof": return TOINT;
             case "tostr": return TOSTR;
             case "add": return ADD;
             case "sub": return SUB;
@@ -279,7 +279,7 @@ public enum NodeKind {
         return isComparative() || isSanitizer() || this == SUBSTR || this == INDEXOF || this == TOLOWER || this
                 == TOUPPER || this == CONCAT || this == TRIM|| this == LEN ||
                 this == REPLACE || this == STRINV || this == CHARAT || this
-                == VALUEOF || this == TOSTR || this == ADD || this == SUB ||
+                == TOINT || this == TOSTR || this == ADD || this == SUB ||
                 this == EXTERNAL || this == LASTINDEXOF;
     }
 

@@ -72,9 +72,11 @@ public class DomainUtils {
 
     private static SimpleAutomaton getNumAutomatonForNumRange(NumRange r) {
         SimpleAutomaton a = new SimpleAutomaton();
-        r.getRangeMap().values().forEach(
-                v -> a.union(getNumAutomatonForRange(v))
-        );
+
+        for(AtomicNumRange ar : r.getRangeMap().values()) {
+            a = a.union(getNumAutomatonForRange(ar));
+        }
+
         return a;
     }
 
@@ -118,29 +120,53 @@ public class DomainUtils {
 
 
         LOGGER.debug("get num auto");
-        assert max.isGreaterEqualsThan(min);
 
-        if (max.equals(min)) {
-            if(max.isFixed() && (max instanceof AboveAll))
-                return new SimpleAutomaton(min.toString());
+        if(max.isFixed() && min.isFixed()) {
+            String rexp = RexpUtils.getRexpForRangeInclusive(min.getEndpoint(), max
+                    .getEndpoint());
+            LOGGER.debug("REXP {}", rexp);
+            SimpleAutomaton ssa = new SimpleAutomaton(rexp);
+            return ssa;
+        } else if (max.isFixed()) {
+            return new SimpleAutomaton(RexpUtils
+                    .getRexpForMaxInclusive(max.getEndpoint()));
+        } else if (min.isFixed()) {
+            return new SimpleAutomaton(RexpUtils
+                    .getRexpForMaxInclusive(min.getEndpoint()));
+        } else {
+            return new SimpleAutomaton(NodeDomainFactory.Z_REXP);
         }
-        String mins = "-?[1-9][0-9]+";
-        String maxs = "-?[1-9][0-9]+";
 
-        if(min.isFixed())
-            mins = RexpUtils.getRexpForMin(min.getEndpoint());
-
-        if(max.isFixed())
-            maxs = RexpUtils.getRexpForMax(max.getEndpoint());
-
-        LOGGER.info("MAXS " + maxs);
-        LOGGER.info("MINS " + mins);
-
-        SimpleAutomaton mina = new SimpleAutomaton(mins);
-        SimpleAutomaton maxa = new SimpleAutomaton(maxs);
-
-
-        return mina.intersect(maxa);
+//        assert max.isGreaterEqualsThan(min);
+//
+//        if (max.equals(min)) {
+//            if(max.isFixed() && (max instanceof AboveAll))
+//                return new SimpleAutomaton(min.toString());
+//        }
+//        String mins = "0|(-?[1-9][0-9]*)";
+//        String maxs = "0|(-?[1-9][0-9]*)";
+//
+//
+//
+//        if(min.isFixed())
+//            mins = RexpUtils.getRexpForMin(min.getEndpoint());
+//
+//        if(max.isFixed())
+//            maxs = RexpUtils.getRexpForMax(max.getEndpoint());
+//
+//        SimpleAutomaton si = new SimpleAutomaton(RexpUtils.getRexpForRangeExclusive(min.getEndpoint()
+//                ,max.getEndpoint()));
+////
+//        LOGGER.debug("MAXS " + maxs);
+//        LOGGER.debug("MINS " + mins);
+//
+//        SimpleAutomaton mina = new SimpleAutomaton(mins);
+//        SimpleAutomaton maxa = new SimpleAutomaton(maxs);
+//
+//        SimpleAutomaton isect = mina.intersect(maxa);
+//
+//        LOGGER.debug("ISECT {}", isect.toDot());
+//        return si;
     }
 
     public static NumRange getApproxLenRange(SimpleAutomaton a) {
@@ -189,16 +215,32 @@ public class DomainUtils {
 
     public static NumRange getNumRangeForAutomaton(SimpleAutomaton a) {
 
+        LOGGER.info("---");
+        LOGGER.info(a.toDot());
+
+        if(a.isTotal() || a.equals(NumRange.Z)) {
+            return NumRange.Z.clone();
+        }
+
+        if(a.equals(new SimpleAutomaton(NodeDomainFactory.Z_REXP))) {
+            return NumRange.Z.clone();
+        }
+
+
+        if(a.equals(new SimpleAutomaton(NodeDomainFactory.N_REXP))) {
+            return NumRange.N.clone();
+        }
+
         String r = NodeDomainFactory.Z_REXP;
 
-        SimpleAutomaton ra =  new SimpleAutomaton(r);
-
-        if(!ra.intersect(a).equals(a))
-            return null;
+        SimpleAutomaton ra =  new SimpleAutomaton(r).intersect(a);
+//
+//        if(!ra.intersect(a).equals(a))
+//            return null;
 
         LOGGER.info(a.toString());
 
-        Set<String> result = a.getFiniteStrings();
+        Set<String> result = ra.getFiniteStrings();
 
         Collection<AtomicNumRange> ar = new Vector<>();
         for(String s : result) {

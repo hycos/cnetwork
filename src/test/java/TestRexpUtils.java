@@ -36,7 +36,7 @@ public class TestRexpUtils {
     public void simpleTests() {
 
 
-        String rexp = RexpUtils.getRexpForMax(100);
+        String rexp = RexpUtils.getRexpForMaxExclusive(100);
         RegExp automaton = new RegExp(rexp);
 
         Automaton a = automaton.toAutomaton();
@@ -49,7 +49,7 @@ public class TestRexpUtils {
     public void testGetRexpForMinPos() {
 
         for(int elem : limitsPos) {
-            String rexp = RexpUtils.getRexpForMin(elem);
+            String rexp = RexpUtils.getRexpForMinExclusive(elem);
             RegExp automaton = new RegExp(rexp);
 
             Automaton a = automaton.toAutomaton();
@@ -69,7 +69,7 @@ public class TestRexpUtils {
     public void testGetRexpForMaxPos() {
 
         for(int elem : limitsPos) {
-            String rexp = RexpUtils.getRexpForMax(elem);
+            String rexp = RexpUtils.getRexpForMaxExclusive(elem);
 
             RegExp automaton = new RegExp(rexp);
 
@@ -90,7 +90,7 @@ public class TestRexpUtils {
     public void testGetRexpForMinNeg() {
 
         for(int elem : limitsNeg) {
-            String rexp = RexpUtils.getRexpForMin(elem);
+            String rexp = RexpUtils.getRexpForMinExclusive(elem);
             RegExp automaton = new RegExp(rexp);
 
             Automaton a = automaton.toAutomaton();
@@ -110,7 +110,7 @@ public class TestRexpUtils {
     public void testGetRexpForMaxNeg() {
 
         for(int elem : limitsNeg) {
-            String rexp = RexpUtils.getRexpForMax(elem);
+            String rexp = RexpUtils.getRexpForMaxExclusive(elem);
             RegExp automaton = new RegExp(rexp);
             Automaton a = automaton.toAutomaton();
             for (int i = 0; i > elem; i--) {
@@ -131,7 +131,7 @@ public class TestRexpUtils {
         LOGGER.info("check range");
         for(int row [] : ranges ) {
 
-            String rexp = RexpUtils.getRexpForRange(row[0], row[1]);
+            String rexp = RexpUtils.getRexpForRangeExclusive(row[0], row[1]);
 
             LOGGER.info("Min " + row[0] + " Max " + row[1]  + " :" + rexp);
 
@@ -154,6 +154,14 @@ public class TestRexpUtils {
             //LOGGER.info(rexp);
 
         }
+    }
+
+    @Test
+    public void testSimple(){
+        String rxp = RexpUtils.getRexpForRangeInclusive(-1,-1);
+        Automaton a = new dk.brics.automaton.RegExp(rxp).toAutomaton();
+
+        LOGGER.info(a.toDot());
     }
 
 }
