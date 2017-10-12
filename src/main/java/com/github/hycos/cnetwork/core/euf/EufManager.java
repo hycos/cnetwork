@@ -74,6 +74,10 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
     }
 
 
+    private Node[] getParList(Collection<Node> n) {
+        return n.toArray(new Node[n.size()]);
+    }
+
     private Node[] getParList(Collection<Node> n, boolean val) {
         List<Node> r = n.stream().filter(x -> !isRedundantPar(x, val)).collect
                 (Collectors
@@ -315,6 +319,8 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
             throws EUFInconsistencyException {
         assert elementFact != null;
         Collection<EquiClass> neqi = elementFact.createEquiClasses(toadd);
+
+        LOGGER.debug("NEQI {}", neqi.toString());
         EquiClass ec = lattice.addEquiClass(neqi);
         return ec;
     }
@@ -415,11 +421,13 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
     }
 
     public void update(Node n) throws EUFInconsistencyException {
-        //LOGGER.debug(">> update {}", n.getDotLabel());
+        LOGGER.debug(">> update {}", n.getDotLabel());
         //LOGGER.debug(">> update {}", n.getDotLabel());
 
-        if(!cb.vertexSet().contains(n))
+        if(!cb.vertexSet().contains(n)) {
+            LOGGER.debug("return");
             return;
+        }
 
         //LOGGER.debug(this.cb.getConstraintNetwork().toDot());
 
@@ -464,29 +472,38 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
                 if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
                     List<Node> pars = cb.getParametersFor(n);
                     assert pars.size() == 2;
-                    addEquiClass(getParList(pars, false));
+
+                    //addEquiClass(getParList(pars, false));
+                    addEquiClass(getParList(pars));
                 }
                 if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
                     List<Node> pars = cb.getParametersFor(n);
                     assert pars.size() == 2;
-                    if (!hasRedundantPars(pars, true))
-                        addInequialityConstraint(pars.get(0), pars.get(1));
+                    //if (!hasRedundantPars(pars, true))
+                    addInequialityConstraint(pars.get(0), pars.get(1));
                 }
 
             } else if (n.getKind().isEquality()) {
-                LOGGER.debug("n {}", n.getDotLabel());
+                LOGGER.debug("UPDATE EQ {}", n.getDotLabel());
                 assert n.getRange() instanceof BooleanRange;
-                if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
 
+                if (((BooleanRange) n.getRange()).isAlwaysTrue()) {
+                    LOGGER.debug("1", n.getDotLabel());
                     List<Node> pars = cb.inferParams(cb.getParametersFor(n));
                     assert pars.size() == 2;
-                    addEquiClass(getParList(pars, true));
+                    LOGGER.debug("pars {}", pars.toString());
+                    LOGGER.debug("has redundant {}", hasRedundantPars(pars,
+                            true));
+                    //addEquiClass(getParList(pars, true));
+                    addEquiClass(getParList(pars));
                 }
                 if (((BooleanRange) n.getRange()).isAlwaysFalse()) {
+                    LOGGER.debug("2", n.getDotLabel());
                     List<Node> pars = cb.getParametersFor(n);
+                    LOGGER.debug("pars {}", pars.toString());
                     assert pars.size() == 2;
-                    if (!hasRedundantPars(pars, false))
-                        addInequialityConstraint(pars.get(0), pars.get(1));
+                    //if (!hasRedundantPars(pars, false))
+                    addInequialityConstraint(pars.get(0), pars.get(1));
                 }
             }
         }

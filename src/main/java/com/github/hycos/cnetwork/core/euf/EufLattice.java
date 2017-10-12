@@ -19,9 +19,6 @@ package com.github.hycos.cnetwork.core.euf;
 
 
 import com.github.hycos.cnetwork.core.Configuration;
-import com.github.hycos.cnetwork.core.graph.Node;
-import com.github.hycos.cnetwork.core.graph.NodeKind;
-import com.github.hycos.cnetwork.core.graph.Operand;
 import com.github.hycos.cnetwork.exception.EUFInconsistencyException;
 import org.jgrapht.graph.DirectedPseudograph;
 import org.slf4j.Logger;
@@ -341,6 +338,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
         EquiClass eq = union(toadd);
 
         for (EquiClass e : toadd) {
+            LOGGER.debug("ADD {}", e.getLabel());
             //LOGGER.debug(">> {}", e.getDotLabel());
             addEquiClass(e);
         }

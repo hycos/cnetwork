@@ -97,7 +97,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
     private void updateObservers(Node n) throws EUFInconsistencyException {
 
-        LOGGER.debug("SIZ: " + n.getDomain().size());
+        LOGGER.debug("UPATE SIZ: " + n.getDomain().size());
         //assert n.getDomain().size() == 2;
 
         for(ConstraintNetworkObserver<Node> o : observers) {
@@ -261,6 +261,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
         }
 
         op.setDomain(NodeDomainFactory.DBTRUE);
+
         return op;
     }
 
