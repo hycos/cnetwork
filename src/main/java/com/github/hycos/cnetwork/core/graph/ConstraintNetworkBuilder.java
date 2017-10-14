@@ -19,6 +19,7 @@ package com.github.hycos.cnetwork.core.graph;
 
 
 import com.github.hycos.cnetwork.core.domain.range.BooleanRange;
+import com.github.hycos.cnetwork.core.domctrl.DomainControllerInterface;
 import com.github.hycos.cnetwork.core.euf.Element;
 import com.github.hycos.cnetwork.core.euf.EquiClass;
 import com.github.hycos.cnetwork.core.euf.EufManager;
@@ -39,16 +40,17 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(ConstraintNetworkBuilder.class);
 
+    private DomainControllerInterface dctrl = null;
     private ConstraintNetwork cn;
     //private NodeElemFact nf;
     private EufManager euf;
     private ExecDag tree;
 
     // observer structural changes to on the cn
-    private Set<ConstraintNetworkEventListener> listeners = new HashSet<>();
+    private Set<ConstraintNetworkEventListenerInterface> listeners = new HashSet<>();
 
     // Observe variables and operations
-    private Set<ConstraintNetworkObserver<Node>> observers = new HashSet<>();
+    private Set<ConstraintNetworkObserverInterface<Node>> observers = new HashSet<>();
 
     private void addDefaultContraint() {
         Node ntrue = new Operand("true", NodeKind.BOOLLIT);
@@ -100,7 +102,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
         LOGGER.debug("UPATE SIZ: " + n.getDomain().size());
         //assert n.getDomain().size() == 2;
 
-        for(ConstraintNetworkObserver<Node> o : observers) {
+        for(ConstraintNetworkObserverInterface<Node> o : observers) {
             o.update(n);
         }
     }
@@ -141,11 +143,11 @@ public class ConstraintNetworkBuilder implements Cloneable {
         return ne;
     }
 
-    public void addListener(ConstraintNetworkEventListener listener) {
+    public void addListener(ConstraintNetworkEventListenerInterface listener) {
         this.listeners.add(listener);
     }
 
-    public void addListener(Set<ConstraintNetworkEventListener> listeners) {
+    public void addListener(Set<ConstraintNetworkEventListenerInterface> listeners) {
         this.listeners.addAll(listeners);
     }
 

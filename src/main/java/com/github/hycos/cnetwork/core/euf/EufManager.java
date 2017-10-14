@@ -19,7 +19,7 @@ package com.github.hycos.cnetwork.core.euf;
 
 import com.github.hycos.cnetwork.core.domain.range.BooleanRange;
 import com.github.hycos.cnetwork.core.graph.ConstraintNetworkBuilder;
-import com.github.hycos.cnetwork.core.graph.ConstraintNetworkObserver;
+import com.github.hycos.cnetwork.core.graph.ConstraintNetworkObserverInterface;
 import com.github.hycos.cnetwork.core.graph.Node;
 import com.github.hycos.cnetwork.exception.EUFInconsistencyException;
 import com.github.hycos.cnetwork.exception.MissingItemException;
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Node> {
+public class EufManager implements EufEventHandlerInterface,ConstraintNetworkObserverInterface<Node> {
 
 
     final static Logger LOGGER = LoggerFactory.getLogger(EufManager.class);
@@ -480,6 +480,8 @@ public class EufManager implements EufEventHandler,ConstraintNetworkObserver<Nod
                     List<Node> pars = cb.getParametersFor(n);
                     assert pars.size() == 2;
                     //if (!hasRedundantPars(pars, true))
+
+                    LOGGER.debug(">>>> always true");
                     addInequialityConstraint(pars.get(0), pars.get(1));
                 }
 

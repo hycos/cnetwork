@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 
-public class CnetworkSlicerBackward extends CnetworkSlicer {
+public class CnetworkSlicerBackward extends AbstractCnetworkSlicer {
 
     public CnetworkSlicerBackward(ConstraintNetwork cn) {
         super(cn);

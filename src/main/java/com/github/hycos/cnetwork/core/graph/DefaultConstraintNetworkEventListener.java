@@ -20,7 +20,7 @@ package com.github.hycos.cnetwork.core.graph;
 /**
  * Created by julian on 12/04/2017.
  */
-public class DefaultConstraintNetworkEventListener implements ConstraintNetworkEventListener {
+public class DefaultConstraintNetworkEventListener implements ConstraintNetworkEventListenerInterface {
     @Override
     public void onNodeMerge(Node toReplace, Node replacement) {
 

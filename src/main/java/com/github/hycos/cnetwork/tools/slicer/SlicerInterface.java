@@ -23,7 +23,7 @@ import com.github.hycos.cnetwork.core.graph.Node;
 
 import java.util.Collection;
 
-public interface Slicer {
+public interface SlicerInterface {
     void setNetwork(ConstraintNetwork cn);
     Collection<Node> slice(Collection<Node> criteria);
     Collection<Node> slice(Node criterion);

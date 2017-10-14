@@ -28,16 +28,16 @@ public class ConstraintNetworkSubject<T> {
 
     final static Logger LOGGER = LoggerFactory.getLogger(ConstraintNetworkSubject.class);
 
-    private Set<ConstraintNetworkObserver<T>> observers = new
+    private Set<ConstraintNetworkObserverInterface<T>> observers = new
             HashSet<>();
 
-    public void attach(ConstraintNetworkObserver observer){
+    public void attach(ConstraintNetworkObserverInterface observer){
         observers.add(observer);
     }
 
     public void notifyAllObservers(T item) throws EUFInconsistencyException {
         LOGGER.debug("notify all observers {}", observers.size());
-        for (ConstraintNetworkObserver observer : observers) {
+        for (ConstraintNetworkObserverInterface observer : observers) {
             observer.update(item);
         }
     }

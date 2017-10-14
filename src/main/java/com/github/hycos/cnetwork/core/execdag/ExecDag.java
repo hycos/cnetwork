@@ -38,8 +38,8 @@ import java.util.Set;
  * can be used in order to apply certain heuristics
  */
 public class ExecDag extends DirectedAcyclicGraph<Node,
-        ExecEdge> implements ConstraintNetworkObserver<Node>,
-        ConstraintNetworkEventListener {
+        ExecEdge> implements ConstraintNetworkObserverInterface<Node>,
+        ConstraintNetworkEventListenerInterface {
 
     final static Logger LOGGER = LoggerFactory.getLogger(ExecDag.class);
 

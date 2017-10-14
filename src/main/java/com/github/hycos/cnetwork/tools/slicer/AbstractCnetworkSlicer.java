@@ -22,12 +22,12 @@ import com.github.hycos.cnetwork.core.graph.Node;
 
 import java.util.*;
 
-public abstract class CnetworkSlicer implements Slicer {
+public abstract class AbstractCnetworkSlicer implements SlicerInterface {
 
     protected ConstraintNetwork cn = null;
 
-    public CnetworkSlicer() {}
-    public CnetworkSlicer(ConstraintNetwork cn) {
+    public AbstractCnetworkSlicer() {}
+    public AbstractCnetworkSlicer(ConstraintNetwork cn) {
         this.cn = cn;
     }
 

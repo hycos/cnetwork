@@ -22,7 +22,7 @@ import com.github.hycos.cnetwork.exception.EUFInconsistencyException;
 
 import java.util.Set;
 
-public interface EufEventHandler {
+public interface EufEventHandlerInterface {
 
     void onEquiClassAddition(EquiClass ec) throws EUFInconsistencyException;
 

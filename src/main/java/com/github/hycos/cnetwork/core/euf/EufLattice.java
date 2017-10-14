@@ -38,10 +38,10 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
     private EquiClass bottom = new EquiClass.Bottom();
     private EquiEdge init = new EquiEdge(top, bottom, EquiEdge.Kind.SUB, -1);
     private Map<String, EquiClass> lmap = new HashMap<>();
-    private EufEventHandler eh = null;
+    private EufEventHandlerInterface eh = null;
 
 
-    public EufLattice(EufEventHandler eh) {
+    public EufLattice(EufEventHandlerInterface eh) {
         super(new EquiEdgeFact());
         super.addVertex(top);
         super.addVertex(bottom);
@@ -52,7 +52,7 @@ public class EufLattice extends DirectedPseudograph<EquiClass, EquiEdge> impleme
     }
 
 
-    public EufLattice(EufEventHandler eh, EufLattice other) {
+    public EufLattice(EufEventHandlerInterface eh, EufLattice other) {
         this(eh);
         for(EquiEdge e : other.edgeSet()) {
             EquiClass esrc = e.getSource().clone();

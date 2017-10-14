@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * Created by julian on 07/12/2016.
  */
-public class CnetworkSlicerForward extends CnetworkSlicer {
+public class CnetworkSlicerForward extends AbstractCnetworkSlicer {
 
 
     public CnetworkSlicerForward(ConstraintNetwork cn) {

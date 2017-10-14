@@ -15,21 +15,12 @@
  * specific language governing permissions and limitations under the Licence.
  */
 
+package com.github.hycos.cnetwork.core.graph;
 
-package com.github.hycos.cnetwork.core.domain.automaton.trackauto;
 
-import org.jgrapht.graph.DefaultEdge;
+import com.github.hycos.cnetwork.exception.EUFInconsistencyException;
 
-public class TrackAutomatonEdge extends DefaultEdge {
-
-    @Override
-    public TrackAutomatonNode getSource() {
-        return (TrackAutomatonNode)super.getSource();
-    }
-
-    @Override
-    public TrackAutomatonNode getTarget() {
-        return (TrackAutomatonNode)super.getTarget();
-    }
-
+public interface ConstraintNetworkObserverInterface<T> {
+    void update(T n) throws EUFInconsistencyException;
+    void attach(T observer);
 }
