@@ -135,94 +135,160 @@ public enum DefaultNodeKind implements NodeKindInterface {
     }
 
     public static DefaultNodeKind KindFromString(String kind) {
-        switch(kind) {
+        switch (kind) {
             // operations
-            case "==": return EQUALS;
-            case "!=": return NEQUALS;
+            case "==":
+                return EQUALS;
+            case "!=":
+                return NEQUALS;
 
-            case "<": return SMALLER;
-            case ">": return GREATER;
-            case "<=": return SMALLEREQ;
-            case ">=": return GREATEREQ;
+            case "<":
+                return SMALLER;
+            case ">":
+                return GREATER;
+            case "<=":
+                return SMALLEREQ;
+            case ">=":
+                return GREATEREQ;
 
-            case "~~": return STR_EQUALSIC;
-            case "!~": return STR_NEQUALSIC;
+            case "~~":
+                return STR_EQUALSIC;
+            case "!~":
+                return STR_NEQUALSIC;
 
-            case "matches": return MATCHES;
-            case "startswith": return STARTSWITH;
-            case "endswith": return ENDSWITH;
-            case "contains": return CONTAINS;
+            case "matches":
+                return MATCHES;
+            case "startswith":
+                return STARTSWITH;
+            case "endswith":
+                return ENDSWITH;
+            case "contains":
+                return CONTAINS;
 
-            case "or" : return OR;
-            case "xor": return XOR;
-            case "and": return AND;
-            case "not": return NOT;
-            case "ite": return ITE;
-            case "implies": return IMPLIES;
+            case "or":
+                return OR;
+            case "xor":
+                return XOR;
+            case "and":
+                return AND;
+            case "not":
+                return NOT;
+            case "ite":
+                return ITE;
+            case "implies":
+                return IMPLIES;
 
-            case "substr": return SUBSTR;
-            case "indexof": return INDEXOF;
-            case "lastindexof": return LASTINDEXOF;
+            case "substr":
+                return SUBSTR;
+            case "indexof":
+                return INDEXOF;
+            case "lastindexof":
+                return LASTINDEXOF;
 
-            case "tolower": return TOLOWER;
-            case "toupper": return TOUPPER;
+            case "tolower":
+                return TOLOWER;
+            case "toupper":
+                return TOUPPER;
 
-            case "concat": return CONCAT;
-            case "trim": return TRIM;
-            case "len": return LEN;
-            case "collapse": return REPLACE;
-            case "strinv": return STRINV;
-            case "charat": return CHARAT;
+            case "concat":
+                return CONCAT;
+            case "trim":
+                return TRIM;
+            case "len":
+                return LEN;
+            case "collapse":
+                return REPLACE;
+            case "strinv":
+                return STRINV;
+            case "charat":
+                return CHARAT;
 
-            case "valueof": return TOINT;
-            case "tostr": return TOSTR;
-            case "add": return ADD;
-            case "sub": return SUB;
-            case "external": return EXTERNAL;
+            case "valueof":
+                return TOINT;
+            case "tostr":
+                return TOSTR;
+            case "add":
+                return ADD;
+            case "sub":
+                return SUB;
+            case "external":
+                return EXTERNAL;
 
-            case "apache_eschtml": return APACHE_ESCHTML;
-            case "apache_ueschtml": return APACHE_UESCHTML;
-            case "apache_escxml10": return APACHE_ESCXML10;
-            case "apache_escxml11": return APACHE_ESCXML11;
-            case "apache_escjson": return APACHE_ESCJSON;
-            case "apache_escecma": return APACHE_ESCECMA;
+            case "apache_eschtml":
+                return APACHE_ESCHTML;
+            case "apache_ueschtml":
+                return APACHE_UESCHTML;
+            case "apache_escxml10":
+                return APACHE_ESCXML10;
+            case "apache_escxml11":
+                return APACHE_ESCXML11;
+            case "apache_escjson":
+                return APACHE_ESCJSON;
+            case "apache_escecma":
+                return APACHE_ESCECMA;
 
-            case "esapi_escldap": return ESAPI_ESCLDAP;
-            case "esapi_escdn": return ESAPI_ESCDN;
-            case "esapi_eschtml": return ESAPI_ESCHTML;
-            case "esapi_eschtmlattr": return ESAPI_ESCHTMLATTR;
-            case "esapi_escxml": return ESAPI_ESCXML;
-            case "esapi_escxmlattr": return ESAPI_ESCXMLATTR;
-            case "esapi_escxpath": return ESAPI_ESCXPATH;
-            case "esapi_escsql": return ESAPI_ESCSQL;
+            case "esapi_escldap":
+                return ESAPI_ESCLDAP;
+            case "esapi_escdn":
+                return ESAPI_ESCDN;
+            case "esapi_eschtml":
+                return ESAPI_ESCHTML;
+            case "esapi_eschtmlattr":
+                return ESAPI_ESCHTMLATTR;
+            case "esapi_escxml":
+                return ESAPI_ESCXML;
+            case "esapi_escxmlattr":
+                return ESAPI_ESCXMLATTR;
+            case "esapi_escxpath":
+                return ESAPI_ESCXPATH;
+            case "esapi_escsql":
+                return ESAPI_ESCSQL;
 
-            case "emtpy": return EMTPY;
+            case "emtpy":
+                return EMTPY;
 
             // meta operation
-            case "search" : return SEARCH;
+            case "search":
+                return SEARCH;
 
 
             // operands
-            case "strlit": return STRLIT;
-            case "strvar": return STRVAR;
-            case "strexp": return STRREXP;
+            case "strlit":
+                return STRLIT;
+            case "strvar":
+                return STRVAR;
+            case "strexp":
+                return STRREXP;
 
-            case "numlit": return NUMLIT;
-            case "numvar": return NUMVAR;
+            case "numlit":
+                return NUMLIT;
+            case "numvar":
+                return NUMVAR;
 
-            case "boollit": return BOOLLIT;
-            case "boolvar": return BOOLVAR;
+            case "boollit":
+                return BOOLLIT;
+            case "boolvar":
+                return BOOLVAR;
 
-            case "xmli": return XMLI;
-            case "sqlistr": return SQLISTR;
-            case "sqlinum": return SQLINUM;
-            case "xpathstr": return XPATHSTR;
-            case "xpathnum": return XPATHNUM;
-            case "ldapi": return LDAPI;
-            case "xss": return XSS;
-            case "urli": return URLI;
+            case "xmli":
+                return XMLI;
+            case "sqlistr":
+                return SQLISTR;
+            case "sqlinum":
+                return SQLINUM;
+            case "xpathstr":
+                return XPATHSTR;
+            case "xpathnum":
+                return XPATHNUM;
+            case "ldapi":
+                return LDAPI;
+            case "xss":
+                return XSS;
+            case "urli":
+                return URLI;
 
-            case "replace": return REPLACE;
+            case "replace":
+                return REPLACE;
 
             //default:
             //    return UNKNOWN;
@@ -231,7 +297,7 @@ public enum DefaultNodeKind implements NodeKindInterface {
     }
 
     public String getDesc() {
-        if(this == EQUALS)
+        if (this == EQUALS)
             return "eq";
         else if (this == STR_EQUALS)
             return "seq";
@@ -275,7 +341,7 @@ public enum DefaultNodeKind implements NodeKindInterface {
 
     public boolean isOperation() {
         return isComparative() || isSanitizer() || this == SUBSTR || this == INDEXOF || this == TOLOWER || this
-                == TOUPPER || this == CONCAT || this == TRIM|| this == LEN ||
+                == TOUPPER || this == CONCAT || this == TRIM || this == LEN ||
                 this == REPLACE || this == STRINV || this == CHARAT || this
                 == TOINT || this == TOSTR || this == ADD || this == SUB ||
                 this == EXTERNAL || this == LASTINDEXOF;
@@ -286,18 +352,8 @@ public enum DefaultNodeKind implements NodeKindInterface {
     }
 
     public boolean isLiteral() {
-        return this == NUMLIT || this == STRLIT || this == BOOLLIT ;
+        return this == NUMLIT || this == STRLIT || this == BOOLLIT;
     }
-
-//    public boolean isNumeric() {
-//        return this.dkind.isNumeric();
-//    }
-//
-//    public boolean isBoolean() { return this.dkind.isBoolean(); }
-//
-//    public boolean isString() {
-//        return this.dkind.isString();
-//    }
 
     public boolean isThreatModel() {
         return this == XMLI || this == SQLISTR || this == SQLINUM ||
@@ -308,15 +364,13 @@ public enum DefaultNodeKind implements NodeKindInterface {
         return this == STRREXP;
     }
 
-    public boolean isVariable() { return !isLiteral(); }
+    public boolean isVariable() {
+        return !isLiteral();
+    }
 
     public boolean isOperand() {
         return !isOperation();
     }
-
-    //public DomainKind getDomainKind() {
-    //    return this.dkind;
-    //}
 
     public String getValue() {
         return this.sval;
@@ -329,24 +383,23 @@ public enum DefaultNodeKind implements NodeKindInterface {
 
 
     public boolean isString() {
-        return isComparative() || isSanitizer() || this == SUBSTR ||
-                this == INDEXOF || this == TOLOWER || this
-                == TOUPPER || this == CONCAT || this == TRIM|| this == LEN ||
+        return isSanitizer() ||
+                this == SUBSTR || this == TOLOWER || this
+                == TOUPPER || this == CONCAT || this == TRIM ||
                 this == REPLACE || this == STRINV || this == CHARAT || this
-                == TOINT || this == TOSTR || this == LASTINDEXOF || this ==
+                == TOINT || this == TOSTR || this ==
                 STRVAR || this == STRLIT;
     }
 
     public boolean isBoolean() {
         return this == XOR || this == AND || this == OR || this == ITE ||
-                this == BOOLVAR || this == BOOLLIT;
+                this == BOOLVAR || this == BOOLLIT || this.isComparative();
     }
 
 
     public DomainKind getDomainKind() {
         return DomainKind.UNKNOWN;
     }
-
 
 
 }

@@ -170,7 +170,7 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
         final StringBuilder s = new StringBuilder();
         s.append("{" + this.id + "}\\n");
         s.append(isAnnotated() ? getAnnotation() + "\\n" : "");
-        s.append("dom:" + getDomain().getDotLabel() +"\\n");
+        s.append("dom:" + getDomain().getLabel() +"\\n");
         s.append("kind:" + getKind().getDesc() +"\\n");
         if(!note.isEmpty())
             s.append("note:" + note + "\\n");

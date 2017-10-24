@@ -75,8 +75,7 @@ public class Operand extends Node {
 
     @Override
     public String getDotLabel() {
-        return EscapeUtils.escapeSpecialCharacters(shortLabel) + "\\nn" + super
-                .getDotLabel();
+        return EscapeUtils.escapeSpecialCharacters(shortLabel) + "\\nn" + super.getDotLabel();
     }
 
 }

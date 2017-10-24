@@ -63,7 +63,7 @@ public class DefaultDomainController implements
 
     @Override
     public Domain createDomainFor(Node n) {
-        return dmap.put(n, new DefaultDomain(false));
+        return dmap.put(n, new DefaultDomain(n,false));
     }
 
     @Override
@@ -96,7 +96,7 @@ public class DefaultDomainController implements
 
     @Override
     public void onConstraintAdd(Node n) throws InconsistencyException {
-        dmap.replace(n, new DefaultDomain(true));
+        dmap.replace(n, new DefaultDomain(n,true));
     }
 
     @Override

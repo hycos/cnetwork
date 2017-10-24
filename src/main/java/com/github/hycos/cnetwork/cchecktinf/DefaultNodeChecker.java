@@ -42,6 +42,9 @@ public class DefaultNodeChecker extends AbstractConsistencyChecker {
             if(arities.size() == 1 && a == 0)
                 return true;
 
+            if(arities.size() == 1 && a == -1)
+                return cb.getParametersFor(n).size() >= 2;
+
             if(super.checkNary(cb, n, a))
                 return true;
         }

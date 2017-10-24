@@ -21,13 +21,20 @@ import com.github.hycos.cnetwork.api.domctrl.Domain;
 import com.github.hycos.cnetwork.api.domctrl.DomainKind;
 import com.github.hycos.cnetwork.api.domctrl.SubDomainInterface;
 import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
+import com.github.hycos.cnetwork.core.graph.Node;
 
 public class DefaultDomain implements Domain {
 
     private boolean isConstraint = false;
+    private Node n = null;
 
-    public DefaultDomain(boolean isConstraint) {
+    public DefaultDomain(Node n, boolean isConstraint) {
+        this.n = n;
         this.isConstraint = isConstraint;
+    }
+
+    public DefaultDomain(DefaultDomain d) {
+        this(d.n, d.isConstraint);
     }
 
     @Override
@@ -67,51 +74,51 @@ public class DefaultDomain implements Domain {
 
     @Override
     public boolean isLiteral() {
-        return false;
+        return this.n.getKind().isLiteral();
     }
 
     @Override
     public boolean isRegex() {
-        return false;
+        return this.n.getKind().isRegex();
     }
 
     @Override
     public boolean isString() {
-        return false;
+        return n.getKind().isString();
     }
 
     @Override
     public boolean isNumeric() {
-        return false;
+        return n.getKind().isNumeric();
     }
 
     @Override
     public boolean isBoolean() {
-        return false;
+        return n.getKind().isBoolean();
     }
 
     @Override
     public boolean isVariable() {
-        return false;
+        return n.getKind().isVariable();
     }
 
     @Override
     public boolean isConstraint() {
-        return isConstraint;
+        return this.isConstraint;
     }
 
     @Override
-    public String getDotLabel() {
-        return null;
+    public String getLabel() {
+        return "�";
     }
 
     @Override
     public Domain clone() {
-        return null;
+        return new DefaultDomain(this);
     }
 
     @Override
     public DomainKind getKind() {
-        return null;
+        return DomainKind.UNKNOWN;
     }
 }

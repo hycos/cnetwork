@@ -90,10 +90,11 @@ public class Equals extends AbstractConsistencyChecker {
         if(n.getKind() == DefaultNodeKind.EQUALS) {
 
             LOGGER.debug(" >> {}", n.getLabel());
-            LOGGER.debug(" >> {}", par0.getKind().isNumeric());
-            LOGGER.debug(" >> {}", par1.getKind().isNumeric());
+            LOGGER.debug(" >> {}", par0.getKind().isBoolean());
+            LOGGER.debug(" >> {}", par1.getKind().isBoolean());
 
             if(par1.getKind().isString()) {
+                LOGGER.debug("1");
                 n.setKind(DefaultNodeKind.STR_EQUALS);
                 return strEquals(par0, par1);
             } else if (par1.getKind().isNumeric()) {
@@ -101,6 +102,7 @@ public class Equals extends AbstractConsistencyChecker {
                 n.setKind(DefaultNodeKind.NUM_EQUALS);
                 return numEquals(par0, par1);
             } else if (par1.getKind().isBoolean()) {
+                LOGGER.debug("boooooom");
                 n.setKind(DefaultNodeKind.BOOL_EQUALS);
                 return boolEquals(par0, par1);
             }

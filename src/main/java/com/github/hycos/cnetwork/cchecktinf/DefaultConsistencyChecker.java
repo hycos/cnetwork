@@ -61,6 +61,9 @@ public class DefaultConsistencyChecker<T extends NodeInterface> implements
 
             case AND:
             case OR:
+                // more or equals two params
+                return new DefaultNodeChecker(-1);
+
             case XOR:
             case IMPLIES:
                 return binary;
