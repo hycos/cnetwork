@@ -22,8 +22,8 @@ import com.github.hycos.cnetwork.core.graph.ConstraintNetworkBuilder;
 import com.github.hycos.cnetwork.core.graph.DefaultNodeKind;
 import com.github.hycos.cnetwork.core.graph.Node;
 import com.github.hycos.cnetwork.core.graph.Operand;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,12 +47,12 @@ public class TestConstraintNetworkBuilder {
             LOGGER.debug(cb.getConstraintNetwork().toDot());
             Node comp1 = cb.getNodeByLabel(va.getLabel());
             Node comp2 = cb.getNodeByLabel(va2.getLabel());
-            Assert.assertEquals(comp1, comp2);
-            Assert.assertEquals(cb.vertexSet().size(), 8);
+            Assertions.assertEquals(comp1, comp2);
+            Assertions.assertEquals(cb.vertexSet().size(), 8);
         } catch (InconsistencyException e) {
             e.printStackTrace();
             LOGGER.debug(e.getMessage());
-            Assert.assertTrue(true);
+            Assertions.assertTrue(true);
         }
 
     }
@@ -84,7 +84,7 @@ public class TestConstraintNetworkBuilder {
 
             e.printStackTrace();
             LOGGER.debug(e.getMessage());
-            Assert.assertTrue(true);
+            Assertions.assertTrue(true);
         }
 
 
@@ -105,6 +105,7 @@ public class TestConstraintNetworkBuilder {
             //cn.addConstraint(NodeKind.NUM_EQUALS, one, sub);
         } catch (InconsistencyException e) {
             e.printStackTrace();
+            Assertions.assertFalse(true);
         }
 
         //LOGGER.debug(cn.getEufLattice().toDot());
@@ -123,14 +124,17 @@ public class TestConstraintNetworkBuilder {
             Node dot = cn.addOperand(DefaultNodeKind.STRLIT, ".");
             Node idxof = cn.addOperation(DefaultNodeKind.INDEXOF, filename_1, dot, zero);
             cn.addConstraint(DefaultNodeKind.EQUALS, idxof, zero);
-            Node subone = cn.addOperation(DefaultNodeKind.SUBSTR, idxof, one);
-            Node sub = cn.addOperation(DefaultNodeKind.SUBSTR, idxof, subone);
-            cn.addConstraint(DefaultNodeKind.NUM_EQUALS, one, sub);
-            Assert.assertEquals(cn.vertexSet().size(), 9);
+            Node subone = cn.addOperation(DefaultNodeKind.SUBSTR, dot, idxof,
+                    one);
+            Node sub = cn.addOperation(DefaultNodeKind.SUBSTR, dot, idxof,
+                    subone);
+            cn.addConstraint(DefaultNodeKind.NUM_EQUALS, zero, one);
+            Assertions.assertEquals(cn.vertexSet().size(), 9);
             cn.removeVertex(subone);
-            Assert.assertEquals(cn.vertexSet().size(), 8);
+            Assertions.assertEquals(cn.vertexSet().size(), 8);
         } catch (InconsistencyException e) {
             e.printStackTrace();
+            Assertions.assertFalse(true);
         }
         //LOGGER.debug(cn.getEufLattice().toDot());
     }
@@ -148,10 +152,11 @@ public class TestConstraintNetworkBuilder {
             LOGGER.debug("s {}", s.getLabel());
 
             Node s2 = cn.getNodeByLabel("\"s\"");
-            Assert.assertNotNull(s2);
-            Assert.assertEquals(s.getLabel(), s2.getLabel());
+            Assertions.assertNotNull(s2);
+            Assertions.assertEquals(s.getLabel(), s2.getLabel());
         } catch (InconsistencyException e) {
             e.printStackTrace();
+            Assertions.assertFalse(true);
         }
 
     }

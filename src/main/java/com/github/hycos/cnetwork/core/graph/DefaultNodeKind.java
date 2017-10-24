@@ -324,7 +324,7 @@ public enum DefaultNodeKind implements NodeKindInterface {
 
     public boolean isNumeric() {
         return this == ADD || this == SUB || this == DIV || this == NUMLIT ||
-                this == NUMVAR;
+                this == NUMVAR || this == INDEXOF || this == LEN;
     }
 
 

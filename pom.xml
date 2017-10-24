@@ -17,7 +17,7 @@
         <gpgplugin.version>1.6</gpgplugin.version>
         <javadocplugin.version>2.10.4</javadocplugin.version>
         <slf4j.version>1.7.25</slf4j.version>
-        <junit.version>4.12</junit.version>
+        <junit.version>5.0.1</junit.version>
         <jgraph.version>1.0.1</jgraph.version>
         <commonslang.version>3.6</commonslang.version>
         <dkbrics.version>1.11-8</dkbrics.version>
@@ -129,8 +129,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
@@ -163,11 +163,6 @@
             <groupId>com.github.julianthome</groupId>
             <artifactId>autorex</artifactId>
             <version>${autorex.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.hycos</groupId>
-            <artifactId>cnetwork</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.github.hycos</groupId>

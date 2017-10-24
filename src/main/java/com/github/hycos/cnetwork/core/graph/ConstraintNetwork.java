@@ -18,7 +18,7 @@
 package com.github.hycos.cnetwork.core.graph;
 
 import com.github.hycos.cnetwork.api.NodeKindInterface;
-import com.github.hycos.cnetwork.api.domctrl.api.DomainControllerInterface;
+import com.github.hycos.cnetwork.api.domctrl.DomainControllerInterface;
 import com.github.hycos.cnetwork.sig.JavaMethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

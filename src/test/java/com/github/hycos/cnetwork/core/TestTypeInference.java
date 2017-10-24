@@ -19,10 +19,10 @@ package com.github.hycos.cnetwork.core;
 
 import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
 import com.github.hycos.cnetwork.core.graph.ConstraintNetworkBuilder;
-import com.github.hycos.cnetwork.core.graph.Node;
 import com.github.hycos.cnetwork.core.graph.DefaultNodeKind;
-import org.junit.Assert;
-import org.junit.Test;
+import com.github.hycos.cnetwork.core.graph.Node;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,12 +40,12 @@ public class TestTypeInference {
             Node k = cb.addOperand(DefaultNodeKind.NUMVAR, "k");
             Node five = cb.addOperand(DefaultNodeKind.NUMLIT, "5");
             Node eq1 = cb.addConstraint(DefaultNodeKind.EQUALS,four, k);
-            Assert.assertEquals(eq1.getKind(),DefaultNodeKind.NUM_EQUALS);
+            Assertions.assertEquals(eq1.getKind(),DefaultNodeKind.NUM_EQUALS);
 //            Node eq2 = cb.addConstraint(DefaultNodeKind.NEQUALS,five, k);
-//            Assert.assertEquals(eq2.getKind(),DefaultNodeKind.NUM_NEQUALS);
+//            Assertions.assertEquals(eq2.getKind(),DefaultNodeKind.NUM_NEQUALS);
         } catch (InconsistencyException e) {
             LOGGER.error(e.getMessage());
-            Assert.assertTrue(false);
+            Assertions.assertTrue(false);
         }
     }
 
@@ -58,14 +58,14 @@ public class TestTypeInference {
             Node k = cb.addOperand(DefaultNodeKind.STRVAR, "k");
             Node five = cb.addOperand(DefaultNodeKind.STRLIT, "5");
             Node eq1 = cb.addConstraint(DefaultNodeKind.EQUALS,four, k);
-            Assert.assertEquals(eq1.getKind(),DefaultNodeKind.STR_EQUALS);
+            Assertions.assertEquals(eq1.getKind(),DefaultNodeKind.STR_EQUALS);
             Node eq2 = cb.addConstraint(DefaultNodeKind.NEQUALS,five, k);
-            Assert.assertEquals(eq2.getKind(),DefaultNodeKind.STR_NEQUALS);
+            Assertions.assertEquals(eq2.getKind(),DefaultNodeKind.STR_NEQUALS);
 
             LOGGER.info(cb.getConstraintNetwork().toDot());
         } catch (InconsistencyException e) {
             LOGGER.error(e.getMessage());
-            Assert.assertTrue(false);
+            Assertions.assertTrue(false);
         }
     }
 
@@ -78,12 +78,12 @@ public class TestTypeInference {
             Node k = cb.addOperand(DefaultNodeKind.BOOLVAR, "k");
             Node f = cb.addOperand(DefaultNodeKind.BOOLLIT, "false");
             Node eq1 = cb.addConstraint(DefaultNodeKind.EQUALS,t, k);
-            Assert.assertEquals(eq1.getKind(),DefaultNodeKind.BOOL_EQUALS);
+            Assertions.assertEquals(eq1.getKind(),DefaultNodeKind.BOOL_EQUALS);
             Node eq2 = cb.addConstraint(DefaultNodeKind.NEQUALS,f, k);
-            Assert.assertEquals(eq2.getKind(),DefaultNodeKind.BOOL_NEQUALS);
+            Assertions.assertEquals(eq2.getKind(),DefaultNodeKind.BOOL_NEQUALS);
         } catch (InconsistencyException e) {
             LOGGER.error(e.getMessage());
-            Assert.assertTrue(false);
+            Assertions.assertTrue(false);
         }
     }
 

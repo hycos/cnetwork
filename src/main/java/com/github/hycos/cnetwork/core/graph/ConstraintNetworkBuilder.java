@@ -68,7 +68,9 @@ public class ConstraintNetworkBuilder implements Cloneable,
     }
 
     public ConstraintNetworkBuilder() {
-        this(new DefaultDomainController(), new DefaultLabelManager(), new DefaultConsistencyChecker());
+        this(new DefaultDomainController(),
+                new DefaultLabelManager(),
+                new DefaultConsistencyChecker());
         registerListeners(this.dctrl, this.lmgr);
         //this.cn = new ConstraintNetwork();
         //registerListeners(dctrl, lmgr);

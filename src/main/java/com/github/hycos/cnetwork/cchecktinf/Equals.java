@@ -136,10 +136,10 @@ public class Equals extends AbstractConsistencyChecker {
     }
 
     private boolean haveEqualDomains(NodeInterface par0, NodeInterface par1) {
-        return ((par0.getKind().isNumeric() && par1.getKind().isNumeric()) ||
-                ((par0.getKind().isString() || par0.getKind().isRegex())
-                        && (par1.getKind().isString() || par1.getKind()
-                        .isRegex())) || par0.getKind().isBoolean());
+        return (par0.getKind().isNumeric() && par1.getKind().isNumeric()) ||
+                (par0.getKind().isString() || par0.getKind().isRegex()) &&
+                        (par1.getKind().isString() || par1.getKind().isRegex()) ||
+                (par0.getKind().isBoolean() && par1.getKind().isBoolean());
     }
 
 }

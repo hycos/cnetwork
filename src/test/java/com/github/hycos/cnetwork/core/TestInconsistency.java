@@ -19,10 +19,10 @@ package com.github.hycos.cnetwork.core;
 
 import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
 import com.github.hycos.cnetwork.core.graph.ConstraintNetworkBuilder;
-import com.github.hycos.cnetwork.core.graph.Node;
 import com.github.hycos.cnetwork.core.graph.DefaultNodeKind;
-import org.junit.Assert;
-import org.junit.Test;
+import com.github.hycos.cnetwork.core.graph.Node;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +40,7 @@ public class TestInconsistency {
             cb.addConstraint(DefaultNodeKind.BOOL_EQUALS,ntrue,nfalse);
         } catch (InconsistencyException e) {
             LOGGER.error(e.getMessage());
-            Assert.assertTrue(true);
+            Assertions.assertTrue(true);
         }
     }
 
@@ -54,7 +54,7 @@ public class TestInconsistency {
             cb.addConstraint(DefaultNodeKind.STR_EQUALS,ntrue,nfalse);
         } catch (InconsistencyException e) {
             LOGGER.error(e.getMessage());
-            Assert.assertTrue(true);
+            Assertions.assertTrue(true);
         }
     }
 
@@ -70,7 +70,7 @@ public class TestInconsistency {
 
         } catch (InconsistencyException e) {
             LOGGER.error(e.getMessage());
-            Assert.assertTrue(true);
+            Assertions.assertTrue(true);
         }
     }
 
@@ -89,7 +89,7 @@ public class TestInconsistency {
 
         } catch (InconsistencyException e) {
             LOGGER.error(e.getMessage());
-            Assert.assertTrue(true);
+            Assertions.assertTrue(true);
         }
     }
 

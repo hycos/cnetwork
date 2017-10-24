@@ -19,8 +19,8 @@ package com.github.hycos.cnetwork.core;
 
 import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
 import com.github.hycos.cnetwork.core.graph.*;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +54,7 @@ public class TestConstraintNetworkGeneration {
             tm2.setStartNode(orv1compv2);
             tm2.addConstraint(DefaultNodeKind.MATCHES, x, orv1compv2);
         } catch (InconsistencyException e) {
-            Assert.assertTrue(false);
+            Assertions.assertTrue(false);
         }
 
     }
@@ -83,26 +83,26 @@ public class TestConstraintNetworkGeneration {
             tm2.setStartNode(orv1compv2);
             tm2.addConstraint(DefaultNodeKind.MATCHES, x, orv1compv2);
         } catch (InconsistencyException e) {
-            Assert.assertFalse(true);
+            Assertions.assertFalse(true);
         }
 
         LOGGER.info(tm2.getConstraintNetwork().toDot());
         ConstraintNetworkBuilder tm3 = tm2.clone();
 
-        Assert.assertNotNull(tm3.getConstraintNetwork());
+        Assertions.assertNotNull(tm3.getConstraintNetwork());
 
         LOGGER.info(tm3.getConstraintNetwork().toDot());
 
 
         for (Edge e1 : tm2.edgeSet()) {
             for (Edge e2 : tm3.edgeSet()) {
-                Assert.assertTrue(e1 != e2);
+                Assertions.assertTrue(e1 != e2);
             }
         }
 
         for (Node n1 : tm2.vertexSet()) {
             for (Node n2 : tm3.vertexSet()) {
-                Assert.assertTrue(n1 != n2);
+                Assertions.assertTrue(n1 != n2);
             }
         }
     }
@@ -124,7 +124,7 @@ public class TestConstraintNetworkGeneration {
             concat2 = cb1.addOperation(DefaultNodeKind.CONCAT, concat1, c);
         } catch (InconsistencyException e) {
             e.printStackTrace();
-            Assert.assertFalse(true);
+            Assertions.assertFalse(true);
         }
 
         ConstraintNetworkBuilder cb2 = new ConstraintNetworkBuilder(cb1);
@@ -136,8 +136,8 @@ public class TestConstraintNetworkGeneration {
         }
 
 
-        Assert.assertEquals(cb1.vertexSet().size(), 5);
-        Assert.assertEquals(cb2.vertexSet().size(), 6);
+        Assertions.assertEquals(cb1.vertexSet().size(), 5);
+        Assertions.assertEquals(cb2.vertexSet().size(), 6);
 
         Node d = cb1.addOperand(DefaultNodeKind.STRVAR, "d");
 
@@ -148,8 +148,8 @@ public class TestConstraintNetworkGeneration {
         }
 
 
-        Assert.assertEquals(cb1.vertexSet().size(), 7);
-        Assert.assertEquals(cb2.vertexSet().size(), 6);
+        Assertions.assertEquals(cb1.vertexSet().size(), 7);
+        Assertions.assertEquals(cb2.vertexSet().size(), 6);
 
 
         LOGGER.debug(cb1.getConstraintNetwork().toDot());
@@ -174,7 +174,7 @@ public class TestConstraintNetworkGeneration {
             cb1.addConstraint(DefaultNodeKind.EQUALS, concat1, concat2);
         } catch (InconsistencyException e) {
             e.printStackTrace();
-            Assert.assertFalse(true);
+            Assertions.assertFalse(true);
         }
 
 

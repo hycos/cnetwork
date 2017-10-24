@@ -18,7 +18,8 @@
 package com.github.hycos.cnetwork.core;
 
 import com.github.hycos.cnetwork.api.domctrl.Domain;
-import com.github.hycos.cnetwork.api.domctrl.api.DomainInterface;
+import com.github.hycos.cnetwork.api.domctrl.DomainKind;
+import com.github.hycos.cnetwork.api.domctrl.SubDomainInterface;
 import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
 
 public class DefaultDomain implements Domain {
@@ -60,7 +61,7 @@ public class DefaultDomain implements Domain {
     }
 
     @Override
-    public DomainInterface getSubDomain(String subdomain) {
+    public SubDomainInterface getSubDomain(String subdomain) {
         return null;
     }
 
@@ -106,6 +107,11 @@ public class DefaultDomain implements Domain {
 
     @Override
     public Domain clone() {
+        return null;
+    }
+
+    @Override
+    public DomainKind getKind() {
         return null;
     }
 }
