@@ -17,14 +17,14 @@
 
 package com.github.hycos.cnetwork.core;
 
+import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
+import com.github.hycos.cnetwork.core.graph.ConstraintNetworkBuilder;
+import com.github.hycos.cnetwork.core.graph.Node;
+import com.github.hycos.cnetwork.core.graph.DefaultNodeKind;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.hycos.cnetwork.core.graph.ConstraintNetworkBuilder;
-import com.github.hycos.cnetwork.core.graph.Node;
-import com.github.hycos.cnetwork.core.graph.NodeKind;
-import com.github.hycos.cnetwork.exception.EUFInconsistencyException;
 
 
 public class TestInconsistency {
@@ -35,10 +35,10 @@ public class TestInconsistency {
     public void testBooleanInconsistency() {
         try {
             ConstraintNetworkBuilder cb = new ConstraintNetworkBuilder();
-            Node ntrue = cb.addOperand(NodeKind.BOOLLIT, "true");
-            Node nfalse = cb.addOperand(NodeKind.BOOLLIT, "false");
-            cb.addConstraint(NodeKind.BOOL_EQUALS,ntrue,nfalse);
-        } catch (EUFInconsistencyException e) {
+            Node ntrue = cb.addOperand(DefaultNodeKind.BOOLLIT, "true");
+            Node nfalse = cb.addOperand(DefaultNodeKind.BOOLLIT, "false");
+            cb.addConstraint(DefaultNodeKind.BOOL_EQUALS,ntrue,nfalse);
+        } catch (InconsistencyException e) {
             LOGGER.error(e.getMessage());
             Assert.assertTrue(true);
         }
@@ -49,10 +49,10 @@ public class TestInconsistency {
     public void testStringInconsistency() {
         try {
             ConstraintNetworkBuilder cb = new ConstraintNetworkBuilder();
-            Node ntrue = cb.addOperand(NodeKind.STRLIT, "true");
-            Node nfalse = cb.addOperand(NodeKind.STRLIT, "false");
-            cb.addConstraint(NodeKind.STR_EQUALS,ntrue,nfalse);
-        } catch (EUFInconsistencyException e) {
+            Node ntrue = cb.addOperand(DefaultNodeKind.STRLIT, "true");
+            Node nfalse = cb.addOperand(DefaultNodeKind.STRLIT, "false");
+            cb.addConstraint(DefaultNodeKind.STR_EQUALS,ntrue,nfalse);
+        } catch (InconsistencyException e) {
             LOGGER.error(e.getMessage());
             Assert.assertTrue(true);
         }
@@ -63,12 +63,12 @@ public class TestInconsistency {
         try {
             ConstraintNetworkBuilder cb = new ConstraintNetworkBuilder();
 
-            Node four = cb.addOperand(NodeKind.NUMLIT, "4");
-            Node three = cb.addOperand(NodeKind.NUMLIT, "3");
+            Node four = cb.addOperand(DefaultNodeKind.NUMLIT, "4");
+            Node three = cb.addOperand(DefaultNodeKind.NUMLIT, "3");
 
-            cb.addConstraint(NodeKind.EQUALS,four, three);
+            cb.addConstraint(DefaultNodeKind.EQUALS,four, three);
 
-        } catch (EUFInconsistencyException e) {
+        } catch (InconsistencyException e) {
             LOGGER.error(e.getMessage());
             Assert.assertTrue(true);
         }
@@ -80,14 +80,14 @@ public class TestInconsistency {
         try {
             ConstraintNetworkBuilder cb = new ConstraintNetworkBuilder();
 
-            Node four = cb.addOperand(NodeKind.NUMLIT, "4");
-            Node three = cb.addOperand(NodeKind.NUMLIT, "3");
-            Node k = cb.addOperand(NodeKind.NUMVAR, "k");
+            Node four = cb.addOperand(DefaultNodeKind.NUMLIT, "4");
+            Node three = cb.addOperand(DefaultNodeKind.NUMLIT, "3");
+            Node k = cb.addOperand(DefaultNodeKind.NUMVAR, "k");
 
-            cb.addConstraint(NodeKind.EQUALS,k, three);
-            cb.addConstraint(NodeKind.EQUALS,k, four);
+            cb.addConstraint(DefaultNodeKind.EQUALS,k, three);
+            cb.addConstraint(DefaultNodeKind.EQUALS,k, four);
 
-        } catch (EUFInconsistencyException e) {
+        } catch (InconsistencyException e) {
             LOGGER.error(e.getMessage());
             Assert.assertTrue(true);
         }

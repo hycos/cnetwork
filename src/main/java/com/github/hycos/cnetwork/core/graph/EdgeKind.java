@@ -17,7 +17,9 @@
 
 package com.github.hycos.cnetwork.core.graph;
 
-public enum EdgeKind {
+import com.github.hycos.cnetwork.api.EdgeKindInterface;
+
+public enum EdgeKind implements EdgeKindInterface {
     UNKNOWN(0,"unknown"),
     PAR_IN(1,"parin");
 

@@ -18,75 +18,80 @@
 package com.github.hycos.cnetwork.core.graph;
 
 
-import com.github.hycos.cnetwork.core.domain.range.BooleanRange;
-import com.github.hycos.cnetwork.core.domctrl.DomainControllerInterface;
-import com.github.hycos.cnetwork.core.euf.Element;
-import com.github.hycos.cnetwork.core.euf.EquiClass;
-import com.github.hycos.cnetwork.core.euf.EufManager;
-import com.github.hycos.cnetwork.core.execdag.ExecDag;
-import com.github.hycos.cnetwork.exception.EUFInconsistencyException;
+import com.github.hycos.cnetwork.api.NodeInterface;
+import com.github.hycos.cnetwork.api.NodeKindInterface;
+import com.github.hycos.cnetwork.api.cchecktinf.ConsistencyCheckerInterface;
+import com.github.hycos.cnetwork.api.domctrl.DomainControllerInterface;
+import com.github.hycos.cnetwork.api.labelmgr.ConstraintNetworkInterface;
+import com.github.hycos.cnetwork.api.labelmgr.ConstraintNetworkListenerInterface;
+import com.github.hycos.cnetwork.api.labelmgr.LabelManagerInterface;
+import com.github.hycos.cnetwork.api.labelmgr.LabelManagerListenerInterface;
+import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
+import com.github.hycos.cnetwork.cchecktinf.DefaultConsistencyChecker;
+import com.github.hycos.cnetwork.core.DefaultDomainController;
+import com.github.hycos.cnetwork.core.DefaultLabelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.hycos.cnetwork.core.consistency.ConsistencyCheckerFactory;
-import com.github.hycos.cnetwork.core.domain.NodeDomain;
-import com.github.hycos.cnetwork.core.domain.NodeDomainFactory;
-import com.github.hycos.cnetwork.core.euf.EufLattice;
 
 import java.util.*;
-import java.util.function.Predicate;
 
 
-public class ConstraintNetworkBuilder implements Cloneable {
+public class ConstraintNetworkBuilder implements Cloneable,
+        ConstraintNetworkInterface<Node>, LabelManagerListenerInterface {
 
     final static Logger LOGGER = LoggerFactory.getLogger(ConstraintNetworkBuilder.class);
 
-    private DomainControllerInterface dctrl = null;
+    private DomainControllerInterface<Node> dctrl;
+    private LabelManagerInterface<Node> lmgr;
+    private ConsistencyCheckerInterface<Node> ci;
+
     private ConstraintNetwork cn;
-    //private NodeElemFact nf;
-    private EufManager euf;
-    private ExecDag tree;
 
     // observer structural changes to on the cn
-    private Set<ConstraintNetworkEventListenerInterface> listeners = new HashSet<>();
-
-    // Observe variables and operations
-    private Set<ConstraintNetworkObserverInterface<Node>> observers = new HashSet<>();
-
-    private void addDefaultContraint() {
-        Node ntrue = new Operand("true", NodeKind.BOOLLIT);
-        Node nfalse = new Operand("false", NodeKind.BOOLLIT);
-        try {
-            addConstraint(NodeKind.NEQUALS, ntrue, nfalse);
-        } catch (EUFInconsistencyException e) {
-            assert false;
-        }
-    }
+    private Set<ConstraintNetworkListenerInterface<Node>> listeners = new HashSet<>();
 
     // Note that listeners are no copied
     public ConstraintNetworkBuilder(ConstraintNetworkBuilder cnb) {
         this.cn = new ConstraintNetwork(cnb.cn);
-        //this.nf = new NodeElemFact(this, cnb.nf);
-        this.euf = new EufManager(cnb.euf, this);
-        this.tree = new ExecDag(cnb.tree, this);
-
-        assert cnb.vertexSet().size() == this.cn.vertexSet().size();
-
-        this.observers.add(this.euf);
-        this.observers.add(this.tree);
-        this.listeners.add(this.tree);
-
+        Objects.requireNonNull(cnb.lmgr);
+        Objects.requireNonNull(cnb.dctrl);
+        this.lmgr = cnb.lmgr.clone();
+        this.dctrl = cnb.dctrl.clone();
+        this.ci = cnb.ci.clone();
+        // rewire newly created objects
+        registerListeners(this.dctrl, this.lmgr);
+        for (Node n : vertexSet()) {
+            n.setLabelManager(this.lmgr);
+            n.setDomainController(this.dctrl);
+        }
         attachObservers();
-        //addDefaultContraint();
     }
 
     public ConstraintNetworkBuilder() {
+        this(new DefaultDomainController(), new DefaultLabelManager(), new DefaultConsistencyChecker());
+        registerListeners(this.dctrl, this.lmgr);
+        //this.cn = new ConstraintNetwork();
+        //registerListeners(dctrl, lmgr);
+        //this.lmgr = new EufManager(this);
+        //this.listeners.add(this.lmgr);
+    }
+
+    public ConstraintNetworkBuilder
+            (DomainControllerInterface<Node> dctrl,
+             LabelManagerInterface<Node> lmgr,
+             ConsistencyCheckerInterface<Node> ci) {
         this.cn = new ConstraintNetwork();
-        this.euf = new EufManager(this);
-        this.tree = new ExecDag(this);
-        this.observers.add(this.euf);
-        this.observers.add(this.tree);
-        this.listeners.add(this.tree);
-        //addDefaultContraint();
+        this.dctrl = dctrl;
+        this.lmgr = lmgr;
+        this.ci = ci;
+        //this.lmgr = new EufManager(this);
+        //this.listeners.add(this.lmgr);
+    }
+
+
+    public void registerListeners(ConstraintNetworkListenerInterface<Node>... l) {
+        listeners.addAll(Arrays.asList(l));
+        listeners.forEach(x -> x.register(this));
     }
 
     private void attachObservers() {
@@ -94,15 +99,15 @@ public class ConstraintNetworkBuilder implements Cloneable {
     }
 
     private void attachObservers(Node n) {
-        this.observers.forEach(o -> n.attach(o));
+        this.listeners.forEach(o -> n.attach(o));
     }
 
-    private void updateObservers(Node n) throws EUFInconsistencyException {
+    private void updateObservers(Node n) throws InconsistencyException {
 
-        LOGGER.debug("UPATE SIZ: " + n.getDomain().size());
+        //LOGGER.debug("UPATE SIZ: " + n.getDomain().size());
         //assert n.getDomain().size() == 2;
 
-        for(ConstraintNetworkObserverInterface<Node> o : observers) {
+        for (ConstraintNetworkListenerInterface o : listeners) {
             o.update(n);
         }
     }
@@ -112,56 +117,64 @@ public class ConstraintNetworkBuilder implements Cloneable {
     }
 
     public Node getNodeByLabel(String lbl) {
-        LOGGER.debug("get node by label {}", lbl);
-        return this.euf.getNodeByLabel(lbl);
+        //LOGGER.debug("get node by label {}", lbl);
+        return lmgr.getNodeByLabel(lbl);
     }
 
     public boolean hasNodeForLabel(String lbl) {
-        return this.euf.hasNodeForLabel(lbl);
+        return this.lmgr.hasNodeForLabel(lbl);
     }
 
     public String getLabelForNode(Node n) {
-        EquiClass e = euf.getEquiClassForNode(n);
-        return e.getCorrespondingElement(n).getLabel();
+        return this.lmgr.getLabelForNode(n);
     }
 
-    public Node addConstraint(NodeKind kind, Node... params) throws
-            EUFInconsistencyException {
+    public Node addConstraint(DefaultNodeKind kind, Node... params) throws InconsistencyException {
         List<Node> lst = Arrays.asList(params);
         return addConstraint(kind, lst);
     }
 
-    public Node addOperation(NodeKind kind, Node... params) throws
-            EUFInconsistencyException {
+    public Node addOperation(DefaultNodeKind kind, Node... params) throws InconsistencyException {
         List<Node> lst = Arrays.asList(params);
         return addOperation(kind, lst);
     }
 
-    public Edge addConnection(Edge e) throws EUFInconsistencyException {
+    public Edge addConnection(Edge e) throws InconsistencyException {
         Edge ne = cn.addConnection(e);
-        listeners.forEach(l -> l.onAddConnection(ne));
+        listeners.forEach(l -> l.onConnectionAdd(e.getSource(), e.getTarget()));
         return ne;
     }
 
-    public void addListener(ConstraintNetworkEventListenerInterface listener) {
+
+    public void addListener(ConstraintNetworkListenerInterface<Node> listener) {
         this.listeners.add(listener);
     }
 
-    public void addListener(Set<ConstraintNetworkEventListenerInterface> listeners) {
+    public void addListener(Set<ConstraintNetworkListenerInterface<Node>>
+                                    listeners) {
         this.listeners.addAll(listeners);
     }
 
-    public Node addOperand(NodeKind n, String s) {
+
+    @Override
+    public Node addOperand(NodeKindInterface n, String s) {
 
         //LOGGER.debug("add operand {}:{}", n, s);
         Node op = cn.addOperand(n, s);
 
-        //LOGGER.debug("lbl for node {}:{}", op.getId(), op.getLabel());
+        for (ConstraintNetworkListenerInterface<Node> l : listeners) {
+            try {
+                l.onNodeAdd(op);
+            } catch (InconsistencyException e) {
+                // Should never ever happen
+                assert false;
+            }
+        }
 
+        //LOGGER.debug("lbl for node {}:{}", op.getId(), op.getLabel());
         try {
-            euf.addEquiClass(op);
             return infer(op);
-        } catch (EUFInconsistencyException e) {
+        } catch (InconsistencyException e) {
             LOGGER.error(e.getMessage());
             e.printStackTrace();
             assert false;
@@ -170,26 +183,30 @@ public class ConstraintNetworkBuilder implements Cloneable {
         return null;
     }
 
-    private Node infer(Node n) throws EUFInconsistencyException {
+    @Override
+    public void addConnection(Node frst, Node snd, int prio) throws InconsistencyException {
+        addConnection(frst, snd, EdgeKind.PAR_IN, prio);
+    }
 
-        Node nop = inferEquivalentNode(n);
+    private Node infer(Node n) throws InconsistencyException {
 
-        //LOGGER.debug("NOP {}:{}", nop, nop.getId());
-        //LOGGER.debug("OP {}:{}", n, n.getId());
+        Node nop = (Node) lmgr.infer(n);
 
-        assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
+        if (nop == nop) {
+            addVertex(nop);
+        }
 
 
-        if (!ConsistencyCheckerFactory.INSTANCE.isConsistent(this, nop)) {
-            throw new EUFInconsistencyException("malformed operand " + nop
+        if (!this.ci.check(this, nop)) {
+            throw new InconsistencyException("malformed operand " + nop
                     .getKind());
         }
 
         if (n.equals(nop)) {
             attachObservers(nop);
             updateObservers(nop);
-//            euf.attach(nop);
-//            euf.update(nop);
+            lmgr.attach(nop);
+            lmgr.update(nop);
             //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
 
             return nop;
@@ -206,10 +223,10 @@ public class ConstraintNetworkBuilder implements Cloneable {
     }
 
     public List<Node> inferParams(List<Node> params) throws
-            EUFInconsistencyException {
+            InconsistencyException {
         List<Node> plist = new Vector<>();
         LOGGER.debug("infer params");
-        for(Node p : params) {
+        for (Node p : params) {
 
             Node i = infer(p);
 
@@ -222,14 +239,17 @@ public class ConstraintNetworkBuilder implements Cloneable {
     }
 
 
-    public Node addOperation(NodeKind kind, List<Node> params) throws
-            EUFInconsistencyException {
+    public Node addOperation(DefaultNodeKind kind, List<Node> params) throws
+            InconsistencyException {
 
 
         Node op = cn.addOperation(kind, inferParams(params));
+        for (ConstraintNetworkListenerInterface l : listeners) {
+            l.onNodeAdd(op);
+        }
 
         //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
-        LOGGER.debug("check node {}:{}", op.getLabel(), op.getId());
+        LOGGER.debug("check node {}:{}", op.getShortLabel(), op.getId());
 
         //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
 
@@ -246,23 +266,30 @@ public class ConstraintNetworkBuilder implements Cloneable {
             cn.removeVertex(op);
         }
 
+
         //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
 
         return nop;
     }
 
-    public Node addConstraint(NodeKind kind, List<Node> params) throws
-            EUFInconsistencyException {
+
+    public Node addConstraint(DefaultNodeKind kind, List<Node> params) throws
+            InconsistencyException {
 
         Node op = addOperation(kind, params);
 
-        BooleanRange br = (BooleanRange) op.getRange();
-
-        if (br.isAlwaysFalse()) {
-            throw new EUFInconsistencyException("UNSAT");
+        // trigger domain creation
+        for (ConstraintNetworkListenerInterface l : listeners) {
+            l.onConstraintAdd(op);
         }
 
-        op.setDomain(NodeDomainFactory.DBTRUE);
+        //Domain dom = this.dctrl.createDomainFor(op);
+
+//        if (op.getDomain().isAlwaysFalse()) {
+//            throw new InconsistencyException("UNSAT");
+//        }
+//
+//        dom.setTrue();
 
         return op;
     }
@@ -273,7 +300,7 @@ public class ConstraintNetworkBuilder implements Cloneable {
 
     public boolean removeAllVertices(Collection<? extends Node> n) {
 
-        for(Node nd : n) {
+        for (Node nd : n) {
             removeVertex(nd);
         }
 
@@ -293,15 +320,8 @@ public class ConstraintNetworkBuilder implements Cloneable {
         return cn;
     }
 
-    public EufLattice getEufLattice() {
-        return euf.getLattice();
-    }
 
-    public ExecDag getExecutionTree() {
-        return tree;
-    }
-
-    public Edge addConnection(Node src, Node target, EdgeKind kind, int prio) throws EUFInconsistencyException {
+    public Edge addConnection(Node src, Node target, EdgeKind kind, int prio) throws InconsistencyException {
         return cn.addConnection(src, target, kind, prio);
     }
 
@@ -314,9 +334,11 @@ public class ConstraintNetworkBuilder implements Cloneable {
         return cn.getParametersFor(n);
     }
 
+
     public Set<Node> vertexSet() {
         return cn.vertexSet();
     }
+
 
     public Set<Edge> edgeSet() {
         return cn.edgeSet();
@@ -339,6 +361,13 @@ public class ConstraintNetworkBuilder implements Cloneable {
         boolean ret = cn.removeVertex(n);
         listeners.forEach(e -> e.onNodeDelete(n));
         return ret;
+    }
+
+    public void addVertex(Node n) throws InconsistencyException {
+        cn.addNode(n);
+        for (ConstraintNetworkListenerInterface<Node> l : listeners) {
+            l.onNodeAdd(n);
+        }
     }
 
     public boolean containsVertex(Node n) {
@@ -371,12 +400,22 @@ public class ConstraintNetworkBuilder implements Cloneable {
     }
 
     public Node registerExtOperation(String bytecodesig, String lbl) {
+
         return cn.registerExtOperation(bytecodesig, lbl);
     }
 
-    public void join(NodeKind kind, Node cpoint, ConstraintNetworkBuilder
+    public void join(DefaultNodeKind kind, Node cpoint, ConstraintNetworkBuilder
             othercn) {
         cn.join(kind, cpoint, othercn.getConstraintNetwork());
+
+        try {
+
+            cpoint.getDomain().setTrue();
+            //this.dctrl.getDomainFor(cpoint).setTrue();
+            //cpoint.setDomain(NodeDomainFactory.DBTRUE);
+        } catch (InconsistencyException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -392,12 +431,12 @@ public class ConstraintNetworkBuilder implements Cloneable {
     }
 
 
-    public Node merge(Node toReplace, Node replacement) throws
-            EUFInconsistencyException {
+    public Node collapse(Node toReplace, Node replacement) throws
+            InconsistencyException {
 
         replacement.setNote(toReplace.getNote());
         assert !toReplace.equals(replacement);
-        //LOGGER.debug("merge {}:{} and {}:{}", toReplace, toReplace.getId(),
+        //LOGGER.debug("collapse {}:{} and {}:{}", toReplace, toReplace.getId(),
         //        replacement, replacement.getId());
 
 
@@ -436,37 +475,17 @@ public class ConstraintNetworkBuilder implements Cloneable {
                 .getId() == id).count() == 0;
 
 
-        if (!ConsistencyCheckerFactory.INSTANCE.isConsistent(this,
-                replacement)) {
-            throw new EUFInconsistencyException("malformed operand " + replacement
+        if (!this.ci.check(this, replacement)) {
+            throw new InconsistencyException("malformed operand " + replacement
                     .getId());
         }
 
-        NodeDomain isect = toReplace.getDomain().intersect(replacement
-                .getDomain
-                        ());
-
-        LOGGER.debug("merge {} and {}", toReplace.getId(), replacement.getId());
-        LOGGER.debug("ISECT {}" + isect.toString());
-
-        if (isect == null || isect.isEmpty()) {
-            throw new EUFInconsistencyException("could not merge " +
-                    replacement.getId() + " and " + toReplace.getId());
-        }
-        replacement.setDomain(isect);
-
-        if(replacement.getRange().isEmpty()) {
-
-            throw new EUFInconsistencyException("could not merge " +
-                    replacement.getId() + " and " + toReplace.getId());
+        for (ConstraintNetworkListenerInterface lst : listeners) {
+            lst.onNodeCollapse(toReplace, replacement);
         }
 
-        // send a signal to all listeners
-        listeners.forEach(e -> e.onNodeMerge(toReplace, replacement));
-
-        if (!ConsistencyCheckerFactory.INSTANCE.isConsistent(this,
-                replacement)) {
-            throw new EUFInconsistencyException("malformed operand " + replacement
+        if (!this.ci.check(this, replacement)) {
+            throw new InconsistencyException("malformed operand " + replacement
                     .getId());
         }
 
@@ -474,71 +493,13 @@ public class ConstraintNetworkBuilder implements Cloneable {
         return replacement;
     }
 
-    private Node getCorrespondingNode(EquiClass c, Node n) {
-
-        Predicate<Element> f;
-        if (n.isOperation()) {
-            f = e -> e.getAnnotation().equals(n.getLabel());
-        } else {
-            f = e -> e.getLabel().equals(n.getLabel());
-        }
-
-        return c.getElements().stream().filter(f).filter(e -> cn
-                .containsVertex(e
-                        .getMappedNode())).findFirst().get().getMappedNode();
-
-    }
-
-    // @TODO: make inference work properly for operands as well -- we need
-    // to ensure that the returned nodes are definetely present in the CN
-    public Node inferEquivalentNode(Node n) throws EUFInconsistencyException {
-
-        LOGGER.debug("infer {}:{}", n.getLabel(),n.getId());
-        //LOGGER.debug(getEufLattice().toDot());
-        // equiclass which is present
-        //EquiClass nn = null;
-        EquiClass nen = euf.inferActualEquiClassForNode(n);
-
-        EquiClass nn = euf.getEquiClassForNode(n);
-
-        //LOGGER.debug("actual {}:{}", nen.getLabel(), nen.getId());
-        //LOGGER.debug("new {}:{}", nn.getLabel(), nn.getId());
-
-        assert nen != null;
-        assert nen != euf.getBottom();
-        //assert nen != euf.getTop();
-
-        if (nen.equals(euf.getTop()))
-            return n;
-
-        //LOGGER.debug(getEufLattice().toDot());
-        //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
-
-        Element cor = nen.getCorrespondingElement(n);
-
-        if(cor == null)
-            return n;
-
-        //Node emap = getCorrespondingNode(nn,n);
-        Node emap = cor.getMappedNode();
-
-
-        //LOGGER.debug("mapped node {}:{}", nen.getDotLabel(),nen.getId());
-        //assert cn.containsVertex(emap);
-
-        // whenever we infer a new fact it will be added to our euf
-        // lattice
-        if (!emap.equals(n)) {
-            EquiClass nemap = nen.union(nn);
-            try {
-                nn = euf.addEquiClass(nemap);
-            } catch (EUFInconsistencyException e) {
-                assert false;
-            }
-            return nn.getCorrespondingElement(n).getMappedNode();
-        }
-        return emap;
+    @Override
+    public void onEquivalentNodeLabels(NodeInterface toReplace, NodeInterface
+            replacement) throws InconsistencyException {
+        collapse((Node) toReplace, (Node) replacement);
     }
 
 
 }
+
+

@@ -17,82 +17,97 @@
 
 package com.github.hycos.cnetwork.core;
 
+import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
+import com.github.hycos.cnetwork.core.graph.ConstraintNetworkBuilder;
+import com.github.hycos.cnetwork.core.graph.DefaultNodeKind;
+import com.github.hycos.cnetwork.core.graph.Node;
+import com.github.hycos.cnetwork.core.graph.Operand;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.hycos.cnetwork.core.graph.ConstraintNetworkBuilder;
-import com.github.hycos.cnetwork.core.graph.Node;
-import com.github.hycos.cnetwork.core.graph.NodeKind;
-import com.github.hycos.cnetwork.core.graph.Operand;
-import com.github.hycos.cnetwork.exception.EUFInconsistencyException;
-import com.github.hycos.cnetwork.utils.EscapeUtils;
 
 
 public class TestConstraintNetworkBuilder {
     final static Logger LOGGER = LoggerFactory.getLogger(TestConstraintNetworkBuilder.class);
 
     @Test
+    public void testDuplicates() {
+
+        try {
+            ConstraintNetworkBuilder cb = new ConstraintNetworkBuilder();
+            Node a = cb.addOperand(DefaultNodeKind.STRLIT, "a");
+            Node b = cb.addOperand(DefaultNodeKind.STRLIT, "b");
+            Node va = cb.addOperand(DefaultNodeKind.STRVAR, "a");
+            Node vb = cb.addOperand(DefaultNodeKind.STRVAR, "b");
+            Node b2 = cb.addOperand(DefaultNodeKind.STRLIT, "b");
+            Node va2 = cb.addOperand(DefaultNodeKind.STRVAR, "a");
+            cb.addConstraint(DefaultNodeKind.EQUALS, a, b);
+            cb.addConstraint(DefaultNodeKind.EQUALS, va2, b2);
+            LOGGER.debug(cb.getConstraintNetwork().toDot());
+            Node comp1 = cb.getNodeByLabel(va.getLabel());
+            Node comp2 = cb.getNodeByLabel(va2.getLabel());
+            Assert.assertEquals(comp1, comp2);
+            Assert.assertEquals(cb.vertexSet().size(), 8);
+        } catch (InconsistencyException e) {
+            e.printStackTrace();
+            LOGGER.debug(e.getMessage());
+            Assert.assertTrue(true);
+        }
+
+    }
+
+
+    @Test
     public void testBuilder() {
 
         try {
             ConstraintNetworkBuilder cb = new ConstraintNetworkBuilder();
-
             String sor = ".*' +[Oo][Rr] +'";
-            Node or = new Operand(sor, NodeKind.STRREXP);
-            Node v1 = new Operand("sv7", NodeKind.NUMVAR);
-            Node toStrV1 = cb.addOperation(NodeKind.TOSTR, v1);
-            Node orv1 = cb.addOperation(NodeKind.CONCAT, or, toStrV1);
-            Node eq = new Operand(" +\\>= +", NodeKind.STRREXP);
-            Node orv1comp = cb.addOperation(NodeKind.CONCAT, orv1, eq);
-            Node v2 = new Operand("sv8", NodeKind.NUMVAR);
-            Node toStrV2 = cb.addOperation(NodeKind.TOSTR, v2);
-            Node orv1compv2 = cb.addOperation(NodeKind.CONCAT, orv1comp, toStrV2);
+            Node or = new Operand(sor, DefaultNodeKind.STRREXP);
+            Node v1 = new Operand("sv7", DefaultNodeKind.NUMVAR);
+            Node toStrV1 = cb.addOperation(DefaultNodeKind.TOSTR, v1);
+            Node orv1 = cb.addOperation(DefaultNodeKind.CONCAT, or, toStrV1);
+            Node eq = new Operand(" +\\>= +", DefaultNodeKind.STRREXP);
+            Node orv1comp = cb.addOperation(DefaultNodeKind.CONCAT, orv1, eq);
+            Node v2 = new Operand("sv8", DefaultNodeKind.NUMVAR);
+            Node toStrV2 = cb.addOperation(DefaultNodeKind.TOSTR, v2);
+            Node orv1compv2 = cb.addOperation(DefaultNodeKind.CONCAT, orv1comp, toStrV2);
             String scomment = "(\\<!\\-\\-|#)";
-            Node comment = new Operand(scomment, NodeKind.STRREXP);
+            Node comment = new Operand(scomment, DefaultNodeKind.STRREXP);
+            cb.addOperation(DefaultNodeKind.CONCAT, orv1compv2, comment);
+            Node v3 = new Operand("sv7", DefaultNodeKind.NUMVAR);
+            Node v8 = new Operand("sv8", DefaultNodeKind.NUMVAR);
+            cb.addConstraint(DefaultNodeKind.EQUALS, v3, v8);
+            LOGGER.debug(cb.getConstraintNetwork().toDot());
+        } catch (InconsistencyException e) {
 
-            cb.addOperation(NodeKind.CONCAT, orv1compv2, comment);
-
-            LOGGER.debug("REMOVE {}", orv1compv2.getId());
-            cb.removeVertex(orv1compv2);
-            //cb.addConstraint(NodeKind.NUM_EQUALS, v1, v2);
-            //cb.addConstraint(NodeKind.MATCHES, x, orv1compv2);
-            //cb.addConstraint(NodeKind.GREATER, v1, v3);
-
-
-            //cb.addConstraint(NodeKind.EQUALS, v3, v2);
-
-            //LOGGER.debug(cb.getConstraintNetwork().toDot());
-            LOGGER.debug(cb.getEufLattice().toDot());
-
-            LOGGER.debug(cb.getExecutionTree().toDot());
-
-        } catch (EUFInconsistencyException e) {
+            e.printStackTrace();
+            LOGGER.debug(e.getMessage());
             Assert.assertTrue(true);
         }
+
+
     }
 
     @Test
     public void testBuilder2() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
-
-
-
         try {
-            Node zero = cn.addOperand(NodeKind.NUMLIT, "0");
-            Node one = cn.addOperand(NodeKind.NUMLIT, "1");
-            Node three = cn.addOperand(NodeKind.NUMLIT, "3");
-            Node dot = cn.addOperand(NodeKind.STRLIT, ".");
-            Node add = cn.addOperation(NodeKind.ADD, one, zero);
-            cn.addConstraint(NodeKind.EQUALS, add, zero);
+            Node zero = cn.addOperand(DefaultNodeKind.NUMLIT, "0");
+            Node one = cn.addOperand(DefaultNodeKind.NUMLIT, "1");
+            Node three = cn.addOperand(DefaultNodeKind.NUMLIT, "3");
+            Node dot = cn.addOperand(DefaultNodeKind.STRLIT, ".");
+            Node add = cn.addOperation(DefaultNodeKind.ADD, one, zero);
+            cn.addConstraint(DefaultNodeKind.EQUALS, add, zero);
             //Node subone = cn.addOperation(NodeKind.SUBSTR, idxof, one);
             //Node sub = cn.addOperation(NodeKind.SUBSTR,idxof, subone);
             //cn.addConstraint(NodeKind.NUM_EQUALS, one, sub);
-        } catch (EUFInconsistencyException e) {
+        } catch (InconsistencyException e) {
             e.printStackTrace();
         }
 
-        LOGGER.debug(cn.getEufLattice().toDot());
+        //LOGGER.debug(cn.getEufLattice().toDot());
 
 
     }
@@ -101,54 +116,44 @@ public class TestConstraintNetworkBuilder {
     @Test
     public void testDeleteNode() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
-
-
         try {
-            Node zero = cn.addOperand(NodeKind.NUMLIT, "0");
-            Node one = cn.addOperand(NodeKind.NUMLIT, "1");
-            Node filename_1 = cn.addOperand(NodeKind.NUMVAR, "filename_1");
-            Node dot = cn.addOperand(NodeKind.STRLIT, ".");
-            Node idxof = cn.addOperation(NodeKind.INDEXOF, filename_1, dot, zero);
-            cn.addConstraint(NodeKind.EQUALS, idxof, zero);
-            Node subone = cn.addOperation(NodeKind.SUBSTR, idxof, one);
-            Node sub = cn.addOperation(NodeKind.SUBSTR,idxof, subone);
-            cn.addConstraint(NodeKind.NUM_EQUALS, one, sub);
-
-            //cn.removeVertex(subone);
-            LOGGER.debug(cn.getConstraintNetwork().toDot());
-        } catch (EUFInconsistencyException e) {
+            Node zero = cn.addOperand(DefaultNodeKind.NUMLIT, "0");
+            Node one = cn.addOperand(DefaultNodeKind.NUMLIT, "1");
+            Node filename_1 = cn.addOperand(DefaultNodeKind.NUMVAR, "filename_1");
+            Node dot = cn.addOperand(DefaultNodeKind.STRLIT, ".");
+            Node idxof = cn.addOperation(DefaultNodeKind.INDEXOF, filename_1, dot, zero);
+            cn.addConstraint(DefaultNodeKind.EQUALS, idxof, zero);
+            Node subone = cn.addOperation(DefaultNodeKind.SUBSTR, idxof, one);
+            Node sub = cn.addOperation(DefaultNodeKind.SUBSTR, idxof, subone);
+            cn.addConstraint(DefaultNodeKind.NUM_EQUALS, one, sub);
+            Assert.assertEquals(cn.vertexSet().size(), 9);
+            cn.removeVertex(subone);
+            Assert.assertEquals(cn.vertexSet().size(), 8);
+        } catch (InconsistencyException e) {
             e.printStackTrace();
         }
-
-        LOGGER.debug(cn.getEufLattice().toDot());
-
-
+        //LOGGER.debug(cn.getEufLattice().toDot());
     }
 
 
     @Test
     public void testGetNodeByLabel() {
         ConstraintNetworkBuilder cn = new ConstraintNetworkBuilder();
-
-
         try {
+            Node five = cn.addOperand(DefaultNodeKind.NUMLIT, "5");
+            Node s = cn.addOperand(DefaultNodeKind.STRLIT, "s");
+            Node var = cn.addOperand(DefaultNodeKind.NUMVAR, "v");
+            Node tostr = cn.addOperation(DefaultNodeKind.TOSTR, var);
+            Node concat = cn.addOperation(DefaultNodeKind.CONCAT, tostr, s);
+            LOGGER.debug("s {}", s.getLabel());
 
-            Node five = cn.addOperand(NodeKind.NUMLIT, "5");
-            Node s = cn.addOperand(NodeKind.STRLIT, "s");
-            Node var = cn.addOperand(NodeKind.NUMVAR, "v");
-            Node tostr = cn.addOperation(NodeKind.TOSTR, var);
-
-            Node concat = cn.addOperation(NodeKind.CONCAT, tostr,s);
-
-            Assert.assertEquals(s, cn.getNodeByLabel(EscapeUtils
-                    .escapeSpecialCharacters("\"s\"")));
-
-            Assert.assertEquals(concat, cn.getNodeByLabel(EscapeUtils.escapeSpecialCharacters("concat(tostr(v),\"s\")")));
-
-            Assert.assertEquals(five, cn.getNodeByLabel("5"));
-        } catch (EUFInconsistencyException e) {
+            Node s2 = cn.getNodeByLabel("\"s\"");
+            Assert.assertNotNull(s2);
+            Assert.assertEquals(s.getLabel(), s2.getLabel());
+        } catch (InconsistencyException e) {
             e.printStackTrace();
         }
+
     }
 
 }

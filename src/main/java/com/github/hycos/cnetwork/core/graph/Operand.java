@@ -18,6 +18,8 @@
 package com.github.hycos.cnetwork.core.graph;
 
 
+import com.github.hycos.cnetwork.api.NodeKindInterface;
+import com.github.hycos.cnetwork.sig.JavaMethodSignature;
 import com.github.hycos.cnetwork.utils.EscapeUtils;
 
 public class Operand extends Node {
@@ -27,10 +29,10 @@ public class Operand extends Node {
     }
 
     public Operand(String label, String kind) {
-       this(label, NodeKind.KindFromString(kind));
+       this(label, DefaultNodeKind.KindFromString(kind));
     }
 
-    public Operand(String label, NodeKind kind) {
+    public Operand(String label, NodeKindInterface kind) {
         super(label,kind);
     }
 
@@ -45,43 +47,27 @@ public class Operand extends Node {
     }
 
     @Override
-    public boolean isLiteral() {
-        return this.kind.isLiteral();
-    }
-
-    @Override
-    public boolean isRegex() {
-        return this.kind.isRegex();
-    }
-
-    @Override
-    public boolean isString() {
-        return this.kind.isString();
-    }
-
-    @Override
-    public boolean isNumeric() {
-        return this.kind.isNumeric();
-    }
-
-    @Override
-    public boolean isBoolean() {
-        return this.kind.isBoolean();
-    }
-
-    @Override
-    public boolean isVariable() {
-        return !this.kind.isLiteral() && !this.kind.isRegex();
-    }
-
-    @Override
     public boolean isConstraint() {
         return false;
     }
 
+    @Override
+    public JavaMethodSignature getSig() {
+        return null;
+    }
+
+    @Override
+    public void setSignature(JavaMethodSignature signature) {
+        ;
+    }
+
+    @Override
+    public JavaMethodSignature getSignature() {
+        return null;
+    }
 
     public String getName() {
-        return this.label;
+        return this.shortLabel;
     }
 
     @Override
@@ -89,7 +75,7 @@ public class Operand extends Node {
 
     @Override
     public String getDotLabel() {
-        return EscapeUtils.escapeSpecialCharacters(label) + "\\nn" + super
+        return EscapeUtils.escapeSpecialCharacters(shortLabel) + "\\nn" + super
                 .getDotLabel();
     }
 

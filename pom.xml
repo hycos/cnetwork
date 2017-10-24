@@ -20,7 +20,6 @@
         <junit.version>4.12</junit.version>
         <jgraph.version>1.0.1</jgraph.version>
         <commonslang.version>3.6</commonslang.version>
-        <esapi.version>2.1.0.1</esapi.version>
         <dkbrics.version>1.11-8</dkbrics.version>
         <autorex.version>1.0</autorex.version>
     </properties>
@@ -156,11 +155,6 @@
             <version>${slf4j.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.owasp.esapi</groupId>
-            <artifactId>esapi</artifactId>
-            <version>${esapi.version}</version>
-        </dependency>
-        <dependency>
             <groupId>dk.brics.automaton</groupId>
             <artifactId>automaton</artifactId>
             <version>${dkbrics.version}</version>
@@ -173,6 +167,11 @@
         <dependency>
             <groupId>com.github.hycos</groupId>
             <artifactId>cnetwork</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.hycos</groupId>
+            <artifactId>cnetwork-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>

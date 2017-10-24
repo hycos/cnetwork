@@ -18,114 +18,115 @@
 package com.github.hycos.cnetwork.core.graph;
 
 
-import com.github.hycos.cnetwork.core.domain.DomainKind;
+import com.github.hycos.cnetwork.api.NodeKindInterface;
+import com.github.hycos.cnetwork.api.domctrl.DomainKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public enum NodeKind {
+public enum DefaultNodeKind implements NodeKindInterface {
 
-    UNKNOWN("unkown", DomainKind.UNKNOWN),
+    UNKNOWN("unkown"),
 
     // Operands
-    NUMVAR("numvar",DomainKind.NUMERIC_Z),
-    STRVAR("strvar",DomainKind.STRING),
-    STRREXP("strexp",DomainKind.STRING),
-    NUMLIT("numlit",DomainKind.NUMERIC_Z),
-    STRLIT("strlit",DomainKind.STRING),
-    BOOLLIT("boollit",DomainKind.BOOLEAN),
-    BOOLVAR("boolvar",DomainKind.BOOLEAN),
+    NUMVAR("numvar"),
+    STRVAR("strvar"),
+    STRREXP("strexp"),
+    NUMLIT("numlit"),
+    STRLIT("strlit"),
+    BOOLLIT("boollit"),
+    BOOLVAR("boolvar"),
 
-    XMLI("xmli",DomainKind.STRING),
-    SQLISTR("sqlistr",DomainKind.STRING),
-    SQLINUM("sqlinum",DomainKind.STRING),
-    XPATHSTR("xpathstr",DomainKind.STRING),
-    XPATHNUM("xpathnum",DomainKind.STRING),
-    LDAPI("ldapi",DomainKind.STRING),
-    XSS("xss",DomainKind.STRING),
-    URLI("urli",DomainKind.STRING),
+    XMLI("xmli"),
+    SQLISTR("sqlistr"),
+    SQLINUM("sqlinum"),
+    XPATHSTR("xpathstr"),
+    XPATHNUM("xpathnum"),
+    LDAPI("ldapi"),
+    XSS("xss"),
+    URLI("urli"),
 
     // Operations
-    EXTERNAL("external",DomainKind.STRING),
+    EXTERNAL("external"),
     // overloaded operators
-    EQUALS("==",DomainKind.BOOLEAN),
-    STR_EQUALS("==",DomainKind.BOOLEAN),
-    NUM_EQUALS("==", DomainKind.BOOLEAN),
-    BOOL_EQUALS("==",DomainKind.BOOLEAN),
-    STR_EQUALSIC("~~", DomainKind.BOOLEAN),
+    EQUALS("=="),
+    STR_EQUALS("=="),
+    NUM_EQUALS("=="),
+    BOOL_EQUALS("=="),
+    STR_EQUALSIC("~~"),
 
-    NEQUALS("!=", DomainKind.BOOLEAN),
-    STR_NEQUALS("!=", DomainKind.BOOLEAN),
-    NUM_NEQUALS("!=", DomainKind.BOOLEAN),
-    BOOL_NEQUALS("!=",DomainKind.BOOLEAN),
-    STR_NEQUALSIC("!~", DomainKind.BOOLEAN),
+    NEQUALS("!="),
+    STR_NEQUALS("!="),
+    NUM_NEQUALS("!="),
+    BOOL_NEQUALS("!="),
+    STR_NEQUALSIC("!~"),
 
 
-    SMALLER("<",DomainKind.BOOLEAN),
-    GREATER(">",DomainKind.BOOLEAN),
-    SMALLEREQ("<=",DomainKind.BOOLEAN),
-    GREATEREQ(">=",DomainKind.BOOLEAN),
-    MATCHES("matches", DomainKind.BOOLEAN),
-    STARTSWITH("startswith", DomainKind.BOOLEAN),
-    ENDSWITH("endswith", DomainKind.BOOLEAN),
-    CONTAINS("contains", DomainKind.BOOLEAN),
+    SMALLER("<"),
+    GREATER(">"),
+    SMALLEREQ("<="),
+    GREATEREQ(">="),
+    MATCHES("matches"),
+    STARTSWITH("startswith"),
+    ENDSWITH("endswith"),
+    CONTAINS("contains"),
 
-    OR("or", DomainKind.BOOLEAN),
-    AND("and", DomainKind.BOOLEAN),
-    XOR("xor", DomainKind.BOOLEAN),
-    NOT("not", DomainKind.BOOLEAN),
-    ITE("ite",DomainKind.BOOLEAN),
-    IMPLIES("implies", DomainKind.BOOLEAN),
+    OR("or"),
+    AND("and"),
+    XOR("xor"),
+    NOT("not"),
+    ITE("ite"),
+    IMPLIES("implies"),
 
-    SUBSTR("substr", DomainKind.STRING),
-    INDEXOF("indexof", DomainKind.NUMERIC_NM1),
-    LASTINDEXOF("lastindexof", DomainKind.NUMERIC_NM1),
-    TOLOWER("tolower", DomainKind.STRING_LOWER),
-    TOUPPER("toupper", DomainKind.STRING_UPPER),
-    CONCAT("concat", DomainKind.STRING),
-    TRIM("trim", DomainKind.STRING),
-    LEN("len",DomainKind.NUMERIC_N),
-    REPLACE("replace", DomainKind.STRING),
-    STRINV("strinv", DomainKind.STRING),
-    CHARAT("charat", DomainKind.STRING),
+    SUBSTR("substr"),
+    INDEXOF("indexof"),
+    LASTINDEXOF("lastindexof"),
+    TOLOWER("tolower"),
+    TOUPPER("toupper"),
+    CONCAT("concat"),
+    TRIM("trim"),
+    LEN("len"),
+    REPLACE("replace"),
+    STRINV("strinv"),
+    CHARAT("charat"),
 
-    TOINT("toint", DomainKind.NUMERIC_Z),
-    TOSTR("tostr", DomainKind.STRING),
+    TOINT("toint"),
+    TOSTR("tostr"),
 
-    ADD("add",DomainKind.NUMERIC_Z),
-    SUB("sub",DomainKind.NUMERIC_Z),
+    ADD("add"),
+    SUB("sub"),
 
-    APACHE_ESCHTML("apache_eschtml", DomainKind.STRING),
-    APACHE_UESCHTML("apache_ueschtml", DomainKind.STRING),
-    APACHE_ESCXML10("apache_escxml10", DomainKind.STRING),
-    APACHE_ESCXML11("apache_escxml11", DomainKind.STRING),
-    APACHE_ESCJSON("apache_escjson", DomainKind.STRING),
-    APACHE_ESCECMA("apache_escecma", DomainKind.STRING),
+    APACHE_ESCHTML("apache_eschtml"),
+    APACHE_UESCHTML("apache_ueschtml"),
+    APACHE_ESCXML10("apache_escxml10"),
+    APACHE_ESCXML11("apache_escxml11"),
+    APACHE_ESCJSON("apache_escjson"),
+    APACHE_ESCECMA("apache_escecma"),
 
-    ESAPI_ESCLDAP("esapi_escldap", DomainKind.STRING),
-    ESAPI_ESCDN("esapi_escdn", DomainKind.STRING),
-    ESAPI_ESCHTML("esapi_eschtml", DomainKind.STRING),
-    ESAPI_ESCHTMLATTR("esapi_eschtmlattr", DomainKind.STRING),
-    ESAPI_ESCXML("esapi_escxml", DomainKind.STRING),
-    ESAPI_ESCXMLATTR("esapi_escxmlattr", DomainKind.STRING),
-    ESAPI_ESCXPATH("esapi_escxpath", DomainKind.STRING),
-    ESAPI_ESCSQL("esapi_escsql", DomainKind.STRING),
+    ESAPI_ESCLDAP("esapi_escldap"),
+    ESAPI_ESCDN("esapi_escdn"),
+    ESAPI_ESCHTML("esapi_eschtml"),
+    ESAPI_ESCHTMLATTR("esapi_eschtmlattr"),
+    ESAPI_ESCXML("esapi_escxml"),
+    ESAPI_ESCXMLATTR("esapi_escxmlattr"),
+    ESAPI_ESCXPATH("esapi_escxpath"),
+    ESAPI_ESCSQL("esapi_escsql"),
 
-    EMTPY("emtpy",DomainKind.BOOLEAN),
+    EMTPY("emtpy"),
 
     // special search procedure
-    SEARCH("search", DomainKind.BOOLEAN),
+    SEARCH("search"),
 
-    DIV("div",DomainKind.NUMERIC_Z);
+    DIV("div");
 
-    final static Logger LOGGER = LoggerFactory.getLogger(NodeKind.class);
+    final static Logger LOGGER = LoggerFactory.getLogger(DefaultNodeKind.class);
 
     private final String sval;
-    private DomainKind dkind;
+    //private DomainKind dkind;
 
 
-    NodeKind(String sval, DomainKind type) {
+    DefaultNodeKind(String sval) {
         this.sval = sval;
-        this.dkind = type;
+        //this.dkind = type;
     }
 
 
@@ -133,13 +134,10 @@ public enum NodeKind {
         return this.sval;
     }
 
-    public static NodeKind KindFromString(String kind) {
+    public static DefaultNodeKind KindFromString(String kind) {
         switch(kind) {
             // operations
-            case "==": {
-                LOGGER.debug("eq");
-                return EQUALS;
-            }
+            case "==": return EQUALS;
             case "!=": return NEQUALS;
 
             case "<": return SMALLER;
@@ -172,7 +170,7 @@ public enum NodeKind {
             case "concat": return CONCAT;
             case "trim": return TRIM;
             case "len": return LEN;
-            case "merge": return REPLACE;
+            case "collapse": return REPLACE;
             case "strinv": return STRINV;
             case "charat": return CHARAT;
 
@@ -291,15 +289,15 @@ public enum NodeKind {
         return this == NUMLIT || this == STRLIT || this == BOOLLIT ;
     }
 
-    public boolean isNumeric() {
-        return this.dkind.isNumeric();
-    }
-
-    public boolean isBoolean() { return this.dkind.isBoolean(); }
-
-    public boolean isString() {
-        return this.dkind.isString();
-    }
+//    public boolean isNumeric() {
+//        return this.dkind.isNumeric();
+//    }
+//
+//    public boolean isBoolean() { return this.dkind.isBoolean(); }
+//
+//    public boolean isString() {
+//        return this.dkind.isString();
+//    }
 
     public boolean isThreatModel() {
         return this == XMLI || this == SQLISTR || this == SQLINUM ||
@@ -316,12 +314,39 @@ public enum NodeKind {
         return !isOperation();
     }
 
-    public DomainKind getDomainKind() {
-        return this.dkind;
-    }
+    //public DomainKind getDomainKind() {
+    //    return this.dkind;
+    //}
 
     public String getValue() {
         return this.sval;
     }
+
+    public boolean isNumeric() {
+        return this == ADD || this == SUB || this == DIV || this == NUMLIT ||
+                this == NUMVAR;
+    }
+
+
+    public boolean isString() {
+        return isComparative() || isSanitizer() || this == SUBSTR ||
+                this == INDEXOF || this == TOLOWER || this
+                == TOUPPER || this == CONCAT || this == TRIM|| this == LEN ||
+                this == REPLACE || this == STRINV || this == CHARAT || this
+                == TOINT || this == TOSTR || this == LASTINDEXOF || this ==
+                STRVAR || this == STRLIT;
+    }
+
+    public boolean isBoolean() {
+        return this == XOR || this == AND || this == OR || this == ITE ||
+                this == BOOLVAR || this == BOOLLIT;
+    }
+
+
+    public DomainKind getDomainKind() {
+        return DomainKind.UNKNOWN;
+    }
+
+
 
 }

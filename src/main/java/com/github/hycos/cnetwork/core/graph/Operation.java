@@ -17,14 +17,12 @@
 
 package com.github.hycos.cnetwork.core.graph;
 
-import com.github.hycos.cnetwork.core.domain.DomainKind;
-import com.github.hycos.cnetwork.core.domain.range.BooleanRange;
-import com.github.hycos.cnetwork.exception.EUFInconsistencyException;
+
+import com.github.hycos.cnetwork.api.domctrl.Domain;
+import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
 import com.github.hycos.cnetwork.sig.JavaMethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.hycos.cnetwork.core.domain.NodeDomainFactory;
-import com.github.hycos.cnetwork.utils.StandardWrappers;
 
 
 public class Operation extends Node {
@@ -38,43 +36,43 @@ public class Operation extends Node {
         this.sig = op.getSig();
     }
 
-    public Operation(NodeKind kind) {
+    public Operation(DefaultNodeKind kind) {
         super(kind.toString(), kind);
         LOGGER.debug("Node kind {}", kind);
         assert kind.isOperation() || kind.isComparative() || kind.isBranch();
-        this.sig = StandardWrappers.getSigForOperation(this.kind);
-        assert(this.sig != null);
+        //this.sig = StandardWrappers.getSigForOperation(this.kind);
+        //assert(this.sig != null);
     }
 
     public Operation(String name, JavaMethodSignature sig) {
-        super(name, NodeKind.EXTERNAL);
-
-        switch(sig.getReturnType().toBCString()) {
-            case "Ljava/lang/String;":
-                try {
-                    setDomain(NodeDomainFactory.INSTANCE.getDomainForKind(NodeKind.STRVAR));
-                } catch (EUFInconsistencyException e) {
-                    assert false;
-                }
-                break;
-            case "Z":
-                try {
-                    setDomain(NodeDomainFactory.INSTANCE.getDomainForKind(NodeKind.BOOLVAR));
-                } catch (EUFInconsistencyException e) {
-                    assert false;
-                }
-                break;
-            case "I":
-                try {
-                    setDomain(NodeDomainFactory.INSTANCE.getDomainForKind(NodeKind.NUMVAR));
-                } catch (EUFInconsistencyException e) {
-                    assert false;
-                }
-                break;
-            default:
-                assert(false); // shouldn't happen
-                break;
-        }
+        super(name, DefaultNodeKind.EXTERNAL);
+//
+//        switch(sig.getReturnType().toBCString()) {
+//            case "Ljava/lang/String;":
+//                try {
+//                    setDomain(NodeDomainFactory.INSTANCE.getDomainForKind(NodeKind.STRVAR));
+//                } catch (InconsistencyException e) {
+//                    assert false;
+//                }
+//                break;
+//            case "Z":
+//                try {
+//                    setDomain(NodeDomainFactory.INSTANCE.getDomainForKind(NodeKind.BOOLVAR));
+//                } catch (InconsistencyException e) {
+//                    assert false;
+//                }
+//                break;
+//            case "I":
+//                try {
+//                    setDomain(NodeDomainFactory.INSTANCE.getDomainForKind(NodeKind.NUMVAR));
+//                } catch (InconsistencyException e) {
+//                    assert false;
+//                }
+//                break;
+//            default:
+//                assert(false); // shouldn't happen
+//                break;
+//        }
         this.sig = sig;
     }
 
@@ -91,16 +89,8 @@ public class Operation extends Node {
 
     @Override
     public boolean isNumeric() {
-        return kind.getDomainKind() == DomainKind.NUMERIC_N || kind
-                .getDomainKind() == DomainKind.NUMERIC_NM1 || kind
-                .getDomainKind() == DomainKind.NUMERIC_Z;
+        return getDomain().isNumeric();
     }
-
-    @Override
-    public boolean isBoolean() {
-        return this.kind.getDomainKind() == DomainKind.BOOLEAN;
-    }
-
 
     @Override
     public boolean isVariable() {
@@ -108,15 +98,19 @@ public class Operation extends Node {
     }
 
     @Override
-    public boolean isConstraint() {
-        return this.isBoolean() && !((BooleanRange)getRange()).isCatState();
+    public void setSignature(JavaMethodSignature signature) {
+        sig = signature;
     }
 
     @Override
-    public boolean isString() {
-        return kind.getDomainKind().isString();
+    public JavaMethodSignature getSignature() {
+        return sig;
     }
 
+    @Override
+    public void setDomain(Domain d) throws InconsistencyException {
+
+    }
 
     @Override
     public boolean isOperation() {
@@ -135,12 +129,6 @@ public class Operation extends Node {
 
     @Override
     public Operation clone() { return new Operation(this); };
-
-    @Override
-    public void setKind(NodeKind kind) {
-        super.setKind(kind);
-        this.sig = StandardWrappers.getSigForOperation(this.kind);
-    }
 
 
 }

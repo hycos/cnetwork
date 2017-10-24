@@ -17,11 +17,11 @@
 
 package com.github.hycos.cnetwork.core.graph;
 
+import com.github.hycos.cnetwork.api.NodeKindInterface;
+import com.github.hycos.cnetwork.api.domctrl.api.DomainControllerInterface;
+import com.github.hycos.cnetwork.sig.JavaMethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.hycos.cnetwork.core.domain.NodeDomainFactory;
-import com.github.hycos.cnetwork.exception.EUFInconsistencyException;
-import com.github.hycos.cnetwork.sig.JavaMethodSignature;
 
 import java.util.*;
 
@@ -32,10 +32,12 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     // keep track of sat edges
     private HashSet<Edge> sat = new HashSet<>();
     private HashSet<Edge> unsat = new HashSet<>();
-
+    private HashMap<String, Operation> opLookup = new HashMap<>();
     // just used during construction
     //private HashMap<String, Node> nodeLookup = new HashMap<>();
-    private HashMap<String, Operation> opLookup = new HashMap<>();
+    //private HashMap<String, Operation> opLookup = new HashMap<>();
+
+    private DomainControllerInterface dctrl = null;
 
     // this is usually null - we just use it for thread models
     private Node startNode = null;
@@ -44,6 +46,10 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     private int vidx = 0;
 
     protected ConstraintNetwork() {
+    }
+
+    protected ConstraintNetwork(DomainControllerInterface dctrl) {
+        this.dctrl = dctrl;
     }
 
     protected ConstraintNetwork(ConstraintNetwork other) {
@@ -56,6 +62,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
             Edge ne = new Edge(src, dest, e.getSequence());
             this.addConnection(ne);
         }
+        //dctrl = other.dctrl.clone();
         //buildNodeIdx();
     }
 
@@ -150,13 +157,13 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     }
 
 
-    protected Operand getAuxiliaryVariable(NodeKind kind) {
+    protected Operand getAuxiliaryVariable(DefaultNodeKind kind) {
         Operand op = new Operand(variablePfx + (vidx++), kind);
         addNode(op);
         return op;
     }
 
-    protected Node addOperand(NodeKind kind, String label) {
+    protected Node addOperand(NodeKindInterface kind, String label) {
         //Node n = this.getNodeByLabel(label);
         //if (n == null) {
         Node n = new Operand(label, kind);
@@ -235,18 +242,18 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     }
 
 
-    protected Node addOperation(NodeKind kind, Node... params) {
+    protected Node addOperation(DefaultNodeKind kind, Node... params) {
         List<Node> lst = Arrays.asList(params);
         return createOperation(kind, lst);
     }
 
-    protected Node addOperation(NodeKind kind, List<Node> params) {
+    protected Node addOperation(DefaultNodeKind kind, List<Node> params) {
         LOGGER.debug("create op {}", kind);
         return createOperation(kind, params);
     }
 
 
-    private Node createOperation(NodeKind kind, List<Node> params) {
+    private Node createOperation(DefaultNodeKind kind, List<Node> params) {
         Node op = new Operation(kind);
         addNode(op);
         linkParams(op, params);
@@ -319,7 +326,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     }
 
 
-    protected void join(NodeKind kind, Node cpoint, ConstraintNetwork othercn) {
+    protected void join(DefaultNodeKind kind, Node cpoint, ConstraintNetwork othercn) {
 
 
         assert (othercn.getStartNode() != null);
@@ -335,14 +342,14 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
 
         //Node snode = this.getNodeByLabel(othercn.getStartNode().getLabel());
 
-        assert (this.vertexSet().contains(cpoint));
+        //assert (this.vertexSet().contains(cpoint));
 
-        Node n = this.addOperation(kind, cpoint, othercn.getStartNode());
-        try {
-            n.setDomain(NodeDomainFactory.DBTRUE);
-        } catch (EUFInconsistencyException e) {
-            e.printStackTrace();
-        }
+//        Node n = this.addOperation(kind, cpoint, othercn.getStartNode());
+//        try {
+//            n.setDomain(NodeDomainFactory.DBTRUE);
+//        } catch (EUFInconsistencyException e) {
+//            e.printStackTrace();
+//        }
     }
 
 
@@ -372,6 +379,8 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
                 shape = "box";
                 label = "label";
 
+
+                LOGGER.debug(n.getLabel());
                 if (n.isConstraint()) {
                     color = "blue";
                 } else {
@@ -458,7 +467,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
                 }
 
                 sb.append("var " + type + " " + n.getLabel() + ";\n");
-            } else if (n.isOperation() && n.getKind() == NodeKind.EXTERNAL) {
+            } else if (n.isOperation() && n.getKind() == DefaultNodeKind.EXTERNAL) {
                 sb.append("fun " + "\"" + n.getLabel() + "\";\n");
             } else if (n.isBoolean() && !n.isLiteral()) {
                 if (outgoingEdgesOf(n) == null || outgoingEdgesOf(n).size() == 0) {

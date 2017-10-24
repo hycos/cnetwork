@@ -17,11 +17,13 @@
 
 package com.github.hycos.cnetwork.core.graph;
 
+import com.github.hycos.cnetwork.api.EdgeInterface;
 import org.jgrapht.graph.DefaultEdge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Edge extends DefaultEdge implements Comparable<Edge>, Cloneable {
+public class Edge extends DefaultEdge implements Comparable<Edge>, Cloneable,
+        EdgeInterface {
 
     final static Logger LOGGER = LoggerFactory.getLogger(Edge.class);
 
@@ -81,6 +83,11 @@ public class Edge extends DefaultEdge implements Comparable<Edge>, Cloneable {
 
     public int  getSequence() {
         return this.sequence;
+    }
+
+    @Override
+    public int getId() {
+        return this.id;
     }
 
     @Override

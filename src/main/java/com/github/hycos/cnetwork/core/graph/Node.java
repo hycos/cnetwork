@@ -17,24 +17,30 @@
 
 package com.github.hycos.cnetwork.core.graph;
 
-import com.github.hycos.cnetwork.core.domain.DomainInterface;
-import com.github.hycos.cnetwork.core.domain.NodeDomain;
-import com.github.hycos.cnetwork.core.domain.automaton.SimpleAutomaton;
-import com.github.hycos.cnetwork.core.domain.range.Range;
-import com.github.hycos.cnetwork.exception.EUFInconsistencyException;
+import com.github.hycos.cnetwork.api.NodeInterface;
+import com.github.hycos.cnetwork.api.NodeKindInterface;
+import com.github.hycos.cnetwork.api.domctrl.Domain;
+import com.github.hycos.cnetwork.api.domctrl.DomainControllerInterface;
+import com.github.hycos.cnetwork.api.domctrl.Term;
+import com.github.hycos.cnetwork.api.domctrl.exception.DomainControllerException;
+import com.github.hycos.cnetwork.api.labelmgr.ConstraintNetworkSubject;
+import com.github.hycos.cnetwork.api.labelmgr.LabelManagerInterface;
+import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
+import com.github.hycos.cnetwork.sig.JavaMethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.github.hycos.cnetwork.core.domain.NodeDomainFactory;
+
+import java.util.Objects;
 
 public abstract class Node extends ConstraintNetworkSubject<Node> implements
-        Cloneable {
+        NodeInterface,Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(Node.class);
 
     protected final int id;
 
     protected String instance = "";
-    protected String label = "";
+    protected String shortLabel = "";
     protected String annotation = "";
     protected String note = "";
 
@@ -46,29 +52,27 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
         this.note = note;
     }
 
-    protected NodeDomain dom;
+    private DomainControllerInterface<Node> dctrl = null;
+    private LabelManagerInterface<Node> lmgr = null;
 
     private static int nid = 0;
+    private NodeKindInterface kind = null;
 
-    protected NodeKind kind;
 
-    public Node(String label, NodeKind kind) {
+    public Node(String shortLabel, NodeKindInterface
+            kind) {
         this.id = nid++;
         this.kind = kind;
-        this.label = label;
-        //LOGGER.debug(".. " + label + " " + kind.toString());
-        // compute the appropriate domain automatically
-        this.dom = NodeDomainFactory.INSTANCE.getDomain(this);
-
-        //getTrackingAutomaton().setName("" + id);
+        this.shortLabel = shortLabel;
     }
 
     public Node(Node other) {
         this.id = other.id;
-        this.dom = other.dom.clone();
+        // just the reference
+        this.dctrl = other.dctrl;
         this.annotation = other.annotation;
-        this.kind = other.getKind();
-        this.label = other.getLabel();
+        this.kind = other.kind;
+        this.shortLabel = other.shortLabel;
     }
 
     public int getId() {
@@ -92,26 +96,25 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
         return this.id == n.id;
     }
 
-    public NodeDomain getDomain() {
-        return this.dom;
+    public Domain getDomain() {
+        assert this.dctrl.hasDomain(this);
+        return this.dctrl.getDomainFor(this);
     }
 
-    public void setDomain(NodeDomain d) throws EUFInconsistencyException {
-        this.dom = d;
-        //getTrackingAutomaton().setName("" + id);
-
-        Range r = getRange();
-//        if(r instanceof NumRange) {
-//            getTrackingAutomaton().setRange((NumRange)getRange());
-//        }
-        notifyAllObservers(this);
+    public void setDomain(Domain d) throws InconsistencyException {
+        try {
+            this.dctrl.setDomain(this, d);
+        } catch (DomainControllerException e) {
+            throw new InconsistencyException(e.getMessage());
+        }
+        onDomainChange(this);
     }
 
-    public NodeKind getKind() {
+    public NodeKindInterface getKind() {
         return this.kind;
     }
 
-    public void setKind(NodeKind kind) {
+    public void setKind(NodeKindInterface kind) {
         this.kind = kind;
     }
 
@@ -119,29 +122,55 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
 
     public abstract boolean isOperand();
 
-    public abstract boolean isLiteral();
+    public boolean isLiteral() {
+        return getDomain().isLiteral();
+    }
 
-    public abstract boolean isRegex();
+    public boolean isRegex() {
+        return getDomain().isRegex();
+    }
 
-    public abstract boolean isString();
+    public boolean isString() {
+        return getDomain().isString();
+    }
 
-    public abstract boolean isNumeric();
+    public boolean isNumeric() {
+        return getDomain().isNumeric();
+    }
 
-    public abstract boolean isBoolean();
+    public boolean isBoolean() {
+        return getDomain().isBoolean();
+    }
 
-    public abstract boolean isVariable();
+    public boolean isVariable() {
+        return getDomain().isVariable();
+    }
 
-    public abstract boolean isConstraint();
+    public boolean isConstraint() {
+        return getDomain().isConstraint();
+    }
+
+    public boolean isEquality() {
+        return getDomain().isConstraint();
+    }
+
+    public boolean isInequality() {
+        return getDomain().isConstraint();
+    }
 
     public void setInstance(String instance) {
         this.instance = instance;
     }
 
+    public abstract void setSignature(JavaMethodSignature signature);
+    public abstract JavaMethodSignature getSignature();
+
+
     public String getDotLabel() {
         final StringBuilder s = new StringBuilder();
         s.append("{" + this.id + "}\\n");
         s.append(isAnnotated() ? getAnnotation() + "\\n" : "");
-        s.append("dom:" + dom.getDotLabel() +"\\n");
+        s.append("dom:" + getDomain().getDotLabel() +"\\n");
         s.append("kind:" + getKind().getDesc() +"\\n");
         if(!note.isEmpty())
             s.append("note:" + note + "\\n");
@@ -149,7 +178,12 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
     }
 
     public String getLabel() {
-       return this.label;
+        Objects.requireNonNull(this.lmgr);
+        return this.lmgr.getLabelForNode(this);
+    }
+
+    public String getShortLabel() {
+        return this.shortLabel;
     }
 
     @Override
@@ -158,7 +192,7 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
     }
 
     public void setLabel(String label) {
-        this.label = label;
+        this.lmgr.setLabelForNode(this, label);
     }
 
     public void annotate(String annotation) {
@@ -173,48 +207,65 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
         return this.annotation;
     }
 
-    //@TODO:Julian just for convenience -- have to refactor this
-    //access domain instead of range/automaton exlicitly
-    public Range getRange() {
-        DomainInterface iface = this.dom.getDomain("range");
-        assert iface instanceof Range;
-        return (Range)iface;
+    public void setDomainController(DomainControllerInterface dctrl) {
+        this.dctrl = dctrl;
     }
 
-    //@TODO:Julian just for convenience -- have to refactor this
-    public SimpleAutomaton getAutomaton() {
-        DomainInterface iface = this.dom.getDomain("automaton");
-        assert iface instanceof SimpleAutomaton;
-        return (SimpleAutomaton)iface;
+    public void setLabelManager(LabelManagerInterface<Node> lmgr) {
+        this.lmgr = lmgr;
     }
 
-    //@TODO:Julian just for convenience -- have to refactor this
-    public void setRange(Range r) throws EUFInconsistencyException {
-        this.dom.setDomain(r);
 
-//        if(r instanceof NumRange) {
-//            getTrackingAutomaton().setRange((NumRange)getRange());
-//        }
 
-        notifyAllObservers(this);
-    }
-
-    //@TODO:Julian just for convenience -- have to refactor this
-    public void setAutomaton(SimpleAutomaton a) throws EUFInconsistencyException {
-        this.dom.setDomain(a);
-
-        notifyAllObservers(this);
-    }
-
-    //@TODO:Julian just for convenience -- have to refactor this
-//    public TrackingAutomaton getTrackingAutomaton(){
-//        DomainInterface iface = this.dom.getDomain("track-automaton");
-//        assert iface instanceof TrackingAutomaton;
-//        return (TrackingAutomaton)iface;
+//    //@TODO:Julian just for convenience -- have to refactor this
+//    //access domain instead of range/automaton exlicitly
+//    public DomainInterface getRange() {
+//        return this.getDomain().getSubDomain("range");
 //    }
+//
+//    //@TODO:Julian just for convenience -- have to refactor this
+//    public SimpleAutomaton getAutomaton() {
+//        return this.getDomain().getSubDomain("range");
+//    }
+//
+//    //@TODO:Julian just for convenience -- have to refactor this
+//    public void setRange(Range r) throws EUFInconsistencyException {
+//        this.getDomain().setDomain(r);
+//
+////        if(r instanceof NumRange) {
+////            getTrackingAutomaton().setRange((NumRange)getRange());
+////        }
+//
+//        onDomainChange(this);
+//    }
+//
+//    //@TODO:Julian just for convenience -- have to refactor this
+//    public void setAutomaton(SimpleAutomaton a) throws EUFInconsistencyException {
+//        this.getDomain().setDomain(a);
+//
+//        onDomainChange(this);
+//    }
+//
+//    //@TODO:Julian just for convenience -- have to refactor this
+////    public TrackingAutomaton getTrackingAutomaton(){
+////        DomainInterface iface = this.getDomain().getDomain("track-automaton");
+////        assert iface instanceof TrackingAutomaton;
+////        return (TrackingAutomaton)iface;
+////    }
 
 
     @Override
     public abstract Node clone();
+
+
+    @Override
+    public void setTerm(Term t){
+
+    }
+
+    @Override
+    public Term getTerm(){
+        return null;
+    }
 
 }

@@ -17,8 +17,8 @@
 
 package com.github.hycos.cnetwork.core;
 
+import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
 import com.github.hycos.cnetwork.core.graph.*;
-import com.github.hycos.cnetwork.exception.EUFInconsistencyException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -34,62 +34,63 @@ public class TestConstraintNetworkGeneration {
     public void testCnConstruction() {
 
         ConstraintNetworkBuilder tm2 = new ConstraintNetworkBuilder();
-        Node x = new Operand("x", NodeKind.STRVAR);
+        Node x = new Operand("x", DefaultNodeKind.STRVAR);
         String sor = ".*' +[Oo][Rr] +'";
-        Node or = new Operand(sor, NodeKind.STRREXP);
-        Node v1 = new Operand("sv7", NodeKind.NUMVAR);
+        Node or = new Operand(sor, DefaultNodeKind.STRREXP);
+        Node v1 = new Operand("sv7", DefaultNodeKind.NUMVAR);
         try {
-            Node toStrV1 = tm2.addOperation(NodeKind.TOSTR, v1);
-            Node orv1 = tm2.addOperation(NodeKind.CONCAT, or, toStrV1);
-            Node eq = new Operand(" +\\>= +", NodeKind.STRREXP);
-            Node orv1comp = tm2.addOperation(NodeKind.CONCAT, orv1, eq);
-            Node v2 = new Operand("sv8", NodeKind.NUMVAR);
-            Node toStrV2 = tm2.addOperation(NodeKind.TOSTR, v2);
-            Node orv1compv2 = tm2.addOperation(NodeKind.CONCAT, orv1comp, toStrV2);
+            Node toStrV1 = tm2.addOperation(DefaultNodeKind.TOSTR, v1);
+            Node orv1 = tm2.addOperation(DefaultNodeKind.CONCAT, or, toStrV1);
+            Node eq = new Operand(" +\\>= +", DefaultNodeKind.STRREXP);
+            Node orv1comp = tm2.addOperation(DefaultNodeKind.CONCAT, orv1, eq);
+            Node v2 = new Operand("sv8", DefaultNodeKind.NUMVAR);
+            Node toStrV2 = tm2.addOperation(DefaultNodeKind.TOSTR, v2);
+            Node orv1compv2 = tm2.addOperation(DefaultNodeKind.CONCAT, orv1comp, toStrV2);
             String scomment = "(\\<!\\-\\-|#)";
-            Node comment = new Operand(scomment, NodeKind.STRREXP);
+            Node comment = new Operand(scomment, DefaultNodeKind.STRREXP);
 
-            tm2.addOperation(NodeKind.CONCAT, orv1compv2, comment);
-            tm2.addConstraint(NodeKind.GREATEREQ, v1, v2);
+            tm2.addOperation(DefaultNodeKind.CONCAT, orv1compv2, comment);
+            tm2.addConstraint(DefaultNodeKind.GREATEREQ, v1, v2);
             tm2.setStartNode(orv1compv2);
-            tm2.addConstraint(NodeKind.MATCHES, x, orv1compv2);
-        } catch (EUFInconsistencyException e) {
+            tm2.addConstraint(DefaultNodeKind.MATCHES, x, orv1compv2);
+        } catch (InconsistencyException e) {
             Assert.assertTrue(false);
         }
-        LOGGER.debug(tm2.getEufLattice().toDot());
-        LOGGER.info(tm2.getConstraintNetwork().toDot());
-        LOGGER.debug(tm2.getExecutionTree().toDot());
+
     }
 
 
     @Test
     public void testCNClone() {
         ConstraintNetworkBuilder tm2 = new ConstraintNetworkBuilder();
-        Node x = new Operand("x", NodeKind.STRVAR);
+        Node x = new Operand("x", DefaultNodeKind.STRVAR);
         String sor = ".*' +[Oo][Rr] +'";
-        Node or = new Operand(sor, NodeKind.STRREXP);
-        Node v1 = new Operand("sv7", NodeKind.NUMVAR);
+        Node or = new Operand(sor, DefaultNodeKind.STRREXP);
+        Node v1 = new Operand("sv7", DefaultNodeKind.NUMVAR);
 
         try {
-            Node toStrV1 = tm2.addOperation(NodeKind.TOSTR, v1);
-            Node orv1 = tm2.addOperation(NodeKind.CONCAT, or, toStrV1);
-            Node eq = new Operand(" +\\>= +", NodeKind.STRREXP);
-            Node orv1comp = tm2.addOperation(NodeKind.CONCAT, orv1, eq);
-            Node v2 = new Operand("sv8", NodeKind.NUMVAR);
-            Node toStrV2 = tm2.addOperation(NodeKind.TOSTR, v2);
-            Node orv1compv2 = tm2.addOperation(NodeKind.CONCAT, orv1comp, toStrV2);
+            Node toStrV1 = tm2.addOperation(DefaultNodeKind.TOSTR, v1);
+            Node orv1 = tm2.addOperation(DefaultNodeKind.CONCAT, or, toStrV1);
+            Node eq = new Operand(" +\\>= +", DefaultNodeKind.STRREXP);
+            Node orv1comp = tm2.addOperation(DefaultNodeKind.CONCAT, orv1, eq);
+            Node v2 = new Operand("sv8", DefaultNodeKind.NUMVAR);
+            Node toStrV2 = tm2.addOperation(DefaultNodeKind.TOSTR, v2);
+            Node orv1compv2 = tm2.addOperation(DefaultNodeKind.CONCAT, orv1comp, toStrV2);
             String scomment = "(\\<!\\-\\-|#)";
-            Node comment = new Operand(scomment, NodeKind.STRREXP);
-            tm2.addOperation(NodeKind.CONCAT, orv1compv2, comment);
-            tm2.addConstraint(NodeKind.GREATEREQ, v1, v2);
+            Node comment = new Operand(scomment, DefaultNodeKind.STRREXP);
+            tm2.addOperation(DefaultNodeKind.CONCAT, orv1compv2, comment);
+            tm2.addConstraint(DefaultNodeKind.GREATEREQ, v1, v2);
             tm2.setStartNode(orv1compv2);
-            tm2.addConstraint(NodeKind.MATCHES, x, orv1compv2);
-        } catch (EUFInconsistencyException e) {
+            tm2.addConstraint(DefaultNodeKind.MATCHES, x, orv1compv2);
+        } catch (InconsistencyException e) {
             Assert.assertFalse(true);
         }
 
         LOGGER.info(tm2.getConstraintNetwork().toDot());
         ConstraintNetworkBuilder tm3 = tm2.clone();
+
+        Assert.assertNotNull(tm3.getConstraintNetwork());
+
         LOGGER.info(tm3.getConstraintNetwork().toDot());
 
 
@@ -112,16 +113,16 @@ public class TestConstraintNetworkGeneration {
 
         ConstraintNetworkBuilder cb1 = new ConstraintNetworkBuilder();
 
-        Node a = cb1.addOperand(NodeKind.STRVAR, "a");
-        Node b = cb1.addOperand(NodeKind.STRVAR, "b");
-        Node c = cb1.addOperand(NodeKind.STRVAR, "c");
+        Node a = cb1.addOperand(DefaultNodeKind.STRVAR, "a");
+        Node b = cb1.addOperand(DefaultNodeKind.STRVAR, "b");
+        Node c = cb1.addOperand(DefaultNodeKind.STRVAR, "c");
 
         Node concat1 = null, concat2 = null;
 
         try {
-            concat1 = cb1.addOperation(NodeKind.CONCAT, a, b);
-            concat2 = cb1.addOperation(NodeKind.CONCAT, concat1, c);
-        } catch (EUFInconsistencyException e) {
+            concat1 = cb1.addOperation(DefaultNodeKind.CONCAT, a, b);
+            concat2 = cb1.addOperation(DefaultNodeKind.CONCAT, concat1, c);
+        } catch (InconsistencyException e) {
             e.printStackTrace();
             Assert.assertFalse(true);
         }
@@ -129,8 +130,8 @@ public class TestConstraintNetworkGeneration {
         ConstraintNetworkBuilder cb2 = new ConstraintNetworkBuilder(cb1);
 
         try {
-            cb2.addConstraint(NodeKind.EQUALS, concat1, concat2);
-        } catch (EUFInconsistencyException e) {
+            cb2.addConstraint(DefaultNodeKind.EQUALS, concat1, concat2);
+        } catch (InconsistencyException e) {
             e.printStackTrace();
         }
 
@@ -138,11 +139,11 @@ public class TestConstraintNetworkGeneration {
         Assert.assertEquals(cb1.vertexSet().size(), 5);
         Assert.assertEquals(cb2.vertexSet().size(), 6);
 
-        Node d = cb1.addOperand(NodeKind.STRVAR, "d");
+        Node d = cb1.addOperand(DefaultNodeKind.STRVAR, "d");
 
         try {
-            cb1.addConstraint(NodeKind.EQUALS, d, d);
-        } catch (EUFInconsistencyException e) {
+            cb1.addConstraint(DefaultNodeKind.EQUALS, d, d);
+        } catch (InconsistencyException e) {
             e.printStackTrace();
         }
 
@@ -161,17 +162,17 @@ public class TestConstraintNetworkGeneration {
 
         ConstraintNetworkBuilder cb1 = new ConstraintNetworkBuilder();
 
-        Node a = cb1.addOperand(NodeKind.STRVAR, "a");
-        Node b = cb1.addOperand(NodeKind.STRVAR, "b");
-        Node c = cb1.addOperand(NodeKind.STRVAR, "c");
+        Node a = cb1.addOperand(DefaultNodeKind.STRVAR, "a");
+        Node b = cb1.addOperand(DefaultNodeKind.STRVAR, "b");
+        Node c = cb1.addOperand(DefaultNodeKind.STRVAR, "c");
 
         Node concat1 = null, concat2 = null;
 
         try {
-            concat1 = cb1.addOperation(NodeKind.CONCAT, a, b);
-            concat2 = cb1.addOperation(NodeKind.CONCAT, concat1, c);
-            cb1.addConstraint(NodeKind.EQUALS, concat1, concat2);
-        } catch (EUFInconsistencyException e) {
+            concat1 = cb1.addOperation(DefaultNodeKind.CONCAT, a, b);
+            concat2 = cb1.addOperation(DefaultNodeKind.CONCAT, concat1, c);
+            cb1.addConstraint(DefaultNodeKind.EQUALS, concat1, concat2);
+        } catch (InconsistencyException e) {
             e.printStackTrace();
             Assert.assertFalse(true);
         }
@@ -179,7 +180,7 @@ public class TestConstraintNetworkGeneration {
 
         LOGGER.debug("=========");
 
-        LOGGER.debug("d {}", cb1.getEufLattice().debug());
+        //LOGGER.debug("d {}", cb1.getEufLattice().debug());
 
 
         LOGGER.debug("=========");
