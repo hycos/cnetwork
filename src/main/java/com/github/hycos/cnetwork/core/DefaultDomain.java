@@ -108,6 +108,15 @@ public class DefaultDomain implements Domain {
     }
 
     @Override
+    public boolean isNegative() {
+        if(n.getKind().isNumeric() && n.getKind().isLiteral()) {
+            return Integer.parseInt(n.getShortLabel()) < 0;
+        }
+
+        return false;
+    }
+
+    @Override
     public String getLabel() {
         return "�";
     }

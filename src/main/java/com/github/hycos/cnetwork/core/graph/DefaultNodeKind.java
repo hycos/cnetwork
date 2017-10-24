@@ -141,7 +141,6 @@ public enum DefaultNodeKind implements NodeKindInterface {
                 return EQUALS;
             case "!=":
                 return NEQUALS;
-
             case "<":
                 return SMALLER;
             case ">":
@@ -150,12 +149,10 @@ public enum DefaultNodeKind implements NodeKindInterface {
                 return SMALLEREQ;
             case ">=":
                 return GREATEREQ;
-
             case "~~":
                 return STR_EQUALSIC;
             case "!~":
                 return STR_NEQUALSIC;
-
             case "matches":
                 return MATCHES;
             case "startswith":
@@ -164,7 +161,6 @@ public enum DefaultNodeKind implements NodeKindInterface {
                 return ENDSWITH;
             case "contains":
                 return CONTAINS;
-
             case "or":
                 return OR;
             case "xor":
@@ -177,19 +173,16 @@ public enum DefaultNodeKind implements NodeKindInterface {
                 return ITE;
             case "implies":
                 return IMPLIES;
-
             case "substr":
                 return SUBSTR;
             case "indexof":
                 return INDEXOF;
             case "lastindexof":
                 return LASTINDEXOF;
-
             case "tolower":
                 return TOLOWER;
             case "toupper":
                 return TOUPPER;
-
             case "concat":
                 return CONCAT;
             case "trim":
@@ -202,7 +195,6 @@ public enum DefaultNodeKind implements NodeKindInterface {
                 return STRINV;
             case "charat":
                 return CHARAT;
-
             case "valueof":
                 return TOINT;
             case "tostr":
@@ -213,7 +205,6 @@ public enum DefaultNodeKind implements NodeKindInterface {
                 return SUB;
             case "external":
                 return EXTERNAL;
-
             case "apache_eschtml":
                 return APACHE_ESCHTML;
             case "apache_ueschtml":
@@ -226,7 +217,6 @@ public enum DefaultNodeKind implements NodeKindInterface {
                 return APACHE_ESCJSON;
             case "apache_escecma":
                 return APACHE_ESCECMA;
-
             case "esapi_escldap":
                 return ESAPI_ESCLDAP;
             case "esapi_escdn":
@@ -243,15 +233,11 @@ public enum DefaultNodeKind implements NodeKindInterface {
                 return ESAPI_ESCXPATH;
             case "esapi_escsql":
                 return ESAPI_ESCSQL;
-
             case "emtpy":
                 return EMTPY;
-
             // meta operation
             case "search":
                 return SEARCH;
-
-
             // operands
             case "strlit":
                 return STRLIT;
@@ -259,17 +245,14 @@ public enum DefaultNodeKind implements NodeKindInterface {
                 return STRVAR;
             case "strexp":
                 return STRREXP;
-
             case "numlit":
                 return NUMLIT;
             case "numvar":
                 return NUMVAR;
-
             case "boollit":
                 return BOOLLIT;
             case "boolvar":
                 return BOOLVAR;
-
             case "xmli":
                 return XMLI;
             case "sqlistr":
@@ -286,10 +269,8 @@ public enum DefaultNodeKind implements NodeKindInterface {
                 return XSS;
             case "urli":
                 return URLI;
-
             case "replace":
                 return REPLACE;
-
             //default:
             //    return UNKNOWN;
         }
