@@ -18,6 +18,7 @@
 package com.github.hycos.cnetwork.core.graph;
 
 
+import com.github.hycos.cnetwork.api.NodeKindInterface;
 import com.github.hycos.cnetwork.api.domctrl.Domain;
 import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
 import com.github.hycos.cnetwork.sig.JavaMethodSignature;
@@ -36,7 +37,7 @@ public class Operation extends Node {
         this.sig = op.getSig();
     }
 
-    public Operation(DefaultNodeKind kind) {
+    public Operation(NodeKindInterface kind) {
         super(kind.toString(), kind);
         LOGGER.debug("Node kind {}", kind);
         assert kind.isOperation() || kind.isComparative() || kind.isBranch();

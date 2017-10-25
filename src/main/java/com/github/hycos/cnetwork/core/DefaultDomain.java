@@ -73,6 +73,11 @@ public class DefaultDomain implements Domain {
     }
 
     @Override
+    public void setSubDomain(SubDomainInterface s) {
+
+    }
+
+    @Override
     public boolean isLiteral() {
         return this.n.getKind().isLiteral();
     }

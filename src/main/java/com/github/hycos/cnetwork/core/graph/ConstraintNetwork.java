@@ -242,18 +242,18 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     }
 
 
-    protected Node addOperation(DefaultNodeKind kind, Node... params) {
+    protected Node addOperation(NodeKindInterface kind, Node... params) {
         List<Node> lst = Arrays.asList(params);
         return createOperation(kind, lst);
     }
 
-    protected Node addOperation(DefaultNodeKind kind, List<Node> params) {
+    protected Node addOperation(NodeKindInterface kind, List<Node> params) {
         LOGGER.debug("create op {}", kind);
         return createOperation(kind, params);
     }
 
 
-    private Node createOperation(DefaultNodeKind kind, List<Node> params) {
+    private Node createOperation(NodeKindInterface kind, List<Node> params) {
         Node op = new Operation(kind);
         addNode(op);
         linkParams(op, params);

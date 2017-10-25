@@ -119,7 +119,7 @@ public class ConstraintNetworkBuilder implements Cloneable,
     }
 
     public Node getNodeByLabel(String lbl) {
-        //LOGGER.debug("get node by label {}", lbl);
+        LOGGER.debug("get node by label {}", lbl);
         return lmgr.getNodeByLabel(lbl);
     }
 
@@ -131,12 +131,13 @@ public class ConstraintNetworkBuilder implements Cloneable,
         return this.lmgr.getLabelForNode(n);
     }
 
-    public Node addConstraint(DefaultNodeKind kind, Node... params) throws InconsistencyException {
+    public Node addConstraint(NodeKindInterface kind, Node... params) throws
+            InconsistencyException {
         List<Node> lst = Arrays.asList(params);
         return addConstraint(kind, lst);
     }
 
-    public Node addOperation(DefaultNodeKind kind, Node... params) throws InconsistencyException {
+    public Node addOperation(NodeKindInterface kind, Node... params) throws InconsistencyException {
         List<Node> lst = Arrays.asList(params);
         return addOperation(kind, lst);
     }
@@ -190,6 +191,16 @@ public class ConstraintNetworkBuilder implements Cloneable,
         addConnection(frst, snd, EdgeKind.PAR_IN, prio);
     }
 
+    @Override
+    public boolean checkConsistency() {
+        for(Node n : vertexSet()) {
+            if(!this.ci.check(this, n)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private Node infer(Node n) throws InconsistencyException {
 
         Node nop = (Node) lmgr.infer(n);
@@ -241,7 +252,7 @@ public class ConstraintNetworkBuilder implements Cloneable,
     }
 
 
-    public Node addOperation(DefaultNodeKind kind, List<Node> params) throws
+    public Node addOperation(NodeKindInterface kind, List<Node> params) throws
             InconsistencyException {
 
 
@@ -275,7 +286,7 @@ public class ConstraintNetworkBuilder implements Cloneable,
     }
 
 
-    public Node addConstraint(DefaultNodeKind kind, List<Node> params) throws
+    public Node addConstraint(NodeKindInterface kind, List<Node> params) throws
             InconsistencyException {
 
         Node op = addOperation(kind, params);

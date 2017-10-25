@@ -125,7 +125,9 @@ public class DefaultLabelManager implements LabelManagerInterface<Node>  {
     @Override
     public void onNodeAdd(Node n) {
         n.setLabelManager(this);
-        lblmap.put(n, computeLabel(n));
+        String label = computeLabel(n);
+        LOGGER.debug("put {}", label);
+        lblmap.put(n, label);
     }
 
     @Override

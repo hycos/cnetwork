@@ -59,8 +59,7 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
     private NodeKindInterface kind = null;
 
 
-    public Node(String shortLabel, NodeKindInterface
-            kind) {
+    public Node(String shortLabel, NodeKindInterface kind) {
         this.id = nid++;
         this.kind = kind;
         this.shortLabel = shortLabel;
@@ -97,6 +96,7 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
     }
 
     public Domain getDomain() {
+        Objects.nonNull(this.dctrl);
         assert this.dctrl.hasDomain(this);
         return this.dctrl.getDomainFor(this);
     }
@@ -214,45 +214,6 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
     public void setLabelManager(LabelManagerInterface<Node> lmgr) {
         this.lmgr = lmgr;
     }
-
-
-
-//    //@TODO:Julian just for convenience -- have to refactor this
-//    //access domain instead of range/automaton exlicitly
-//    public DomainInterface getRange() {
-//        return this.getDomain().getSubDomain("range");
-//    }
-//
-//    //@TODO:Julian just for convenience -- have to refactor this
-//    public SimpleAutomaton getAutomaton() {
-//        return this.getDomain().getSubDomain("range");
-//    }
-//
-//    //@TODO:Julian just for convenience -- have to refactor this
-//    public void setRange(Range r) throws EUFInconsistencyException {
-//        this.getDomain().setDomain(r);
-//
-////        if(r instanceof NumRange) {
-////            getTrackingAutomaton().setRange((NumRange)getRange());
-////        }
-//
-//        onDomainChange(this);
-//    }
-//
-//    //@TODO:Julian just for convenience -- have to refactor this
-//    public void setAutomaton(SimpleAutomaton a) throws EUFInconsistencyException {
-//        this.getDomain().setDomain(a);
-//
-//        onDomainChange(this);
-//    }
-//
-//    //@TODO:Julian just for convenience -- have to refactor this
-////    public TrackingAutomaton getTrackingAutomaton(){
-////        DomainInterface iface = this.getDomain().getDomain("track-automaton");
-////        assert iface instanceof TrackingAutomaton;
-////        return (TrackingAutomaton)iface;
-////    }
-
 
     @Override
     public abstract Node clone();
