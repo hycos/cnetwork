@@ -71,11 +71,12 @@ public class ConstraintNetworkBuilder implements Cloneable,
         this(new DefaultDomainController(),
                 new DefaultLabelManager(),
                 new DefaultConsistencyChecker());
-        registerListeners(this.dctrl, this.lmgr);
+        //registerListeners(this.dctrl, this.lmgr);
         //this.cn = new ConstraintNetwork();
         //registerListeners(dctrl, lmgr);
         //this.lmgr = new EufManager(this);
         //this.listeners.add(this.lmgr);
+
     }
 
     public ConstraintNetworkBuilder
@@ -86,12 +87,17 @@ public class ConstraintNetworkBuilder implements Cloneable,
         this.dctrl = dctrl;
         this.lmgr = lmgr;
         this.ci = ci;
+        registerListeners(this.dctrl, this.lmgr);
+
+        LOGGER.debug("set dctrl {}", this.dctrl.getClass().getName());
+        LOGGER.debug("set lmgr {}", this.lmgr.getClass().getName());
         //this.lmgr = new EufManager(this);
         //this.listeners.add(this.lmgr);
     }
 
 
     public void registerListeners(ConstraintNetworkListenerInterface<Node>... l) {
+        LOGGER.debug("register {}", l.length);
         listeners.addAll(Arrays.asList(l));
         listeners.forEach(x -> x.register(this));
     }
@@ -162,7 +168,7 @@ public class ConstraintNetworkBuilder implements Cloneable,
     @Override
     public Node addOperand(NodeKindInterface n, String s) {
 
-        //LOGGER.debug("add operand {}:{}", n, s);
+        LOGGER.debug("add operand {}:{}", n, s);
         Node op = cn.addOperand(n, s);
 
         for (ConstraintNetworkListenerInterface<Node> l : listeners) {
@@ -252,7 +258,9 @@ public class ConstraintNetworkBuilder implements Cloneable,
     }
 
 
-    public Node addOperation(NodeKindInterface kind, List<Node> params) throws
+    public Node addOperation(NodeKindInterface kind, List<Node>
+            params)
+            throws
             InconsistencyException {
 
 
@@ -417,18 +425,34 @@ public class ConstraintNetworkBuilder implements Cloneable,
         return cn.registerExtOperation(bytecodesig, lbl);
     }
 
-    public void join(DefaultNodeKind kind, Node cpoint, ConstraintNetworkBuilder
-            othercn) {
-        cn.join(kind, cpoint, othercn.getConstraintNetwork());
+    public void join(NodeKindInterface kind, Node cpoint, ConstraintNetworkBuilder
+            othercn) throws InconsistencyException {
+
+        for (Node n : othercn.vertexSet()) {
+           addVertex(n);
+        }
+
+        for (Edge e : othercn.edgeSet()) {
+            addConnection(e);
+        }
+
+        //cn.join(kind, cpoint, othercn.getConstraintNetwork());
 
         try {
-
             cpoint.getDomain().setTrue();
             //this.dctrl.getDomainFor(cpoint).setTrue();
             //cpoint.setDomain(NodeDomainFactory.DBTRUE);
         } catch (InconsistencyException e) {
             e.printStackTrace();
         }
+
+//        vertexSet().stream().filter(x -> !x.hasDomainController()).forEach(
+//                v -> v.setDomainController(this.dctrl)
+//        );
+//
+//        vertexSet().stream().filter(x -> !x.hasLabelManager()).forEach(
+//                v -> v.setLabelManager(this.lmgr)
+//        );
     }
 
 
@@ -481,11 +505,11 @@ public class ConstraintNetworkBuilder implements Cloneable,
         assert containsVertex(toReplace);
 
         LOGGER.debug("-- remove {}", toReplace);
-        addConnections(toAdd);
-        removeVertex(toReplace);
-
-        assert vertexSet().stream().filter(x -> x
-                .getId() == id).count() == 0;
+//        addConnections(toAdd);
+//        removeVertex(toReplace);
+//
+//        assert vertexSet().stream().filter(x -> x
+//                .getId() == id).count() == 0;
 
 
         if (!this.ci.check(this, replacement)) {
@@ -496,6 +520,9 @@ public class ConstraintNetworkBuilder implements Cloneable,
         for (ConstraintNetworkListenerInterface lst : listeners) {
             lst.onNodeCollapse(toReplace, replacement);
         }
+
+        addConnections(toAdd);
+        removeVertex(toReplace);
 
         if (!this.ci.check(this, replacement)) {
             throw new InconsistencyException("malformed operand " + replacement

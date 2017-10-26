@@ -47,6 +47,7 @@ public class DefaultDomainController implements
 
     @Override
     public Domain getDomain(Node n) throws DomainControllerException {
+        assert(dmap.containsKey(n));
         return dmap.get(n);
     }
 
@@ -64,12 +65,6 @@ public class DefaultDomainController implements
     @Override
     public Domain createDomainFor(Node n) {
         return dmap.put(n, new DefaultDomain(n,false));
-    }
-
-    @Override
-    public Domain getDomainFor(Node n) {
-        assert(dmap.containsKey(n));
-        return dmap.get(n);
     }
 
     @Override

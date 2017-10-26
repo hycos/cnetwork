@@ -135,6 +135,8 @@ public enum DefaultNodeKind implements NodeKindInterface {
     }
 
     public static DefaultNodeKind KindFromString(String kind) {
+
+        LOGGER.debug("switch {}", kind);
         switch (kind) {
             // operations
             case "==":
@@ -274,6 +276,7 @@ public enum DefaultNodeKind implements NodeKindInterface {
             //default:
             //    return UNKNOWN;
         }
+        assert false;
         return UNKNOWN;
     }
 
@@ -380,6 +383,10 @@ public enum DefaultNodeKind implements NodeKindInterface {
 
     public DomainKind getDomainKind() {
         return DomainKind.UNKNOWN;
+    }
+
+    public static NodeKindInterface getNodeKindFromString(String s) {
+        return KindFromString(s);
     }
 
 

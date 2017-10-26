@@ -80,6 +80,8 @@ public class DefaultLabelManager implements LabelManagerInterface<Node>  {
 
     @Override
     public Node getNodeByLabel(String lbl) {
+
+        LOGGER.debug("get node by label {}", lbl);
         return lblmap.getKeyByValue(lbl);
     }
 

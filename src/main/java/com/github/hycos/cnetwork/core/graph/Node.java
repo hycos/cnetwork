@@ -78,6 +78,15 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
         return this.id;
     }
 
+
+    public boolean hasDomainController() {
+        return this.dctrl != null;
+    }
+
+    public boolean hasLabelManager() {
+        return this.lmgr != null;
+    }
+
     // Eveery single node can be uniqely identified
     @Override
     public int hashCode() {
@@ -98,10 +107,17 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
     public Domain getDomain() {
         Objects.nonNull(this.dctrl);
         assert this.dctrl.hasDomain(this);
-        return this.dctrl.getDomainFor(this);
+        try {
+            return this.dctrl.getDomain(this);
+        } catch (DomainControllerException e) {
+            assert false;
+        }
+        return null;
     }
 
     public void setDomain(Domain d) throws InconsistencyException {
+        Objects.nonNull(this.dctrl);
+        assert this.dctrl != null;
         try {
             this.dctrl.setDomain(this, d);
         } catch (DomainControllerException e) {

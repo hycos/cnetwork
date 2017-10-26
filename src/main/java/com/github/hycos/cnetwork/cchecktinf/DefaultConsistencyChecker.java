@@ -18,6 +18,7 @@
 package com.github.hycos.cnetwork.cchecktinf;
 
 import com.github.hycos.cnetwork.api.NodeInterface;
+import com.github.hycos.cnetwork.api.NodeKindInterface;
 import com.github.hycos.cnetwork.api.cchecktinf.AbstractConsistencyChecker;
 import com.github.hycos.cnetwork.api.cchecktinf.ConsistencyCheckerInterface;
 import com.github.hycos.cnetwork.api.labelmgr.ConstraintNetworkInterface;
@@ -48,104 +49,113 @@ public class DefaultConsistencyChecker<T extends NodeInterface> implements
         return ret;
     }
 
-    public AbstractConsistencyChecker getConsistencyCheckerFor(DefaultNodeKind kind){
+    public AbstractConsistencyChecker getConsistencyCheckerFor(NodeKindInterface kind){
 
         //LOGGER.debug("kind {}", kind);
 
-        switch (kind) {
+        LOGGER.debug("get for {}", kind.getValue().toUpperCase());
 
-            case UNKNOWN:
-            case EXTERNAL:
-            case SEARCH:
+        switch (kind.getValue().toUpperCase()) {
+
+            case "UNKNOWN":
+            case "EXTERNAL":
+            case "SEARCH":
                 return ok;
 
-            case AND:
-            case OR:
+            case "AND":
+            case "OR":
                 // more or equals two params
                 return new DefaultNodeChecker(-1);
 
-            case XOR:
-            case IMPLIES:
+            case "XOR":
+            case "IMPLIES":
                 return binary;
-            case NEQUALS:
-            case EQUALS:
+            case "NEQUALS":
+            case "EQUALS":
+            case "!=":
+            case "==":
                 return eq;
-            case STR_EQUALS:
-            case NUM_EQUALS:
-            case BOOL_EQUALS:
-            case STR_EQUALSIC:
-            case STR_NEQUALS:
-            case NUM_NEQUALS:
-            case BOOL_NEQUALS:
-            case STR_NEQUALSIC:
-            case SMALLER:
-            case GREATER:
-            case SMALLEREQ:
-            case GREATEREQ:
-            case ADD:
-            case SUB:
-            case DIV:
-            case MATCHES:
-            case STARTSWITH:
-            case ENDSWITH:
-            case CONTAINS:
-            case CONCAT:
-            case CHARAT:
+
+            case "STR_EQUALS":
+            case "NUM_EQUALS":
+            case "BOOL_EQUALS":
+            case "~~":
+            case "STR_EQUALSIC":
+            case "STR_NEQUALS":
+            case "NUM_NEQUALS":
+            case "BOOL_NEQUALS":
+            case "STR_NEQUALSIC":
+            case "SMALLER":
+            case "<":
+            case "GREATER":
+            case ">":
+            case "SMALLEREQ":
+            case "<=":
+            case "GREATEREQ":
+            case ">=":
+            case "ADD":
+            case "SUB":
+            case "DIV":
+            case "MATCHES":
+            case "STARTSWITH":
+            case "ENDSWITH":
+            case "CONTAINS":
+            case "CONCAT":
+            case "CHARAT":
                 return binary;
 
-            case NUMVAR:
-            case STRVAR:
-            case STRREXP:
-            case NUMLIT:
-            case STRLIT:
-            case BOOLLIT:
-            case BOOLVAR:
-            case XMLI:
-            case SQLISTR:
-            case SQLINUM:
-            case XPATHSTR:
-            case XPATHNUM:
-            case LDAPI:
-            case XSS:
-            case URLI:
+            case "NUMVAR":
+            case "STRVAR":
+            case "STRREXP":
+            case "NUMLIT":
+            case "STRLIT":
+            case "STREXP":
+            case "BOOLLIT":
+            case "BOOLVAR":
+            case "XMLI":
+            case "SQLISTR":
+            case "SQLINUM":
+            case "XPATHSTR":
+            case "XPATHNUM":
+            case "LDAPI":
+            case "XSS":
+            case "URLI":
                 return ok;
 
-            case INDEXOF:
-            case LASTINDEXOF:
+            case "INDEXOF":
+            case "LASTINDEXOF":
                 return new DefaultNodeChecker(2,3);
 
-            case TOLOWER:
-            case TOUPPER:
-            case TRIM:
-            case STRINV:
-            case APACHE_ESCHTML:
-            case APACHE_UESCHTML:
-            case APACHE_ESCXML10:
-            case APACHE_ESCXML11:
-            case APACHE_ESCJSON:
-            case APACHE_ESCECMA:
-            case ESAPI_ESCLDAP:
-            case ESAPI_ESCDN:
-            case ESAPI_ESCHTML:
-            case ESAPI_ESCHTMLATTR:
-            case ESAPI_ESCXML:
-            case ESAPI_ESCXMLATTR:
-            case ESAPI_ESCXPATH:
-            case ESAPI_ESCSQL:
-            case EMTPY:
-            case NOT:
-            case LEN:
-            case TOINT:
-            case TOSTR:
+            case "TOLOWER":
+            case "TOUPPER":
+            case "TRIM":
+            case "STRINV":
+            case "APACHE_ESCHTML":
+            case "APACHE_UESCHTML":
+            case "APACHE_ESCXML10":
+            case "APACHE_ESCXML11":
+            case "APACHE_ESCJSON":
+            case "APACHE_ESCECMA":
+            case "ESAPI_ESCLDAP":
+            case "ESAPI_ESCDN":
+            case "ESAPI_ESCHTML":
+            case "ESAPI_ESCHTMLATTR":
+            case "ESAPI_ESCXML":
+            case "ESAPI_ESCXMLATTR":
+            case "ESAPI_ESCXPATH":
+            case "ESAPI_ESCSQL":
+            case "EMTPY":
+            case "NOT":
+            case "LEN":
+            case "TOINT":
+            case "TOSTR":
                 return unary;
 
 
-            case REPLACE:
-            case SUBSTR:
-            case ITE:
+            case "REPLACE":
+            case "SUBSTR":
+            case "ITE":
                 return tertiary;
-
-
 
         }
 
@@ -156,7 +166,7 @@ public class DefaultConsistencyChecker<T extends NodeInterface> implements
 
     @Override
     public boolean check(ConstraintNetworkInterface cb, NodeInterface n) {
-        return getConsistencyCheckerFor((DefaultNodeKind)n.getKind()).check(cb,n);
+        return getConsistencyCheckerFor(n.getKind()).check(cb,n);
     }
 
 

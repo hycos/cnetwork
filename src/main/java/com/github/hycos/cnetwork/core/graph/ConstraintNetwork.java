@@ -326,7 +326,8 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     }
 
 
-    protected void join(DefaultNodeKind kind, Node cpoint, ConstraintNetwork othercn) {
+    protected void join(NodeKindInterface kind, Node cpoint, ConstraintNetwork
+            othercn) {
 
 
         assert (othercn.getStartNode() != null);
