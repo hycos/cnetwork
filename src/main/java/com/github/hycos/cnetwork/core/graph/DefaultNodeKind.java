@@ -19,7 +19,7 @@ package com.github.hycos.cnetwork.core.graph;
 
 
 import com.github.hycos.cnetwork.api.NodeKindInterface;
-import com.github.hycos.cnetwork.api.domctrl.DomainKind;
+import com.github.hycos.domctrl.DomainKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -276,7 +276,6 @@ public enum DefaultNodeKind implements NodeKindInterface {
             //default:
             //    return UNKNOWN;
         }
-        assert false;
         return UNKNOWN;
     }
 

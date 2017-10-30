@@ -17,9 +17,9 @@
 
 package com.github.hycos.cnetwork.core;
 
-import com.github.hycos.cnetwork.api.domctrl.Domain;
-import com.github.hycos.cnetwork.api.domctrl.DomainKind;
-import com.github.hycos.cnetwork.api.domctrl.SubDomainInterface;
+import com.github.hycos.domctrl.Domain;
+import com.github.hycos.domctrl.DomainKind;
+import com.github.hycos.domctrl.SubDomainInterface;
 import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
 import com.github.hycos.cnetwork.core.graph.Node;
 

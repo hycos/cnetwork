@@ -18,7 +18,7 @@
 package com.github.hycos.cnetwork.core.graph;
 
 import com.github.hycos.cnetwork.api.NodeKindInterface;
-import com.github.hycos.cnetwork.api.domctrl.DomainControllerInterface;
+import com.github.hycos.domctrl.DomainControllerInterface;
 import com.github.hycos.cnetwork.sig.JavaMethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -381,7 +381,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
                 label = "label";
 
 
-                LOGGER.debug(n.getLabel());
+                LOGGER.debug(n.getShortLabel());
                 if (n.isConstraint()) {
                     color = "blue";
                 } else {

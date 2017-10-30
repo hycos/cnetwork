@@ -21,7 +21,7 @@ package com.github.hycos.cnetwork.core.graph;
 import com.github.hycos.cnetwork.api.NodeInterface;
 import com.github.hycos.cnetwork.api.NodeKindInterface;
 import com.github.hycos.cnetwork.api.cchecktinf.ConsistencyCheckerInterface;
-import com.github.hycos.cnetwork.api.domctrl.DomainControllerInterface;
+import com.github.hycos.domctrl.DomainControllerInterface;
 import com.github.hycos.cnetwork.api.labelmgr.ConstraintNetworkInterface;
 import com.github.hycos.cnetwork.api.labelmgr.ConstraintNetworkListenerInterface;
 import com.github.hycos.cnetwork.api.labelmgr.LabelManagerInterface;

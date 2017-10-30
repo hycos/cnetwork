@@ -17,9 +17,9 @@
 
 package com.github.hycos.cnetwork.core;
 
-import com.github.hycos.cnetwork.api.domctrl.Domain;
-import com.github.hycos.cnetwork.api.domctrl.DomainControllerInterface;
-import com.github.hycos.cnetwork.api.domctrl.exception.DomainControllerException;
+import com.github.hycos.domctrl.Domain;
+import com.github.hycos.domctrl.DomainControllerInterface;
+import com.github.hycos.domctrl.exception.DomainControllerException;
 import com.github.hycos.cnetwork.api.labelmgr.ConstraintNetworkInterface;
 import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
 import com.github.hycos.cnetwork.core.graph.Node;

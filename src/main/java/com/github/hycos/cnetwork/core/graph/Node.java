@@ -19,10 +19,10 @@ package com.github.hycos.cnetwork.core.graph;
 
 import com.github.hycos.cnetwork.api.NodeInterface;
 import com.github.hycos.cnetwork.api.NodeKindInterface;
-import com.github.hycos.cnetwork.api.domctrl.Domain;
-import com.github.hycos.cnetwork.api.domctrl.DomainControllerInterface;
-import com.github.hycos.cnetwork.api.domctrl.Term;
-import com.github.hycos.cnetwork.api.domctrl.exception.DomainControllerException;
+import com.github.hycos.domctrl.Domain;
+import com.github.hycos.domctrl.DomainControllerInterface;
+import com.github.hycos.domctrl.Term;
+import com.github.hycos.domctrl.exception.DomainControllerException;
 import com.github.hycos.cnetwork.api.labelmgr.ConstraintNetworkSubject;
 import com.github.hycos.cnetwork.api.labelmgr.LabelManagerInterface;
 import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
@@ -117,6 +117,7 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
 
     public void setDomain(Domain d) throws InconsistencyException {
         Objects.nonNull(this.dctrl);
+        LOGGER.debug("set domain for node");
         assert this.dctrl != null;
         try {
             this.dctrl.setDomain(this, d);
@@ -223,11 +224,13 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
         return this.annotation;
     }
 
+    @Override
     public void setDomainController(DomainControllerInterface dctrl) {
         this.dctrl = dctrl;
     }
 
-    public void setLabelManager(LabelManagerInterface<Node> lmgr) {
+    @Override
+    public void setLabelManager(LabelManagerInterface lmgr) {
         this.lmgr = lmgr;
     }
 
