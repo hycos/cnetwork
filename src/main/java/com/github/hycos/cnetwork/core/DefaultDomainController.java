@@ -48,12 +48,14 @@ public class DefaultDomainController implements
     @Override
     public Domain getDomain(Node n) throws DomainControllerException {
         assert(dmap.containsKey(n));
+        LOGGER.debug("get domain");
         return dmap.get(n);
     }
 
     @Override
     public void setDomain(Node n, Domain dom) throws
             DomainControllerException {
+        LOGGER.debug("set domain");
         dmap.put(n,dom);
     }
 
@@ -83,10 +85,13 @@ public class DefaultDomainController implements
     }
 
     @Override
-    public void onNodeAdd(Node n) {
+    public void onNodeAdd(Node n, boolean isConstraint) {
         LOGGER.info("on on operation add");
         n.setDomainController(this);
         createDomainFor(n);
+
+        if(isConstraint)
+            dmap.replace(n, new DefaultDomain(n,true));
     }
 
     @Override

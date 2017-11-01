@@ -43,6 +43,8 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
     protected String shortLabel = "";
     protected String annotation = "";
     protected String note = "";
+    protected JavaMethodSignature sig = null;
+
 
     public String getNote() {
         return note;
@@ -125,6 +127,7 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
             throw new InconsistencyException(e.getMessage());
         }
         onDomainChange(this);
+
     }
 
     public NodeKindInterface getKind() {
@@ -179,8 +182,15 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
         this.instance = instance;
     }
 
-    public abstract void setSignature(JavaMethodSignature signature);
-    public abstract JavaMethodSignature getSignature();
+    @Override
+    public void setSig(JavaMethodSignature signature) {
+        this.sig = signature;
+    }
+
+    @Override
+    public JavaMethodSignature getSig() {
+        return this.sig;
+    }
 
 
     public String getDotLabel() {

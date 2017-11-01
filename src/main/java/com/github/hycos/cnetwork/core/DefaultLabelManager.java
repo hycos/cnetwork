@@ -69,7 +69,7 @@ public class DefaultLabelManager implements LabelManagerInterface<Node>  {
             String pfx = "";
 
             if(n.getKind() == DefaultNodeKind.EXTERNAL)
-                pfx = n.getSignature().toBCString();
+                pfx = n.getSig().toBCString();
             else
                 pfx = n.getKind().toString();
 
@@ -125,7 +125,7 @@ public class DefaultLabelManager implements LabelManagerInterface<Node>  {
     }
 
     @Override
-    public void onNodeAdd(Node n) {
+    public void onNodeAdd(Node n, boolean isConstraint) {
         n.setLabelManager(this);
         String label = computeLabel(n);
         LOGGER.debug("put {}", label);

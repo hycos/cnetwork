@@ -51,20 +51,6 @@ public class Operand extends Node {
         return false;
     }
 
-    @Override
-    public JavaMethodSignature getSig() {
-        return null;
-    }
-
-    @Override
-    public void setSignature(JavaMethodSignature signature) {
-        ;
-    }
-
-    @Override
-    public JavaMethodSignature getSignature() {
-        return null;
-    }
 
     public String getName() {
         return this.shortLabel;

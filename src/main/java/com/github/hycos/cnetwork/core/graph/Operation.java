@@ -19,8 +19,6 @@ package com.github.hycos.cnetwork.core.graph;
 
 
 import com.github.hycos.cnetwork.api.NodeKindInterface;
-import com.github.hycos.domctrl.Domain;
-import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
 import com.github.hycos.cnetwork.sig.JavaMethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +27,6 @@ import org.slf4j.LoggerFactory;
 public class Operation extends Node {
 
     final static Logger LOGGER = LoggerFactory.getLogger(Operation.class);
-
-    private JavaMethodSignature sig;
 
     public Operation(Operation op) {
         super(op);
@@ -98,20 +94,6 @@ public class Operation extends Node {
         return false;
     }
 
-    @Override
-    public void setSignature(JavaMethodSignature signature) {
-        sig = signature;
-    }
-
-    @Override
-    public JavaMethodSignature getSignature() {
-        return sig;
-    }
-
-    @Override
-    public void setDomain(Domain d) throws InconsistencyException {
-
-    }
 
     @Override
     public boolean isOperation() {

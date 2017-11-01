@@ -48,15 +48,16 @@ public class ConstraintNetworkBuilder implements Cloneable,
     private ConstraintNetwork cn;
 
     // observer structural changes to on the cn
-    private Set<ConstraintNetworkListenerInterface<Node>> listeners = new HashSet<>();
+    private Set<ConstraintNetworkListenerInterface<Node>> listeners = new
+            LinkedHashSet<>();
 
     // Note that listeners are no copied
     public ConstraintNetworkBuilder(ConstraintNetworkBuilder cnb) {
         this.cn = new ConstraintNetwork(cnb.cn);
         Objects.requireNonNull(cnb.lmgr);
         Objects.requireNonNull(cnb.dctrl);
-        this.lmgr = cnb.lmgr.clone();
         this.dctrl = cnb.dctrl.clone();
+        this.lmgr = cnb.lmgr.clone();
         this.ci = cnb.ci.clone();
         // rewire newly created objects
         registerListeners(this.dctrl, this.lmgr);
@@ -84,9 +85,13 @@ public class ConstraintNetworkBuilder implements Cloneable,
              LabelManagerInterface<Node> lmgr,
              ConsistencyCheckerInterface<Node> ci) {
         this.cn = new ConstraintNetwork();
+
+        // domain controller has to be set first always
         this.dctrl = dctrl;
+
         this.lmgr = lmgr;
         this.ci = ci;
+
         registerListeners(this.dctrl, this.lmgr);
 
         LOGGER.debug("set dctrl {}", this.dctrl.getClass().getName());
@@ -173,7 +178,7 @@ public class ConstraintNetworkBuilder implements Cloneable,
 
         for (ConstraintNetworkListenerInterface<Node> l : listeners) {
             try {
-                l.onNodeAdd(op);
+                l.onNodeAdd(op,false);
             } catch (InconsistencyException e) {
                 // Should never ever happen
                 assert false;
@@ -211,7 +216,7 @@ public class ConstraintNetworkBuilder implements Cloneable,
 
         Node nop = (Node) lmgr.infer(n);
 
-        if (nop == nop) {
+        if (n.equals(nop)) {
             addVertex(nop);
         }
 
@@ -232,9 +237,12 @@ public class ConstraintNetworkBuilder implements Cloneable,
         } else {
 
             //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
-            LOGGER.debug("BOOOOO {}", n.getId());
+            //LOGGER.debug("BOOOOO {} : {}", n.getId(), n.getDomain().getLabel
+            //        ());
             //cn.removeVertex(n);
-
+            //LOGGER.debug("BOOOOO {} : {}", nop.getId(), nop.getDomain()
+            //        .getLabel
+            //        ());
             //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
 
             return nop;
@@ -249,7 +257,8 @@ public class ConstraintNetworkBuilder implements Cloneable,
 
             Node i = infer(p);
 
-            LOGGER.debug("inferred {}:{}", p.getId(), i.getId());
+            LOGGER.debug("inferred {}:{}:{}", p.getId(), i.getId(), i
+                    .getDomain().toString());
             plist.add(i);
         }
 
@@ -265,9 +274,11 @@ public class ConstraintNetworkBuilder implements Cloneable,
 
 
         Node op = cn.addOperation(kind, inferParams(params));
+
         for (ConstraintNetworkListenerInterface l : listeners) {
-            l.onNodeAdd(op);
+            l.onNodeAdd(op,false);
         }
+
 
         //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
         LOGGER.debug("check node {}:{}", op.getShortLabel(), op.getId());
@@ -283,10 +294,13 @@ public class ConstraintNetworkBuilder implements Cloneable,
 
         // there is a node with a differnt
         if (nop.getId() != op.getId()) {
-            LOGGER.debug("** remove {}", nop.getId());
-            cn.removeVertex(op);
+            LOGGER.debug("** remove {}", op.getId());
+            //cn.removeVertex(op);
+            removeVertex(op);
         }
 
+
+        LOGGER.debug("CN {}:{}", nop.getId(), nop.getDomain().toString());
 
         //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
 
@@ -300,9 +314,9 @@ public class ConstraintNetworkBuilder implements Cloneable,
         Node op = addOperation(kind, params);
 
         // trigger domain creation
-        for (ConstraintNetworkListenerInterface l : listeners) {
-            l.onConstraintAdd(op);
-        }
+//        for (ConstraintNetworkListenerInterface l : listeners) {
+//            l.onConstraintAdd(op);
+//        }
 
         //Domain dom = this.dctrl.createDomainFor(op);
 
@@ -387,7 +401,7 @@ public class ConstraintNetworkBuilder implements Cloneable,
     public void addVertex(Node n) throws InconsistencyException {
         cn.addNode(n);
         for (ConstraintNetworkListenerInterface<Node> l : listeners) {
-            l.onNodeAdd(n);
+            l.onNodeAdd(n, false);
         }
     }
 
