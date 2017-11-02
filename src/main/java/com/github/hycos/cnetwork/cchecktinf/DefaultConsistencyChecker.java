@@ -106,10 +106,9 @@ public class DefaultConsistencyChecker<T extends NodeInterface> implements
 
             case "NUMVAR":
             case "STRVAR":
-            case "STRREXP":
+            case "STREXP":
             case "NUMLIT":
             case "STRLIT":
-            case "STREXP":
             case "BOOLLIT":
             case "BOOLVAR":
             case "XMLI":

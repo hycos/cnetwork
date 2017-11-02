@@ -266,9 +266,12 @@ public class ConstraintNetworkBuilder implements Cloneable,
         return plist;
     }
 
+    public Node addOperation(NodeKindInterface kind, List<Node> params) throws InconsistencyException {
+        return addOperation(kind, params, false);
+    }
 
-    public Node addOperation(NodeKindInterface kind, List<Node>
-            params)
+    private Node addOperation(NodeKindInterface kind, List<Node> params,
+                              boolean isConstraint)
             throws
             InconsistencyException {
 
@@ -276,7 +279,7 @@ public class ConstraintNetworkBuilder implements Cloneable,
         Node op = cn.addOperation(kind, inferParams(params));
 
         for (ConstraintNetworkListenerInterface l : listeners) {
-            l.onNodeAdd(op,false);
+            l.onNodeAdd(op,isConstraint);
         }
 
 
@@ -311,7 +314,7 @@ public class ConstraintNetworkBuilder implements Cloneable,
     public Node addConstraint(NodeKindInterface kind, List<Node> params) throws
             InconsistencyException {
 
-        Node op = addOperation(kind, params);
+        Node op = addOperation(kind, params, true);
 
         // trigger domain creation
 //        for (ConstraintNetworkListenerInterface l : listeners) {
@@ -450,15 +453,18 @@ public class ConstraintNetworkBuilder implements Cloneable,
             addConnection(e);
         }
 
+        addConstraint(kind, cpoint, othercn.getConstraintNetwork()
+                .getStartNode());
+
         //cn.join(kind, cpoint, othercn.getConstraintNetwork());
 
-        try {
-            cpoint.getDomain().setTrue();
-            //this.dctrl.getDomainFor(cpoint).setTrue();
-            //cpoint.setDomain(NodeDomainFactory.DBTRUE);
-        } catch (InconsistencyException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            cpoint.getDomain().setTrue();
+//            //this.dctrl.getDomainFor(cpoint).setTrue();
+//            //cpoint.setDomain(NodeDomainFactory.DBTRUE);
+//        } catch (InconsistencyException e) {
+//            e.printStackTrace();
+//        }
 
 //        vertexSet().stream().filter(x -> !x.hasDomainController()).forEach(
 //                v -> v.setDomainController(this.dctrl)

@@ -30,7 +30,7 @@ public enum DefaultNodeKind implements NodeKindInterface {
     // Operands
     NUMVAR("numvar"),
     STRVAR("strvar"),
-    STRREXP("strexp"),
+    STREXP("strexp"),
     NUMLIT("numlit"),
     STRLIT("strlit"),
     BOOLLIT("boollit"),
@@ -246,7 +246,7 @@ public enum DefaultNodeKind implements NodeKindInterface {
             case "strvar":
                 return STRVAR;
             case "strexp":
-                return STRREXP;
+                return STREXP;
             case "numlit":
                 return NUMLIT;
             case "numvar":
@@ -344,7 +344,7 @@ public enum DefaultNodeKind implements NodeKindInterface {
     }
 
     public boolean isRegex() {
-        return this == STRREXP;
+        return this == STREXP;
     }
 
     public boolean isVariable() {

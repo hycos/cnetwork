@@ -64,17 +64,17 @@ public class TestConstraintNetworkBuilder {
         try {
             ConstraintNetworkBuilder cb = new ConstraintNetworkBuilder();
             String sor = ".*' +[Oo][Rr] +'";
-            Node or = new Operand(sor, DefaultNodeKind.STRREXP);
+            Node or = new Operand(sor, DefaultNodeKind.STREXP);
             Node v1 = new Operand("sv7", DefaultNodeKind.NUMVAR);
             Node toStrV1 = cb.addOperation(DefaultNodeKind.TOSTR, v1);
             Node orv1 = cb.addOperation(DefaultNodeKind.CONCAT, or, toStrV1);
-            Node eq = new Operand(" +\\>= +", DefaultNodeKind.STRREXP);
+            Node eq = new Operand(" +\\>= +", DefaultNodeKind.STREXP);
             Node orv1comp = cb.addOperation(DefaultNodeKind.CONCAT, orv1, eq);
             Node v2 = new Operand("sv8", DefaultNodeKind.NUMVAR);
             Node toStrV2 = cb.addOperation(DefaultNodeKind.TOSTR, v2);
             Node orv1compv2 = cb.addOperation(DefaultNodeKind.CONCAT, orv1comp, toStrV2);
             String scomment = "(\\<!\\-\\-|#)";
-            Node comment = new Operand(scomment, DefaultNodeKind.STRREXP);
+            Node comment = new Operand(scomment, DefaultNodeKind.STREXP);
             cb.addOperation(DefaultNodeKind.CONCAT, orv1compv2, comment);
             Node v3 = new Operand("sv7", DefaultNodeKind.NUMVAR);
             Node v8 = new Operand("sv8", DefaultNodeKind.NUMVAR);

@@ -36,18 +36,18 @@ public class TestConstraintNetworkGeneration {
         ConstraintNetworkBuilder tm2 = new ConstraintNetworkBuilder();
         Node x = new Operand("x", DefaultNodeKind.STRVAR);
         String sor = ".*' +[Oo][Rr] +'";
-        Node or = new Operand(sor, DefaultNodeKind.STRREXP);
+        Node or = new Operand(sor, DefaultNodeKind.STREXP);
         Node v1 = new Operand("sv7", DefaultNodeKind.NUMVAR);
         try {
             Node toStrV1 = tm2.addOperation(DefaultNodeKind.TOSTR, v1);
             Node orv1 = tm2.addOperation(DefaultNodeKind.CONCAT, or, toStrV1);
-            Node eq = new Operand(" +\\>= +", DefaultNodeKind.STRREXP);
+            Node eq = new Operand(" +\\>= +", DefaultNodeKind.STREXP);
             Node orv1comp = tm2.addOperation(DefaultNodeKind.CONCAT, orv1, eq);
             Node v2 = new Operand("sv8", DefaultNodeKind.NUMVAR);
             Node toStrV2 = tm2.addOperation(DefaultNodeKind.TOSTR, v2);
             Node orv1compv2 = tm2.addOperation(DefaultNodeKind.CONCAT, orv1comp, toStrV2);
             String scomment = "(\\<!\\-\\-|#)";
-            Node comment = new Operand(scomment, DefaultNodeKind.STRREXP);
+            Node comment = new Operand(scomment, DefaultNodeKind.STREXP);
 
             tm2.addOperation(DefaultNodeKind.CONCAT, orv1compv2, comment);
             tm2.addConstraint(DefaultNodeKind.GREATEREQ, v1, v2);
@@ -65,19 +65,19 @@ public class TestConstraintNetworkGeneration {
         ConstraintNetworkBuilder tm2 = new ConstraintNetworkBuilder();
         Node x = new Operand("x", DefaultNodeKind.STRVAR);
         String sor = ".*' +[Oo][Rr] +'";
-        Node or = new Operand(sor, DefaultNodeKind.STRREXP);
+        Node or = new Operand(sor, DefaultNodeKind.STREXP);
         Node v1 = new Operand("sv7", DefaultNodeKind.NUMVAR);
 
         try {
             Node toStrV1 = tm2.addOperation(DefaultNodeKind.TOSTR, v1);
             Node orv1 = tm2.addOperation(DefaultNodeKind.CONCAT, or, toStrV1);
-            Node eq = new Operand(" +\\>= +", DefaultNodeKind.STRREXP);
+            Node eq = new Operand(" +\\>= +", DefaultNodeKind.STREXP);
             Node orv1comp = tm2.addOperation(DefaultNodeKind.CONCAT, orv1, eq);
             Node v2 = new Operand("sv8", DefaultNodeKind.NUMVAR);
             Node toStrV2 = tm2.addOperation(DefaultNodeKind.TOSTR, v2);
             Node orv1compv2 = tm2.addOperation(DefaultNodeKind.CONCAT, orv1comp, toStrV2);
             String scomment = "(\\<!\\-\\-|#)";
-            Node comment = new Operand(scomment, DefaultNodeKind.STRREXP);
+            Node comment = new Operand(scomment, DefaultNodeKind.STREXP);
             tm2.addOperation(DefaultNodeKind.CONCAT, orv1compv2, comment);
             tm2.addConstraint(DefaultNodeKind.GREATEREQ, v1, v2);
             tm2.setStartNode(orv1compv2);
