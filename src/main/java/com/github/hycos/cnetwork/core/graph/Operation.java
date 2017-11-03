@@ -36,13 +36,14 @@ public class Operation extends Node {
     public Operation(NodeKindInterface kind) {
         super(kind.toString(), kind);
         LOGGER.debug("Node kind {}", kind);
-        assert kind.isOperation() || kind.isComparative() || kind.isBranch();
+        //assert kind.isOperation() || kind.isComparative() || kind.isBranch();
         //this.sig = StandardWrappers.getSigForOperation(this.kind);
         //assert(this.sig != null);
     }
 
-    public Operation(String name, JavaMethodSignature sig) {
-        super(name, DefaultNodeKind.EXTERNAL);
+    public Operation(String name, NodeKindInterface ni, JavaMethodSignature
+            sig) {
+        super(name, ni);
 //
 //        switch(sig.getReturnType().toBCString()) {
 //            case "Ljava/lang/String;":

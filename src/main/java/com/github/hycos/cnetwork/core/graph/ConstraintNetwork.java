@@ -171,7 +171,9 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return n;
     }
 
-    protected Operation registerExtOperation(String bytecodesig, String label) {
+    protected Operation registerExtOperation(String bytecodesig,
+                                             NodeKindInterface ki,  String
+                                                     label) {
 
         //LOGGER.info("bytecodesig " + bytecodesig);
         //LOGGER.info("name " + label);
@@ -182,7 +184,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         JavaMethodSignature sig = JavaMethodSignature.fromString(bytecodesig);
 
 
-        Operation op = new Operation(label, sig);
+        Operation op = new Operation(label, ki, sig);
         opLookup.put(label, op);
 
         //LOGGER.info("OPLOOKUP " + op.toString());
@@ -379,9 +381,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
             if (n.isOperation()) {
                 shape = "box";
                 label = "label";
-
-
-                LOGGER.debug(n.getShortLabel());
+                
                 if (n.isConstraint()) {
                     color = "blue";
                 } else {
@@ -397,6 +397,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
                 label = "label";
                 color = "black";
             }
+
 
             sb.append("\tn" + n.getId() + " [color=" + color + ",shape=\"" +
                     shape + "\"," + label + "=\"" +

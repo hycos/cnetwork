@@ -220,6 +220,7 @@ public class ConstraintNetworkBuilder implements Cloneable,
             addVertex(nop);
         }
 
+        LOGGER.debug("infer {}", nop.getDotLabel());
 
         if (!this.ci.check(this, nop)) {
             throw new InconsistencyException("malformed operand " + nop
@@ -437,9 +438,11 @@ public class ConstraintNetworkBuilder implements Cloneable,
         return cn.inDegreeOf(n);
     }
 
-    public Node registerExtOperation(String bytecodesig, String lbl) {
+    public Node registerExtOperation(String bytecodesig, NodeKindInterface ni,
+            String
+                                     lbl) {
 
-        return cn.registerExtOperation(bytecodesig, lbl);
+        return cn.registerExtOperation(bytecodesig, ni, lbl);
     }
 
     public void join(NodeKindInterface kind, Node cpoint, ConstraintNetworkBuilder

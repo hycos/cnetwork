@@ -61,10 +61,19 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
     private NodeKindInterface kind = null;
 
 
+    public Node(String shortLabel) {
+        this.id = nid++;
+        this.shortLabel = shortLabel;
+    }
+
     public Node(String shortLabel, NodeKindInterface kind) {
         this.id = nid++;
         this.kind = kind;
-        this.shortLabel = shortLabel;
+
+//        if(kind.isLiteral() && kind.isString())
+//            this.shortLabel = "\"" + shortLabel + "\"";
+//        else
+            this.shortLabel = shortLabel;
     }
 
     public Node(Node other) {
