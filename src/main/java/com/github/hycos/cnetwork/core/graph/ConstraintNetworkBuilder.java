@@ -61,6 +61,7 @@ public class ConstraintNetworkBuilder implements Cloneable,
         this.ci = cnb.ci.clone();
         // rewire newly created objects
         registerListeners(this.dctrl, this.lmgr);
+
         for (Node n : vertexSet()) {
             n.setLabelManager(this.lmgr);
             n.setDomainController(this.dctrl);
@@ -317,19 +318,6 @@ public class ConstraintNetworkBuilder implements Cloneable,
 
         Node op = addOperation(kind, params, true);
 
-        // trigger domain creation
-//        for (ConstraintNetworkListenerInterface l : listeners) {
-//            l.onConstraintAdd(op);
-//        }
-
-        //Domain dom = this.dctrl.createDomainFor(op);
-
-//        if (op.getDomain().isAlwaysFalse()) {
-//            throw new InconsistencyException("UNSAT");
-//        }
-//
-//        dom.setTrue();
-
         return op;
     }
 
@@ -402,11 +390,12 @@ public class ConstraintNetworkBuilder implements Cloneable,
         return ret;
     }
 
-    public void addVertex(Node n) throws InconsistencyException {
-        cn.addNode(n);
+    public Node addVertex(Node n) throws InconsistencyException {
+        Node v = cn.addNode(n);
         for (ConstraintNetworkListenerInterface<Node> l : listeners) {
             l.onNodeAdd(n, false);
         }
+        return v;
     }
 
     public boolean containsVertex(Node n) {
@@ -449,7 +438,13 @@ public class ConstraintNetworkBuilder implements Cloneable,
             othercn) throws InconsistencyException {
 
         for (Node n : othercn.vertexSet()) {
-           addVertex(n);
+
+            if(n.isConstraint()) {
+                Node v = addVertex(n);
+                v.getDomain().setTrue();
+            } else {
+                addVertex(n);
+            }
         }
 
         for (Edge e : othercn.edgeSet()) {
@@ -459,23 +454,6 @@ public class ConstraintNetworkBuilder implements Cloneable,
         addConstraint(kind, cpoint, othercn.getConstraintNetwork()
                 .getStartNode());
 
-        //cn.join(kind, cpoint, othercn.getConstraintNetwork());
-
-//        try {
-//            cpoint.getDomain().setTrue();
-//            //this.dctrl.getDomainFor(cpoint).setTrue();
-//            //cpoint.setDomain(NodeDomainFactory.DBTRUE);
-//        } catch (InconsistencyException e) {
-//            e.printStackTrace();
-//        }
-
-//        vertexSet().stream().filter(x -> !x.hasDomainController()).forEach(
-//                v -> v.setDomainController(this.dctrl)
-//        );
-//
-//        vertexSet().stream().filter(x -> !x.hasLabelManager()).forEach(
-//                v -> v.setLabelManager(this.lmgr)
-//        );
     }
 
 
@@ -506,9 +484,6 @@ public class ConstraintNetworkBuilder implements Cloneable,
             LOGGER.debug("return");
             return replacement;
         }
-
-        int id = toReplace.getId();
-
         assert cn.containsVertex(toReplace);
 
         Set<Edge> out = cn.outgoingEdgesOf(toReplace);

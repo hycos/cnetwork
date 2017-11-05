@@ -39,7 +39,7 @@ public class DefaultDomain implements Domain {
 
     @Override
     public boolean isAlwaysTrue() {
-        return false;
+        return isConstraint;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class DefaultDomain implements Domain {
 
     @Override
     public void setTrue() throws InconsistencyException {
-
+        isConstraint = true;
     }
 
     @Override
@@ -123,7 +123,11 @@ public class DefaultDomain implements Domain {
 
     @Override
     public String getLabel() {
-        return "�";
+
+        if(isConstraint)
+            return "true";
+        else
+            return "�";
     }
 
     @Override

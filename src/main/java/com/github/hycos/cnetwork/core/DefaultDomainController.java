@@ -86,17 +86,27 @@ public class DefaultDomainController implements
 
     @Override
     public void onNodeAdd(Node n, boolean isConstraint) {
-        LOGGER.info("on on operation add");
+        LOGGER.info("on on operation add {} {} {}", n.getShortLabel(), n
+                        .getId(),
+                isConstraint);
+
+
+        if(dmap.containsKey(n))
+            return;
+
+        assert !(n.getId() == 31 && isConstraint == false);
+
+
         n.setDomainController(this);
-        createDomainFor(n);
+        dmap.put(n, new DefaultDomain(n,isConstraint));
 
         if(isConstraint)
-            dmap.replace(n, new DefaultDomain(n,true));
+            assert n.getDomain().isConstraint();
     }
 
     @Override
     public void onConstraintAdd(Node n) throws InconsistencyException {
-        dmap.replace(n, new DefaultDomain(n,true));
+        //dmap.replace(n, new DefaultDomain(n,true));
     }
 
     @Override

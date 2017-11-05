@@ -381,7 +381,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
             if (n.isOperation()) {
                 shape = "box";
                 label = "label";
-                
+
                 if (n.isConstraint()) {
                     color = "blue";
                 } else {
