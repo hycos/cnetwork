@@ -83,7 +83,7 @@ public class TestConstraintNetworkBuilder {
         } catch (InconsistencyException e) {
 
             e.printStackTrace();
-            LOGGER.debug(e.getMessage());
+            LOGGER.error(e.getMessage());
             Assertions.assertTrue(true);
         }
 

@@ -492,7 +492,7 @@ public class ConstraintNetworkBuilder implements Cloneable,
         Set<Edge> toAdd = new HashSet<>();
 
         for (Edge e : out) {
-            assert !replacement.equals(e.getTarget());
+            //assert !replacement.equals(e.getTarget());
             toAdd.add(new Edge(replacement, e.getTarget(), e.getSequence()));
         }
 

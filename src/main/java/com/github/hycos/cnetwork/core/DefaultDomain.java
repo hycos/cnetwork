@@ -17,11 +17,14 @@
 
 package com.github.hycos.cnetwork.core;
 
+import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
+import com.github.hycos.cnetwork.core.graph.Node;
 import com.github.hycos.domctrl.Domain;
 import com.github.hycos.domctrl.DomainKind;
 import com.github.hycos.domctrl.SubDomainInterface;
-import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
-import com.github.hycos.cnetwork.core.graph.Node;
+
+import java.util.Collection;
+import java.util.Set;
 
 public class DefaultDomain implements Domain {
 
@@ -45,6 +48,16 @@ public class DefaultDomain implements Domain {
     @Override
     public boolean isAlwaysFalse() {
         return false;
+    }
+
+    @Override
+    public void taint(Collection<Integer> id) {
+
+    }
+
+    @Override
+    public Set<Integer> getTaints() {
+        return null;
     }
 
     @Override

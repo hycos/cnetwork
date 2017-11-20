@@ -94,7 +94,7 @@ public class DefaultDomainController implements
         if(dmap.containsKey(n))
             return;
 
-        assert !(n.getId() == 31 && isConstraint == false);
+        //assert !(n.getId() == 31 && isConstraint == false);
 
 
         n.setDomainController(this);
