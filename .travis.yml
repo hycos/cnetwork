@@ -6,7 +6,7 @@ jdk:
   - oraclejdk8
 
 install:
-  - git clone https://github.com/hycos/cnetwork-api && mvn install
+  - git clone https://github.com/hycos/cnetwork-api cnetwork-api && cd cnetwork-api && mvn install && cd ..
   - mvn clean package
 
 after_success:
