@@ -479,6 +479,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         }
 
         // handle Threat Models
+
         sb.append("\n");
         for (Operand o : links) {
             sb.append("&(" + o.getLabel() + "," + o.getKind().getValue() + ");");
