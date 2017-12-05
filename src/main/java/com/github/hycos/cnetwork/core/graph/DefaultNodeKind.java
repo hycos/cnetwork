@@ -388,5 +388,4 @@ public enum DefaultNodeKind implements NodeKindInterface {
         return KindFromString(s);
     }
 
-
 }

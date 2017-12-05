@@ -174,8 +174,8 @@ public class ConstraintNetworkBuilder implements Cloneable,
     @Override
     public Node addOperand(NodeKindInterface n, String s) {
 
-        LOGGER.debug("add operand {}:{}", n, s);
         Node op = cn.addOperand(n, s);
+        LOGGER.debug("add operand {}:{}", op.getKind(), s);
 
         for (ConstraintNetworkListenerInterface<Node> l : listeners) {
             try {
@@ -188,7 +188,12 @@ public class ConstraintNetworkBuilder implements Cloneable,
 
         //LOGGER.debug("lbl for node {}:{}", op.getId(), op.getLabel());
         try {
-            return infer(op);
+            Node nop = infer(op);
+
+            if(!nop.equals(op))
+                removeVertex(op);
+
+            return nop;
         } catch (InconsistencyException e) {
             LOGGER.error(e.getMessage());
             e.printStackTrace();

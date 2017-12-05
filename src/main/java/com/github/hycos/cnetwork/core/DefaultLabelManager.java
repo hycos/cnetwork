@@ -125,11 +125,19 @@ public class DefaultLabelManager implements LabelManagerInterface<Node>  {
     }
 
     @Override
-    public void onNodeAdd(Node n, boolean isConstraint) {
+    public void onNodeAdd(Node n, boolean isConstraint) throws
+            InconsistencyException {
         n.setLabelManager(this);
         String label = computeLabel(n);
-        LOGGER.debug("put {}", label);
-        lblmap.put(n, label);
+
+        if(!lblmap.containsValue(label)) {
+            lblmap.put(n, label);
+        } else {
+            if(!n.getKind().equals(lblmap.getKeyByValue(label).getKind())) {
+                throw new InconsistencyException("defined different variables" +
+                        " with the same name");
+            }
+        }
     }
 
     @Override

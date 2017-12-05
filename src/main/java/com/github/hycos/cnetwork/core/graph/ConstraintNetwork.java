@@ -163,6 +163,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
         return op;
     }
 
+
     protected Node addOperand(NodeKindInterface kind, String label) {
         //Node n = this.getNodeByLabel(label);
         //if (n == null) {

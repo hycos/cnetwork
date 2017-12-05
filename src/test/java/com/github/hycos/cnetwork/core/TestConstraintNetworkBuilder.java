@@ -39,16 +39,17 @@ public class TestConstraintNetworkBuilder {
             Node a = cb.addOperand(DefaultNodeKind.STRLIT, "a");
             Node b = cb.addOperand(DefaultNodeKind.STRLIT, "b");
             Node va = cb.addOperand(DefaultNodeKind.STRVAR, "a");
+
             Node vb = cb.addOperand(DefaultNodeKind.STRVAR, "b");
             Node b2 = cb.addOperand(DefaultNodeKind.STRLIT, "b");
-            Node va2 = cb.addOperand(DefaultNodeKind.STRVAR, "a");
+            Node va2 = cb.addOperand(DefaultNodeKind.NUMVAR, "a");
             cb.addConstraint(DefaultNodeKind.EQUALS, a, b);
             cb.addConstraint(DefaultNodeKind.EQUALS, va2, b2);
             LOGGER.debug(cb.getConstraintNetwork().toDot());
             Node comp1 = cb.getNodeByLabel(va.getLabel());
             Node comp2 = cb.getNodeByLabel(va2.getLabel());
             Assertions.assertEquals(comp1, comp2);
-            Assertions.assertEquals(cb.vertexSet().size(), 8);
+            Assertions.assertEquals(cb.vertexSet().size(), 6);
         } catch (InconsistencyException e) {
             e.printStackTrace();
             LOGGER.debug(e.getMessage());
