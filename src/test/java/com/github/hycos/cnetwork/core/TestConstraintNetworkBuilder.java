@@ -42,7 +42,7 @@ public class TestConstraintNetworkBuilder {
 
             Node vb = cb.addOperand(DefaultNodeKind.STRVAR, "b");
             Node b2 = cb.addOperand(DefaultNodeKind.STRLIT, "b");
-            Node va2 = cb.addOperand(DefaultNodeKind.NUMVAR, "a");
+            Node va2 = cb.addOperand(DefaultNodeKind.STRVAR, "a");
             cb.addConstraint(DefaultNodeKind.EQUALS, a, b);
             cb.addConstraint(DefaultNodeKind.EQUALS, va2, b2);
             LOGGER.debug(cb.getConstraintNetwork().toDot());
