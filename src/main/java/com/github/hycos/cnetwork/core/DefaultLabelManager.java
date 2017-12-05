@@ -133,7 +133,14 @@ public class DefaultLabelManager implements LabelManagerInterface<Node>  {
         if(!lblmap.containsValue(label)) {
             lblmap.put(n, label);
         } else {
-            if(!n.getKind().equals(lblmap.getKeyByValue(label).getKind())) {
+            LOGGER.debug("LBL2 {}", label);
+
+            LOGGER.debug("K1 {}",n.getKind());
+            LOGGER.debug("K2 {}",lblmap.getKeyByValue(label).getKind());
+
+
+            if(!n.getKind().toString().equals(lblmap.getKeyByValue(label)
+                    .getKind().toString())) {
                 throw new InconsistencyException("defined different variables" +
                         " with the same name");
             }
