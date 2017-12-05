@@ -197,6 +197,7 @@ public enum DefaultNodeKind implements NodeKindInterface {
                 return STRINV;
             case "charat":
                 return CHARAT;
+            case "toint":
             case "valueof":
                 return TOINT;
             case "tostr":
@@ -361,7 +362,7 @@ public enum DefaultNodeKind implements NodeKindInterface {
 
     public boolean isNumeric() {
         return this == ADD || this == SUB || this == DIV || this == NUMLIT ||
-                this == NUMVAR || this == INDEXOF || this == LEN;
+                this == NUMVAR || this == INDEXOF || this == LEN || this == TOINT;
     }
 
 
@@ -370,7 +371,7 @@ public enum DefaultNodeKind implements NodeKindInterface {
                 this == SUBSTR || this == TOLOWER || this
                 == TOUPPER || this == CONCAT || this == TRIM ||
                 this == REPLACE || this == STRINV || this == CHARAT || this
-                == TOINT || this == TOSTR || this ==
+                == TOSTR || this ==
                 STRVAR || this == STRLIT;
     }
 
