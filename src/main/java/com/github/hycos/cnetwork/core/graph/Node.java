@@ -35,6 +35,8 @@ import java.util.Objects;
 public abstract class Node extends ConstraintNetworkSubject<Node> implements
         NodeInterface,Cloneable {
 
+    private static final long serialVersionUID = -8824222790097211310L;
+
     final static Logger LOGGER = LoggerFactory.getLogger(Node.class);
 
     protected final int id;

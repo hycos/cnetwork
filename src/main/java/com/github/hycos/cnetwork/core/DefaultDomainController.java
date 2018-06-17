@@ -17,12 +17,12 @@
 
 package com.github.hycos.cnetwork.core;
 
-import com.github.hycos.domctrl.Domain;
-import com.github.hycos.domctrl.DomainControllerInterface;
-import com.github.hycos.domctrl.exception.DomainControllerException;
 import com.github.hycos.cnetwork.api.labelmgr.ConstraintNetworkInterface;
 import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
 import com.github.hycos.cnetwork.core.graph.Node;
+import com.github.hycos.domctrl.Domain;
+import com.github.hycos.domctrl.DomainControllerInterface;
+import com.github.hycos.domctrl.exception.DomainControllerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +31,8 @@ import java.util.Map;
 
 public class DefaultDomainController implements
         DomainControllerInterface<Node> {
+
+    private static final long serialVersionUID = -8814612790769711131L;
 
     private Map<Node, Domain> dmap =  new HashMap();
     private ConstraintNetworkInterface c = null;

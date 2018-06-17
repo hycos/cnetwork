@@ -27,8 +27,12 @@ import com.github.hycos.cnetwork.core.graph.DefaultNodeKind;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
+
 public class DefaultConsistencyChecker<T extends NodeInterface> implements
-        ConsistencyCheckerInterface<T> {
+        ConsistencyCheckerInterface<T>, Serializable {
+
+    private static final long serialVersionUID = -8834622790097111311L;
 
 
     final static Logger LOGGER = LoggerFactory.getLogger(DefaultNodeChecker.class);

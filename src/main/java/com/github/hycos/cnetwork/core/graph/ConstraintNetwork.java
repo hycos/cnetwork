@@ -23,9 +23,12 @@ import com.github.hycos.cnetwork.sig.JavaMethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class ConstraintNetwork extends AbstractGraph implements Cloneable {
+public class ConstraintNetwork extends AbstractGraph implements Cloneable, Serializable {
+
+    private static final long serialVersionUID = -8834622790097111310L;
 
     final static Logger LOGGER = LoggerFactory.getLogger(ConstraintNetwork.class);
 
@@ -33,9 +36,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable {
     private HashSet<Edge> sat = new HashSet<>();
     private HashSet<Edge> unsat = new HashSet<>();
     private HashMap<String, Operation> opLookup = new HashMap<>();
-    // just used during construction
-    //private HashMap<String, Node> nodeLookup = new HashMap<>();
-    //private HashMap<String, Operation> opLookup = new HashMap<>();
+
 
     private DomainControllerInterface dctrl = null;
 

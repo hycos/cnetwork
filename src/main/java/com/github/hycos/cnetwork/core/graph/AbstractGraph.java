@@ -30,12 +30,16 @@ import org.jgrapht.graph.DirectedPseudograph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class AbstractGraph implements DirectedGraph<Node, Edge>, Cloneable {
+public class AbstractGraph implements DirectedGraph<Node, Edge>, Cloneable,
+        Serializable {
+
+    private static final long serialVersionUID = -7824222790097211310L;
 
     final static Logger LOGGER = LoggerFactory.getLogger(AbstractGraph.class);
 

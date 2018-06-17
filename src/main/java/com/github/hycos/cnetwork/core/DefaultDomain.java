@@ -28,6 +28,8 @@ import java.util.Set;
 
 public class DefaultDomain implements Domain {
 
+    private static final long serialVersionUID = -8814622790754711132L;
+
     private boolean isConstraint = false;
     private Node n = null;
 

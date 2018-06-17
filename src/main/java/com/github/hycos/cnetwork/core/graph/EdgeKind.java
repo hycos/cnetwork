@@ -23,10 +23,12 @@ public enum EdgeKind implements EdgeKindInterface {
     UNKNOWN(0,"unknown"),
     PAR_IN(1,"parin");
 
+    private static final long serialVersionUID = -8824222790217211310L;
+
     private final String value;
     private int ival;
 
-    private EdgeKind(int ival, String val) {
+    EdgeKind(int ival, String val) {
         this.value = val;
         this.ival = ival;
     }

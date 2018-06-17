@@ -118,6 +118,8 @@ public enum DefaultNodeKind implements NodeKindInterface {
 
     DIV("div");
 
+    private static final long serialVersionUID = -8834622790197111310L;
+
     final static Logger LOGGER = LoggerFactory.getLogger(DefaultNodeKind.class);
 
     private final String sval;

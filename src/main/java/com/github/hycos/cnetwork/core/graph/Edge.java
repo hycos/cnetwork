@@ -22,8 +22,12 @@ import org.jgrapht.graph.DefaultEdge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
+
 public class Edge extends DefaultEdge implements Comparable<Edge>, Cloneable,
-        EdgeInterface {
+        EdgeInterface, Serializable {
+
+    private static final long serialVersionUID = -8824622790097211310L;
 
     final static Logger LOGGER = LoggerFactory.getLogger(Edge.class);
 

@@ -33,11 +33,14 @@ import com.github.hycos.cnetwork.core.DefaultLabelManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.*;
 
 
 public class ConstraintNetworkBuilder implements Cloneable,
-        ConstraintNetworkInterface<Node>, LabelManagerListenerInterface {
+        ConstraintNetworkInterface<Node>, LabelManagerListenerInterface, Serializable {
+
+    private static final long serialVersionUID = -8834622791197111310L;
 
     final static Logger LOGGER = LoggerFactory.getLogger(ConstraintNetworkBuilder.class);
 

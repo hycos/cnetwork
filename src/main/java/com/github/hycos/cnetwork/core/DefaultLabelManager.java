@@ -26,7 +26,9 @@ import com.github.hycos.cnetwork.utils.BiMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DefaultLabelManager implements LabelManagerInterface<Node>  {
+public class DefaultLabelManager implements LabelManagerInterface<Node> {
+
+    private static final long serialVersionUID = -8814622790759711131L;
 
     final static Logger LOGGER = LoggerFactory.getLogger(DefaultLabelManager.class);
 
