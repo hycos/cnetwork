@@ -3,7 +3,7 @@ language: java
 sudo : false
 
 jdk:
-  - oraclejdk8
+  - openjdk10
 
 install:
   - git clone https://github.com/hycos/cnetwork-api cnetwork-api && cd cnetwork-api && mvn install && cd ..
