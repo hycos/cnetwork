@@ -26,13 +26,14 @@ import com.github.hycos.domctrl.exception.DomainControllerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 public class DefaultDomainController implements
-        DomainControllerInterface<Node> {
+        DomainControllerInterface<Node>, Serializable {
 
-    private static final long serialVersionUID = -8814612790769711131L;
+    private static final long serialVersionUID = -881461279769711131L;
 
     private Map<Node, Domain> dmap =  new HashMap();
     private ConstraintNetworkInterface c = null;

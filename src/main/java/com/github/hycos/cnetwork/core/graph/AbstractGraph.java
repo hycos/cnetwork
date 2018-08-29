@@ -24,8 +24,8 @@
  */
 package com.github.hycos.cnetwork.core.graph;
 
-import org.jgrapht.DirectedGraph;
 import org.jgrapht.EdgeFactory;
+import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DirectedPseudograph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +36,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class AbstractGraph implements DirectedGraph<Node, Edge>, Cloneable,
-        Serializable {
+public class AbstractGraph extends DefaultDirectedGraph<Node, Edge> implements Cloneable, Serializable {
 
     private static final long serialVersionUID = -7824222790097211310L;
 
@@ -46,6 +45,7 @@ public class AbstractGraph implements DirectedGraph<Node, Edge>, Cloneable,
     private final DirectedPseudograph<Node, Edge> delegate;
 
     public AbstractGraph() {
+        super(Edge.class);
         this.delegate = new DirectedPseudograph(Edge.class);
     }
 
@@ -207,18 +207,6 @@ public class AbstractGraph implements DirectedGraph<Node, Edge>, Cloneable,
 
     public Set<Node> vertexSet() {
         return delegate.vertexSet();
-    }
-
-    @Override
-    public AbstractGraph clone(){
-        AbstractGraph an = new AbstractGraph();
-        for(Edge e : this.edgeSet()) {
-            Node src = e.getSrcNode().clone();
-            Node dest = e.getDestNode().clone();
-            Edge ne = new Edge(src,dest,e.getSequence());
-            an.addEdge(src,dest,ne);
-        }
-        return an;
     }
 
 }

@@ -21,7 +21,6 @@ package com.github.hycos.cnetwork.core.graph;
 import com.github.hycos.cnetwork.api.NodeInterface;
 import com.github.hycos.cnetwork.api.NodeKindInterface;
 import com.github.hycos.cnetwork.api.cchecktinf.ConsistencyCheckerInterface;
-import com.github.hycos.domctrl.DomainControllerInterface;
 import com.github.hycos.cnetwork.api.labelmgr.ConstraintNetworkInterface;
 import com.github.hycos.cnetwork.api.labelmgr.ConstraintNetworkListenerInterface;
 import com.github.hycos.cnetwork.api.labelmgr.LabelManagerInterface;
@@ -30,15 +29,16 @@ import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
 import com.github.hycos.cnetwork.cchecktinf.DefaultConsistencyChecker;
 import com.github.hycos.cnetwork.core.DefaultDomainController;
 import com.github.hycos.cnetwork.core.DefaultLabelManager;
+import com.github.hycos.domctrl.DomainControllerInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.util.*;
 
 
 public class ConstraintNetworkBuilder implements Cloneable,
-        ConstraintNetworkInterface<Node>, LabelManagerListenerInterface, Serializable {
+        ConstraintNetworkInterface<Node>,
+        LabelManagerListenerInterface {
 
     private static final long serialVersionUID = -8834622791197111310L;
 
@@ -51,8 +51,7 @@ public class ConstraintNetworkBuilder implements Cloneable,
     private ConstraintNetwork cn;
 
     // observer structural changes to on the cn
-    private Set<ConstraintNetworkListenerInterface<Node>> listeners = new
-            LinkedHashSet<>();
+    private Set<ConstraintNetworkListenerInterface<Node>> listeners = new LinkedHashSet<>();
 
     // Note that listeners are no copied
     public ConstraintNetworkBuilder(ConstraintNetworkBuilder cnb) {
@@ -72,16 +71,15 @@ public class ConstraintNetworkBuilder implements Cloneable,
         attachObservers();
     }
 
+
+    public LabelManagerInterface<Node> getLabelManager() {
+        return this.lmgr;
+    }
+
     public ConstraintNetworkBuilder() {
         this(new DefaultDomainController(),
                 new DefaultLabelManager(),
                 new DefaultConsistencyChecker());
-        //registerListeners(this.dctrl, this.lmgr);
-        //this.cn = new ConstraintNetwork();
-        //registerListeners(dctrl, lmgr);
-        //this.lmgr = new EufManager(this);
-        //this.listeners.add(this.lmgr);
-
     }
 
     public ConstraintNetworkBuilder
@@ -92,7 +90,6 @@ public class ConstraintNetworkBuilder implements Cloneable,
 
         // domain controller has to be set first always
         this.dctrl = dctrl;
-
         this.lmgr = lmgr;
         this.ci = ci;
 
@@ -245,16 +242,6 @@ public class ConstraintNetworkBuilder implements Cloneable,
 
             return nop;
         } else {
-
-            //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
-            //LOGGER.debug("BOOOOO {} : {}", n.getId(), n.getDomain().getLabel
-            //        ());
-            //cn.removeVertex(n);
-            //LOGGER.debug("BOOOOO {} : {}", nop.getId(), nop.getDomain()
-            //        .getLabel
-            //        ());
-            //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
-
             return nop;
         }
     }
@@ -501,7 +488,8 @@ public class ConstraintNetworkBuilder implements Cloneable,
 
         for (Edge e : out) {
             //assert !replacement.equals(e.getTarget());
-            toAdd.add(new Edge(replacement, e.getTarget(), e.getSequence()));
+            toAdd.add(new Edge(this.cn, replacement, e.getTarget(), e
+                    .getSequence()));
         }
 
         //for(Edge e : in) {
@@ -545,6 +533,19 @@ public class ConstraintNetworkBuilder implements Cloneable,
         collapse((Node) toReplace, (Node) replacement);
     }
 
+    private Object writeReplace()
+            throws java.io.ObjectStreamException
+    {
+        LOGGER.debug("write replace");
+
+        LOGGER.debug("this");
+
+        ConstraintNetworkBuilder cp = new ConstraintNetworkBuilder(this);
+
+        LOGGER.debug(cp.toString());
+
+        return cp;
+    }
 
 }
 

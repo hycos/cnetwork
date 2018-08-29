@@ -1,6 +1,5 @@
 package com.github.hycos.cnetwork.tools.io;
 
-import com.github.hycos.cnetwork.core.graph.ConstraintNetwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,10 +11,14 @@ public enum Serializer {
 
     final static Logger LOGGER = LoggerFactory.getLogger(Serializer.class);
 
-    public byte [] toByteArray(ConstraintNetwork cn) {
+
+
+
+    public byte[] toByteArray(Object cn) {
 
         ObjectOutputStream o_out = null;
         ByteArrayOutputStream b_out = new ByteArrayOutputStream();
+
 
         try {
             o_out = new ObjectOutputStream(b_out);
@@ -26,6 +29,7 @@ public enum Serializer {
 
         try {
             o_out.writeObject(cn);
+            o_out.flush();
 
         } catch (IOException e) {
             System.out.println(e.toString());
@@ -48,7 +52,7 @@ public enum Serializer {
     }
 
 
-    public ConstraintNetwork fromByteArray(byte [] arr) {
+    public Object byteArrayToObject(byte[] arr) {
         ObjectInputStream ois = null;
 
         try {
@@ -58,7 +62,7 @@ public enum Serializer {
             return null;
         }
 
-        Object o  = null;
+        Object o = null;
 
         try {
             o = ois.readObject();
@@ -77,14 +81,8 @@ public enum Serializer {
             }
         }
 
-
-        assert(o instanceof ConstraintNetwork);
-
-        return (ConstraintNetwork)o;
+        return o;
     }
-
-
-
 
 
 }

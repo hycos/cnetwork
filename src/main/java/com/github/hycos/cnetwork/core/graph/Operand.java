@@ -19,7 +19,6 @@ package com.github.hycos.cnetwork.core.graph;
 
 
 import com.github.hycos.cnetwork.api.NodeKindInterface;
-import com.github.hycos.cnetwork.sig.JavaMethodSignature;
 import com.github.hycos.cnetwork.utils.EscapeUtils;
 
 public class Operand extends Node {
@@ -28,12 +27,13 @@ public class Operand extends Node {
         super(o);
     }
 
-    public Operand(String label, String kind) {
-       this(label, DefaultNodeKind.KindFromString(kind));
+    public Operand(ConstraintNetwork cn, String label, String kind) {
+       this(cn ,label, DefaultNodeKind.KindFromString(kind));
     }
 
-    public Operand(String label, NodeKindInterface kind) {
-        super(label,kind);
+    public Operand(ConstraintNetwork cn, String label, NodeKindInterface
+            kind) {
+        super(cn,label,kind);
     }
 
     @Override

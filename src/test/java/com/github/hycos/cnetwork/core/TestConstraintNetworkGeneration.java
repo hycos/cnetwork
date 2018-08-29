@@ -34,25 +34,14 @@ public class TestConstraintNetworkGeneration {
     public void testCnConstruction() {
 
         ConstraintNetworkBuilder tm2 = new ConstraintNetworkBuilder();
-        Node x = new Operand("x", DefaultNodeKind.STRVAR);
+        Node x = new Operand(tm2.getConstraintNetwork(),"x", DefaultNodeKind
+                .STRVAR);
         String sor = ".*' +[Oo][Rr] +'";
-        Node or = new Operand(sor, DefaultNodeKind.STREXP);
-        Node v1 = new Operand("sv7", DefaultNodeKind.NUMVAR);
+        Node or = new Operand(tm2.getConstraintNetwork(), sor,
+                DefaultNodeKind.STREXP);
+        Node v1 = new Operand(tm2.getConstraintNetwork(),"sv7", DefaultNodeKind.NUMVAR);
         try {
-            Node toStrV1 = tm2.addOperation(DefaultNodeKind.TOSTR, v1);
-            Node orv1 = tm2.addOperation(DefaultNodeKind.CONCAT, or, toStrV1);
-            Node eq = new Operand(" +\\>= +", DefaultNodeKind.STREXP);
-            Node orv1comp = tm2.addOperation(DefaultNodeKind.CONCAT, orv1, eq);
-            Node v2 = new Operand("sv8", DefaultNodeKind.NUMVAR);
-            Node toStrV2 = tm2.addOperation(DefaultNodeKind.TOSTR, v2);
-            Node orv1compv2 = tm2.addOperation(DefaultNodeKind.CONCAT, orv1comp, toStrV2);
-            String scomment = "(\\<!\\-\\-|#)";
-            Node comment = new Operand(scomment, DefaultNodeKind.STREXP);
-
-            tm2.addOperation(DefaultNodeKind.CONCAT, orv1compv2, comment);
-            tm2.addConstraint(DefaultNodeKind.GREATEREQ, v1, v2);
-            tm2.setStartNode(orv1compv2);
-            tm2.addConstraint(DefaultNodeKind.MATCHES, x, orv1compv2);
+            buildNetwork(tm2, x, or, v1);
         } catch (InconsistencyException e) {
             Assertions.assertTrue(false);
         }
@@ -63,25 +52,16 @@ public class TestConstraintNetworkGeneration {
     @Test
     public void testCNClone() {
         ConstraintNetworkBuilder tm2 = new ConstraintNetworkBuilder();
-        Node x = new Operand("x", DefaultNodeKind.STRVAR);
+        Node x = new Operand(tm2.getConstraintNetwork(),"x", DefaultNodeKind
+                .STRVAR);
         String sor = ".*' +[Oo][Rr] +'";
-        Node or = new Operand(sor, DefaultNodeKind.STREXP);
-        Node v1 = new Operand("sv7", DefaultNodeKind.NUMVAR);
+        Node or = new Operand(tm2.getConstraintNetwork(),sor,
+                DefaultNodeKind.STREXP);
+        Node v1 = new Operand(tm2.getConstraintNetwork(),"sv7",
+                DefaultNodeKind.NUMVAR);
 
         try {
-            Node toStrV1 = tm2.addOperation(DefaultNodeKind.TOSTR, v1);
-            Node orv1 = tm2.addOperation(DefaultNodeKind.CONCAT, or, toStrV1);
-            Node eq = new Operand(" +\\>= +", DefaultNodeKind.STREXP);
-            Node orv1comp = tm2.addOperation(DefaultNodeKind.CONCAT, orv1, eq);
-            Node v2 = new Operand("sv8", DefaultNodeKind.NUMVAR);
-            Node toStrV2 = tm2.addOperation(DefaultNodeKind.TOSTR, v2);
-            Node orv1compv2 = tm2.addOperation(DefaultNodeKind.CONCAT, orv1comp, toStrV2);
-            String scomment = "(\\<!\\-\\-|#)";
-            Node comment = new Operand(scomment, DefaultNodeKind.STREXP);
-            tm2.addOperation(DefaultNodeKind.CONCAT, orv1compv2, comment);
-            tm2.addConstraint(DefaultNodeKind.GREATEREQ, v1, v2);
-            tm2.setStartNode(orv1compv2);
-            tm2.addConstraint(DefaultNodeKind.MATCHES, x, orv1compv2);
+            buildNetwork(tm2, x, or, v1);
         } catch (InconsistencyException e) {
             Assertions.assertFalse(true);
         }
@@ -107,6 +87,22 @@ public class TestConstraintNetworkGeneration {
         }
     }
 
+    private void buildNetwork(ConstraintNetworkBuilder tm2, Node x, Node or, Node v1) throws InconsistencyException {
+        Node toStrV1 = tm2.addOperation(DefaultNodeKind.TOSTR, v1);
+        Node orv1 = tm2.addOperation(DefaultNodeKind.CONCAT, or, toStrV1);
+        Node eq = new Operand(tm2.getConstraintNetwork()," +\\>= +", DefaultNodeKind.STREXP);
+        Node orv1comp = tm2.addOperation(DefaultNodeKind.CONCAT, orv1, eq);
+        Node v2 = new Operand(tm2.getConstraintNetwork(),"sv8", DefaultNodeKind.NUMVAR);
+        Node toStrV2 = tm2.addOperation(DefaultNodeKind.TOSTR, v2);
+        Node orv1compv2 = tm2.addOperation(DefaultNodeKind.CONCAT, orv1comp, toStrV2);
+        String scomment = "(\\<!\\-\\-|#)";
+        Node comment = new Operand(tm2.getConstraintNetwork(),scomment, DefaultNodeKind.STREXP);
+        tm2.addOperation(DefaultNodeKind.CONCAT, orv1compv2, comment);
+        tm2.addConstraint(DefaultNodeKind.GREATEREQ, v1, v2);
+        tm2.setStartNode(orv1compv2);
+        tm2.addConstraint(DefaultNodeKind.MATCHES, x, orv1compv2);
+    }
+
 
     @Test
     public void testCopyConstructor() {
@@ -129,12 +125,22 @@ public class TestConstraintNetworkGeneration {
 
         ConstraintNetworkBuilder cb2 = new ConstraintNetworkBuilder(cb1);
 
-        try {
-            cb2.addConstraint(DefaultNodeKind.EQUALS, concat1, concat2);
-        } catch (InconsistencyException e) {
-            e.printStackTrace();
-        }
+        LOGGER.debug(cb1.getConstraintNetwork().toDot());
 
+        LOGGER.debug(cb2.getConstraintNetwork().toDot());
+
+        LOGGER.debug("l1 " + concat1.getLabel());
+        LOGGER.debug("l2 " + concat2.getLabel());
+
+
+        try {
+            Node n = cb2.addConstraint(DefaultNodeKind.STR_EQUALS, concat1, concat2);
+
+            LOGGER.debug("NID {}", n.getId());
+        } catch (InconsistencyException e) {
+           LOGGER.debug(e.getMessage());
+           System.exit(-1);
+        }
 
         Assertions.assertEquals(cb1.vertexSet().size(), 5);
         Assertions.assertEquals(cb2.vertexSet().size(), 6);

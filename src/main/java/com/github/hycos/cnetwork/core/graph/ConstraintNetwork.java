@@ -18,17 +18,13 @@
 package com.github.hycos.cnetwork.core.graph;
 
 import com.github.hycos.cnetwork.api.NodeKindInterface;
-import com.github.hycos.domctrl.DomainControllerInterface;
 import com.github.hycos.cnetwork.sig.JavaMethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.util.*;
 
-public class ConstraintNetwork extends AbstractGraph implements Cloneable, Serializable {
-
-    private static final long serialVersionUID = -8834622790097111310L;
+public class ConstraintNetwork extends AbstractGraph implements Cloneable {
 
     final static Logger LOGGER = LoggerFactory.getLogger(ConstraintNetwork.class);
 
@@ -37,8 +33,9 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable, Seria
     private HashSet<Edge> unsat = new HashSet<>();
     private HashMap<String, Operation> opLookup = new HashMap<>();
 
+    private int nid = 0;
+    private int eid = 0;
 
-    private DomainControllerInterface dctrl = null;
 
     // this is usually null - we just use it for thread models
     private Node startNode = null;
@@ -46,29 +43,40 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable, Seria
     private String variablePfx = "_v";
     private int vidx = 0;
 
-    protected ConstraintNetwork() {
+    public int nextNodeId() {
+        return nid ++;
     }
 
-    protected ConstraintNetwork(DomainControllerInterface dctrl) {
-        this.dctrl = dctrl;
+    public int nextEdgeId() {
+        return eid ++;
     }
+
+    public ConstraintNetwork() {
+    }
+
 
     protected ConstraintNetwork(ConstraintNetwork other) {
         for (Node n : other.vertexSet()) {
+
+            Node nn = n.clone();
+            nn.cn = this;
             this.addVertex(n.clone());
         }
         for (Edge e : other.edgeSet()) {
             Node src = this.getNodeById(e.getSrcNode().getId());
             Node dest = this.getNodeById(e.getDestNode().getId());
-            Edge ne = new Edge(src, dest, e.getSequence());
+            Edge ne = new Edge(this, src, dest, e.getSequence());
             this.addConnection(ne);
         }
+
+        this.nid = other.nid;
+        this.eid = other.eid;
         //dctrl = other.dctrl.clone();
         //buildNodeIdx();
     }
 
     protected Set<Edge> getAllConnectedEdges(Node n) {
-        Set<Edge> ret = new HashSet<Edge>();
+        Set<Edge> ret = new HashSet<>();
 
         ret.addAll(super.incomingEdgesOf(n));
         ret.addAll(super.outgoingEdgesOf(n));
@@ -159,7 +167,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable, Seria
 
 
     protected Operand getAuxiliaryVariable(DefaultNodeKind kind) {
-        Operand op = new Operand(variablePfx + (vidx++), kind);
+        Operand op = new Operand(this, variablePfx + (vidx++), kind);
         addNode(op);
         return op;
     }
@@ -168,7 +176,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable, Seria
     protected Node addOperand(NodeKindInterface kind, String label) {
         //Node n = this.getNodeByLabel(label);
         //if (n == null) {
-        Node n = new Operand(label, kind);
+        Node n = new Operand(this, label, kind);
         addNode(n);
         return n;
     }
@@ -186,7 +194,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable, Seria
         JavaMethodSignature sig = JavaMethodSignature.fromString(bytecodesig);
 
 
-        Operation op = new Operation(label, ki, sig);
+        Operation op = new Operation(this, label, ki, sig);
         opLookup.put(label, op);
 
         //LOGGER.info("OPLOOKUP " + op.toString());
@@ -207,7 +215,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable, Seria
         if (ext == null)
             return null;
 
-        Operation op = new Operation(ext);
+        Operation op = new Operation(this, ext);
 
         linkParams(op, params);
         addNode(op);
@@ -258,7 +266,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable, Seria
 
 
     private Node createOperation(NodeKindInterface kind, List<Node> params) {
-        Node op = new Operation(kind);
+        Node op = new Operation(this, kind);
         addNode(op);
         linkParams(op, params);
         return op;
@@ -266,7 +274,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable, Seria
 
 
     protected Edge addConnection(Node src, Node target, EdgeKind kind, int priority) {
-        Edge e = new Edge(src, target, kind, priority);
+        Edge e = new Edge(this, src, target, kind, priority);
         addConnection(e);
         return e;
     }
@@ -275,6 +283,7 @@ public class ConstraintNetwork extends AbstractGraph implements Cloneable, Seria
         addVertex(e.getSrcNode());
         addVertex(e.getDestNode());
         super.addEdge(e.getSrcNode(), e.getDestNode(), e);
+
         return e;
     }
 

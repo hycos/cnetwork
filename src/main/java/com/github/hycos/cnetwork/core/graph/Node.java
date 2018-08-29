@@ -46,6 +46,7 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
     protected String annotation = "";
     protected String note = "";
     protected JavaMethodSignature sig = null;
+    protected ConstraintNetwork cn = null;
 
 
     public String getNote() {
@@ -59,17 +60,21 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
     private DomainControllerInterface<Node> dctrl = null;
     private LabelManagerInterface<Node> lmgr = null;
 
-    private static int nid = 0;
     private NodeKindInterface kind = null;
 
 
-    public Node(String shortLabel) {
-        this.id = nid++;
+    public Node(ConstraintNetwork cn,
+                String shortLabel) {
+        this.cn = cn;
+        this.id = this.cn.nextNodeId();
         this.shortLabel = shortLabel;
     }
 
-    public Node(String shortLabel, NodeKindInterface kind) {
-        this.id = nid++;
+    public Node(ConstraintNetwork cn,
+                String shortLabel,
+                NodeKindInterface kind) {
+        this.cn = cn;
+        this.id = this.cn.nextNodeId();
         this.kind = kind;
 
 //        if(kind.isLiteral() && kind.isString())
@@ -85,6 +90,7 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
         this.annotation = other.annotation;
         this.kind = other.kind;
         this.shortLabel = other.shortLabel;
+        this.cn = null;
     }
 
     public int getId() {

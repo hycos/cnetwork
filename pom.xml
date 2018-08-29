@@ -9,19 +9,22 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <doca.version>1.8</doca.version>
-        <java.version.source>1.8</java.version.source>
-        <java.version.target>1.8</java.version.target>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <java.version>10</java.version>
+        <java.version.source>${java.version}</java.version.source>
+        <java.version.target>${java.version}</java.version.target>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <gpgplugin.version>1.6</gpgplugin.version>
         <javadocplugin.version>2.10.4</javadocplugin.version>
         <slf4j.version>1.7.25</slf4j.version>
-        <junit.version>5.0.1</junit.version>
-        <jgraph.version>1.0.1</jgraph.version>
-        <commonslang.version>3.6</commonslang.version>
+        <junit.version>5.2.0</junit.version>
+        <jgraph.version>1.2.0</jgraph.version>
+        <commonslang.version>3.7</commonslang.version>
         <dkbrics.version>1.11-8</dkbrics.version>
         <autorex.version>1.0</autorex.version>
+        <jacoco.version>0.8.1</jacoco.version>
+        <surefire.version>2.22.0</surefire.version>
+        <maven.compiler.version>3.3</maven.compiler.version>
     </properties>
 
     <licenses>
@@ -63,7 +66,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
+                <version>${maven.compiler.version}</version>
                 <configuration>
                     <source>${java.version.source}</source>
                     <target>${java.version.target}</target>
@@ -72,30 +75,30 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19.1</version>
+                <version>${surefire.version}</version>
                 <configuration>
                     <!-- Travis build workaround -->
                     <argLine>${argLine} -Xms1024m -Xmx2048m</argLine>
                 </configuration>
             </plugin>
-            <!--<plugin>-->
-               <!--<groupId>org.apache.maven.plugins</groupId>-->
-               <!--<artifactId>maven-gpg-plugin</artifactId>-->
-               <!--<version>${gpgplugin.version}</version>-->
-               <!--<executions>-->
-                   <!--<execution>-->
-                       <!--<id>sign-artifacts</id>-->
-                       <!--<phase>verify</phase>-->
-                       <!--<goals>-->
-                           <!--<goal>sign</goal>-->
-                       <!--</goals>-->
-                   <!--</execution>-->
-               <!--</executions>-->
-           <!--</plugin>-->
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-gpg-plugin</artifactId>
+               <version>${gpgplugin.version}</version>
+               <executions>
+                   <execution>
+                       <id>sign-artifacts</id>
+                       <phase>verify</phase>
+                       <goals>
+                           <goal>sign</goal>
+                       </goals>
+                   </execution>
+               </executions>
+           </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.7.201606060606</version>
+                <version>${jacoco.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -153,6 +156,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>dk.brics.automaton</groupId>

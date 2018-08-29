@@ -86,8 +86,8 @@ public enum CnetworkAnalyzer {
 
         for(Edge e : cc.edgeSet()) {
             if(e.getTarget().isBoolean()) {
-                dummyedges.add(new Edge(e.getTarget
-                        (), e.getSrcNode(), e.getSequence()));
+                dummyedges.add(new Edge(cc, e.getTarget(), e.getSrcNode(), e
+                        .getSequence()));
             }
         }
 
