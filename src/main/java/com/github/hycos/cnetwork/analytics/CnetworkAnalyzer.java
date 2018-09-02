@@ -17,6 +17,7 @@
 
 package com.github.hycos.cnetwork.analytics;
 
+import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
 import com.github.hycos.cnetwork.core.graph.ConstraintNetwork;
 import com.github.hycos.cnetwork.core.graph.ConstraintNetworkBuilder;
 import com.github.hycos.cnetwork.core.graph.Edge;
@@ -71,31 +72,34 @@ public enum CnetworkAnalyzer {
     }
 
     public Set<Node> detectLoopPoints (ConstraintNetworkBuilder cn) {
-        return detectLoopPoints(cn.getConstraintNetwork());
-    }
 
-    public Set<Node> detectLoopPoints (ConstraintNetwork cn) {
+        ConstraintNetworkBuilder cnb = cn.clone();
+
 
         LOGGER.debug("detect loop pts");
 
         Set<Node> toOmit = new LinkedHashSet<>();
 
-        ConstraintNetwork cc = cn.clone();
-
         Set<Edge> dummyedges = new HashSet<>();
 
-        for(Edge e : cc.edgeSet()) {
+        for(Edge e : cnb.edgeSet()) {
             if(e.getTarget().isBoolean()) {
-                dummyedges.add(new Edge(cc, e.getTarget(), e.getSrcNode(), e
-                        .getSequence()));
+                dummyedges.add(new Edge(e.getTarget(), e.getSrcNode(), e.getSequence()));
             }
         }
 
-        dummyedges.stream().forEach(x -> cc.addEdge(x.getSource(), x
-                .getDestNode(),x));
+        dummyedges.stream().forEach(x -> {
+            try {
+                cn.addConnection(x.getSource(), x
+                        .getDestNode(),x.getKind(),x.getSequence());
+            } catch (InconsistencyException e) {
+                assert false;
+            }
+        });
 
 
-        SzwarcfiterLauerSimpleCycles dc = new SzwarcfiterLauerSimpleCycles(cc);
+        SzwarcfiterLauerSimpleCycles dc =
+                new SzwarcfiterLauerSimpleCycles(cnb.getConstraintNetwork());
 
         LOGGER.debug("find simple cycles ");
 

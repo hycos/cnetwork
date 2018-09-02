@@ -83,10 +83,10 @@ public class TestSerialization {
 
         ConstraintNetwork cn = new ConstraintNetwork();
 
-        Node n1 = new Operand(cn, "bs", DefaultNodeKind.STRVAR);
-        Node n2 = new Operand(cn, "5", DefaultNodeKind.NUMLIT);
-        Node n3 = new Operand(cn, "len(bs)", DefaultNodeKind.LEN);
-        Node n4 = new Operand(cn, ">(len(bs),5)", DefaultNodeKind.GREATER);
+        Node n1 = new Operand("bs", DefaultNodeKind.STRVAR);
+        Node n2 = new Operand("5", DefaultNodeKind.NUMLIT);
+        Node n3 = new Operand("len(bs)", DefaultNodeKind.LEN);
+        Node n4 = new Operand(">(len(bs),5)", DefaultNodeKind.GREATER);
 
         DefaultLabelManager lm = new DefaultLabelManager();
 
@@ -146,7 +146,7 @@ public class TestSerialization {
 
         Assertions.assertEquals(nn.vertexSet(), cb.vertexSet());
 
-        LabelManagerInterface<Node> n = cb.getLabelManager();
+        LabelManagerInterface<Node, Edge> n = cb.getLabelManager();
 
 
         LOGGER.debug(n.toString());

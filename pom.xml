@@ -20,7 +20,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <gpgplugin.version>1.6</gpgplugin.version>
-        <javadocplugin.version>2.10.4</javadocplugin.version>
+        <javadocplugin.version>3.0.1</javadocplugin.version>
         <slf4j.version>1.7.25</slf4j.version>
         <junit.version>5.2.0</junit.version>
         <jgraph.version>1.2.0</jgraph.version>
@@ -131,6 +131,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <additionalOptions>-html5</additionalOptions>
+                </configuration>
             </plugin>
         </plugins>
     </build>

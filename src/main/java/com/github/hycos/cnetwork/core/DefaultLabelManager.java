@@ -21,12 +21,13 @@ import com.github.hycos.cnetwork.api.labelmgr.ConstraintNetworkInterface;
 import com.github.hycos.cnetwork.api.labelmgr.LabelManagerInterface;
 import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
 import com.github.hycos.cnetwork.core.graph.DefaultNodeKind;
+import com.github.hycos.cnetwork.core.graph.Edge;
 import com.github.hycos.cnetwork.core.graph.Node;
 import com.github.hycos.cnetwork.utils.BiMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DefaultLabelManager implements LabelManagerInterface<Node> {
+public class DefaultLabelManager implements LabelManagerInterface<Node, Edge> {
 
     private static final long serialVersionUID = -8814622790759711131L;
 
@@ -112,7 +113,7 @@ public class DefaultLabelManager implements LabelManagerInterface<Node> {
     }
 
     @Override
-    public LabelManagerInterface<Node> clone() {
+    public LabelManagerInterface<Node, Edge> clone() {
         return new DefaultLabelManager(this);
     }
 
@@ -127,9 +128,14 @@ public class DefaultLabelManager implements LabelManagerInterface<Node> {
     }
 
     @Override
+    public void beforeNodeAdd(Node n) throws InconsistencyException {
+        n.setLabelManager(this);
+    }
+
+    @Override
     public void onNodeAdd(Node n, boolean isConstraint) throws
             InconsistencyException {
-        n.setLabelManager(this);
+
         String label = computeLabel(n);
 
         LOGGER.debug("label is {}, id is {}", label, n.getId());
@@ -156,7 +162,12 @@ public class DefaultLabelManager implements LabelManagerInterface<Node> {
     }
 
     @Override
-    public void onConnectionAdd(Node frst, Node snd) {
+    public void beforeConnectionAdd(Node frst, Node snd, Edge e) {
+
+    }
+
+    @Override
+    public void onConnectionAdd(Node frst, Node snd, Edge e) {
 
     }
 

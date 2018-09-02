@@ -33,20 +33,23 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 
 public abstract class Node extends ConstraintNetworkSubject<Node> implements
-        NodeInterface,Cloneable {
+        NodeInterface, Cloneable {
 
     private static final long serialVersionUID = -8824222790097211310L;
 
     final static Logger LOGGER = LoggerFactory.getLogger(Node.class);
 
-    protected final int id;
-
     protected String instance = "";
     protected String shortLabel = "";
     protected String annotation = "";
     protected String note = "";
+
+
     protected JavaMethodSignature sig = null;
-    protected ConstraintNetwork cn = null;
+
+
+    // unique id
+    protected int id = -1;
 
 
     public String getNote() {
@@ -57,24 +60,18 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
         this.note = note;
     }
 
-    private DomainControllerInterface<Node> dctrl = null;
-    private LabelManagerInterface<Node> lmgr = null;
+    private DomainControllerInterface<Node, Edge> dctrl = null;
+    private LabelManagerInterface<Node, Edge> lmgr = null;
 
     private NodeKindInterface kind = null;
 
 
-    public Node(ConstraintNetwork cn,
-                String shortLabel) {
-        this.cn = cn;
-        this.id = this.cn.nextNodeId();
+    public Node(String shortLabel) {
         this.shortLabel = shortLabel;
     }
 
-    public Node(ConstraintNetwork cn,
-                String shortLabel,
+    public Node(String shortLabel,
                 NodeKindInterface kind) {
-        this.cn = cn;
-        this.id = this.cn.nextNodeId();
         this.kind = kind;
 
 //        if(kind.isLiteral() && kind.isString())
@@ -84,13 +81,12 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
     }
 
     public Node(Node other) {
-        this.id = other.id;
         // just the reference
         this.dctrl = other.dctrl;
         this.annotation = other.annotation;
         this.kind = other.kind;
         this.shortLabel = other.shortLabel;
-        this.cn = null;
+        this.id = other.id;
     }
 
     public int getId() {
@@ -121,6 +117,8 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
         Node n = (Node) o;
 
         return this.id == n.id;
+        //return this.getKind() == n.getKind() && this.getLabel() == n
+        // .getLabel();
     }
 
     public Domain getDomain() {
@@ -219,6 +217,10 @@ public abstract class Node extends ConstraintNetworkSubject<Node> implements
         if(!note.isEmpty())
             s.append("note:" + note + "\\n");
         return s.toString();
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getLabel() {

@@ -28,25 +28,23 @@ public class Operation extends Node {
 
     final static Logger LOGGER = LoggerFactory.getLogger(Operation.class);
 
-    public Operation(ConstraintNetwork cn, Operation op) {
+    public Operation(Operation op) {
         super(op);
         this.sig = op.getSig();
-        this.cn = cn;
     }
 
-    public Operation(ConstraintNetwork cn, NodeKindInterface kind) {
-        super(cn, kind.toString(), kind);
+    public Operation(NodeKindInterface kind) {
+        super(kind.toString(), kind);
         LOGGER.debug("Node kind {}", kind);
         //assert kind.isOperation() || kind.isComparative() || kind.isBranch();
         //this.sig = StandardWrappers.getSigForOperation(this.kind);
         //assert(this.sig != null);
     }
 
-    public Operation(ConstraintNetwork cn,
-                     String name,
+    public Operation(String name,
                      NodeKindInterface ni,
                      JavaMethodSignature sig) {
-        super(cn, name, ni);
+        super(name, ni);
 //
 //        switch(sig.getReturnType().toBCString()) {
 //            case "Ljava/lang/String;":
@@ -115,7 +113,7 @@ public class Operation extends Node {
     }
 
     @Override
-    public Operation clone() { return new Operation(null, this); };
+    public Operation clone() { return new Operation(this); };
 
 
 }

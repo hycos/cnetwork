@@ -27,13 +27,12 @@ public class Operand extends Node {
         super(o);
     }
 
-    public Operand(ConstraintNetwork cn, String label, String kind) {
-       this(cn ,label, DefaultNodeKind.KindFromString(kind));
+    public Operand(String label, String kind) {
+       this(label, DefaultNodeKind.KindFromString(kind));
     }
 
-    public Operand(ConstraintNetwork cn, String label, NodeKindInterface
-            kind) {
-        super(cn,label,kind);
+    public Operand(String label, NodeKindInterface kind) {
+        super(label,kind);
     }
 
     @Override

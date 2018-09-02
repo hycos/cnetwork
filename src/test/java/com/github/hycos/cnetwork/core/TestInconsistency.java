@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// Default Domain controller does not check for simple inconsistencies anymore
 
 public class TestInconsistency {
     final static Logger LOGGER = LoggerFactory.getLogger(TestInconsistency.class);
@@ -33,6 +34,7 @@ public class TestInconsistency {
 
     @Test
     public void testBooleanInconsistency() {
+
         try {
             ConstraintNetworkBuilder cb = new ConstraintNetworkBuilder();
             Node ntrue = cb.addOperand(DefaultNodeKind.BOOLLIT, "true");
@@ -40,7 +42,7 @@ public class TestInconsistency {
             cb.addConstraint(DefaultNodeKind.BOOL_EQUALS,ntrue,nfalse);
         } catch (InconsistencyException e) {
             LOGGER.error(e.getMessage());
-            Assertions.assertTrue(true);
+            Assertions.assertTrue(false);
         }
     }
 
@@ -70,7 +72,7 @@ public class TestInconsistency {
 
         } catch (InconsistencyException e) {
             LOGGER.error(e.getMessage());
-            Assertions.assertTrue(true);
+            Assertions.assertTrue(false);
         }
     }
 
@@ -89,7 +91,7 @@ public class TestInconsistency {
 
         } catch (InconsistencyException e) {
             LOGGER.error(e.getMessage());
-            Assertions.assertTrue(true);
+            Assertions.assertTrue(false);
         }
     }
 

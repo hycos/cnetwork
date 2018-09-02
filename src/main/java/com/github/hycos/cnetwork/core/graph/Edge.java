@@ -33,14 +33,18 @@ public class Edge extends DefaultEdge implements Comparable<Edge>, Cloneable,
 
     private Node srcNode;
     private Node destNode;
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     private EdgeKind kind;
     private int sequence;
-    private int id;
+    protected int id = -1;
     protected ConstraintNetwork cn = null;
 
 
-    public Edge(ConstraintNetwork cn,
-                Node srcNode,
+    public Edge(Node srcNode,
                 Node dstNode,
                 EdgeKind kind,
                 int sequence) {
@@ -48,27 +52,23 @@ public class Edge extends DefaultEdge implements Comparable<Edge>, Cloneable,
         this.destNode = dstNode;
         this.kind = kind;
         this.sequence = sequence;
-        this.cn = cn;
-        this.id = cn.nextEdgeId();
     }
 
     public Edge(Edge e) {
-        this(null, e.getSrcNode(), e.getDestNode(), e.getSequence());
+        this(e.getSrcNode(), e.getDestNode(), e.getSequence());
         this.kind = e.getKind();
         this.id = e.id;
     }
 
-    public Edge(ConstraintNetwork cn,
-                Node srcNode,
+    public Edge(Node srcNode,
                 Node dstNode,
                 int sequence) {
-        this(cn, srcNode,dstNode,EdgeKind.PAR_IN,sequence);
+        this(srcNode,dstNode,EdgeKind.PAR_IN,sequence);
     }
 
-    public Edge(ConstraintNetwork cn,
-                Node srcNode,
+    public Edge(Node srcNode,
                 Node dstNode) {
-        this(cn, srcNode,dstNode,EdgeKind.PAR_IN,0);
+        this(srcNode,dstNode,EdgeKind.PAR_IN,0);
     }
 
     @Override

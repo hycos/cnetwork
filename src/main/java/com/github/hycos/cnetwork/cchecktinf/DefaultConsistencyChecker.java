@@ -17,6 +17,7 @@
 
 package com.github.hycos.cnetwork.cchecktinf;
 
+import com.github.hycos.cnetwork.api.EdgeInterface;
 import com.github.hycos.cnetwork.api.NodeInterface;
 import com.github.hycos.cnetwork.api.NodeKindInterface;
 import com.github.hycos.cnetwork.api.cchecktinf.AbstractConsistencyChecker;
@@ -29,8 +30,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
-public class DefaultConsistencyChecker<T extends NodeInterface> implements
-        ConsistencyCheckerInterface<T>, Serializable {
+public class DefaultConsistencyChecker<T extends NodeInterface,
+        K extends EdgeInterface> implements
+        ConsistencyCheckerInterface<T, K>, Serializable {
 
     private static final long serialVersionUID = -8834622790097111311L;
 

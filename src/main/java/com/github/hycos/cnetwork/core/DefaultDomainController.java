@@ -19,6 +19,7 @@ package com.github.hycos.cnetwork.core;
 
 import com.github.hycos.cnetwork.api.labelmgr.ConstraintNetworkInterface;
 import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
+import com.github.hycos.cnetwork.core.graph.Edge;
 import com.github.hycos.cnetwork.core.graph.Node;
 import com.github.hycos.domctrl.Domain;
 import com.github.hycos.domctrl.DomainControllerInterface;
@@ -30,8 +31,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DefaultDomainController implements
-        DomainControllerInterface<Node>, Serializable {
+public class DefaultDomainController implements DomainControllerInterface<Node, Edge>, Serializable {
 
     private static final long serialVersionUID = -881461279769711131L;
 
@@ -69,6 +69,8 @@ public class DefaultDomainController implements
 
     @Override
     public Domain createDomainFor(Node n) {
+
+        assert n.getId() >= 0;
         return dmap.put(n, new DefaultDomain(n,false));
     }
 
@@ -88,10 +90,18 @@ public class DefaultDomainController implements
     }
 
     @Override
+    public void beforeNodeAdd(Node n) throws InconsistencyException {
+
+        LOGGER.debug("set domain ctrl");
+        n.setDomainController(this);
+    }
+
+    @Override
     public void onNodeAdd(Node n, boolean isConstraint) {
         LOGGER.info("on on operation add {} {} {}", n.getShortLabel(), n
                         .getId(),
                 isConstraint);
+
 
 
         if(dmap.containsKey(n))
@@ -99,8 +109,6 @@ public class DefaultDomainController implements
 
         //assert !(n.getId() == 31 && isConstraint == false);
 
-
-        n.setDomainController(this);
         dmap.put(n, new DefaultDomain(n,isConstraint));
 
         if(isConstraint)
@@ -113,7 +121,12 @@ public class DefaultDomainController implements
     }
 
     @Override
-    public void onConnectionAdd(Node frst, Node snd) {
+    public void beforeConnectionAdd(Node frst, Node snd, Edge e) {
+
+    }
+
+    @Override
+    public void onConnectionAdd(Node frst, Node snd, Edge e) {
 
     }
 

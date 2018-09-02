@@ -18,6 +18,7 @@
 package com.github.hycos.cnetwork.core.graph;
 
 
+import com.github.hycos.cnetwork.api.EdgeInterface;
 import com.github.hycos.cnetwork.api.NodeInterface;
 import com.github.hycos.cnetwork.api.NodeKindInterface;
 import com.github.hycos.cnetwork.api.cchecktinf.ConsistencyCheckerInterface;
@@ -29,6 +30,9 @@ import com.github.hycos.cnetwork.api.labelmgr.exception.InconsistencyException;
 import com.github.hycos.cnetwork.cchecktinf.DefaultConsistencyChecker;
 import com.github.hycos.cnetwork.core.DefaultDomainController;
 import com.github.hycos.cnetwork.core.DefaultLabelManager;
+import com.github.hycos.cnetwork.core.Enumerator;
+import com.github.hycos.cnetwork.sig.JavaMethodSignature;
+import com.github.hycos.cnetwork.utils.Pair;
 import com.github.hycos.domctrl.DomainControllerInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,16 +48,21 @@ public class ConstraintNetworkBuilder implements Cloneable,
 
     final static Logger LOGGER = LoggerFactory.getLogger(ConstraintNetworkBuilder.class);
 
-    private DomainControllerInterface<Node> dctrl;
-    private LabelManagerInterface<Node> lmgr;
-    private ConsistencyCheckerInterface<Node> ci;
+    private DomainControllerInterface<Node, Edge> dctrl;
+    private LabelManagerInterface<Node, Edge> lmgr;
+    private ConsistencyCheckerInterface<Node, Edge> ci;
+    private ConstraintNetworkListenerInterface<Node, Edge> en;
 
     private ConstraintNetwork cn;
 
     // observer structural changes to on the cn
-    private Set<ConstraintNetworkListenerInterface<Node>> listeners = new LinkedHashSet<>();
+    private List<ConstraintNetworkListenerInterface<Node, Edge>> listeners =
+            new Vector<>();
 
-    // Note that listeners are no copied
+
+    private HashMap<String, Operation> opLookup = new HashMap<>();
+
+
     public ConstraintNetworkBuilder(ConstraintNetworkBuilder cnb) {
         this.cn = new ConstraintNetwork(cnb.cn);
         Objects.requireNonNull(cnb.lmgr);
@@ -61,8 +70,9 @@ public class ConstraintNetworkBuilder implements Cloneable,
         this.dctrl = cnb.dctrl.clone();
         this.lmgr = cnb.lmgr.clone();
         this.ci = cnb.ci.clone();
+        this.en = cnb.en.clone();
         // rewire newly created objects
-        registerListeners(this.dctrl, this.lmgr);
+        registerListeners(this.en, this.dctrl, this.lmgr);
 
         for (Node n : vertexSet()) {
             n.setLabelManager(this.lmgr);
@@ -72,39 +82,43 @@ public class ConstraintNetworkBuilder implements Cloneable,
     }
 
 
-    public LabelManagerInterface<Node> getLabelManager() {
+    public LabelManagerInterface<Node, Edge> getLabelManager() {
         return this.lmgr;
     }
 
     public ConstraintNetworkBuilder() {
-        this(new DefaultDomainController(),
+        this(new Enumerator(),
+                new DefaultDomainController(),
                 new DefaultLabelManager(),
                 new DefaultConsistencyChecker());
     }
 
+
+
     public ConstraintNetworkBuilder
-            (DomainControllerInterface<Node> dctrl,
-             LabelManagerInterface<Node> lmgr,
-             ConsistencyCheckerInterface<Node> ci) {
+            (ConstraintNetworkListenerInterface<Node, Edge> enumerator,
+             DomainControllerInterface<Node, Edge> dctrl,
+             LabelManagerInterface<Node, Edge> lmgr,
+             ConsistencyCheckerInterface<Node, Edge> ci) {
         this.cn = new ConstraintNetwork();
 
         // domain controller has to be set first always
         this.dctrl = dctrl;
         this.lmgr = lmgr;
         this.ci = ci;
+        this.en = enumerator;
 
-        registerListeners(this.dctrl, this.lmgr);
+        registerListeners(this.en,this.dctrl, this.lmgr);
 
         LOGGER.debug("set dctrl {}", this.dctrl.getClass().getName());
         LOGGER.debug("set lmgr {}", this.lmgr.getClass().getName());
-        //this.lmgr = new EufManager(this);
-        //this.listeners.add(this.lmgr);
     }
 
 
-    public void registerListeners(ConstraintNetworkListenerInterface<Node>... l) {
+    public void registerListeners(ConstraintNetworkListenerInterface<Node, Edge>... l) {
         LOGGER.debug("register {}", l.length);
         listeners.addAll(Arrays.asList(l));
+
         listeners.forEach(x -> x.register(this));
     }
 
@@ -125,6 +139,7 @@ public class ConstraintNetworkBuilder implements Cloneable,
             o.update(n);
         }
     }
+
 
     public Node getNodeById(int id) {
         return this.cn.getNodeById(id);
@@ -149,23 +164,63 @@ public class ConstraintNetworkBuilder implements Cloneable,
         return addConstraint(kind, lst);
     }
 
-    public Node addOperation(NodeKindInterface kind, Node... params) throws InconsistencyException {
+    public Node addOperation(NodeKindInterface kind, Node... params)
+            throws InconsistencyException {
         List<Node> lst = Arrays.asList(params);
         return addOperation(kind, lst);
     }
 
     public Edge addConnection(Edge e) throws InconsistencyException {
         Edge ne = cn.addConnection(e);
-        listeners.forEach(l -> l.onConnectionAdd(e.getSource(), e.getTarget()));
+        listeners.forEach(l -> l.onConnectionAdd(e.getSource(), e.getTarget(),e));
         return ne;
     }
 
+    @Override
+    public void addConnection(Node frst, Node snd, int prio) throws InconsistencyException {
+        addConnection(frst, snd, EdgeKind.PAR_IN, prio);
+    }
 
-    public void addListener(ConstraintNetworkListenerInterface<Node> listener) {
+    public Operation registerExtOperation(String bytecodesig,
+                                             NodeKindInterface ki,  String
+                                                     label) {
+
+        //LOGGER.info("bytecodesig " + bytecodesig);
+        //LOGGER.info("name " + label);
+
+        if (opLookup.containsKey(bytecodesig))
+            return null;
+
+        JavaMethodSignature sig = JavaMethodSignature.fromString(bytecodesig);
+
+        Operation op = new Operation(label, ki, sig);
+        opLookup.put(label, op);
+
+
+        //LOGGER.info("OPLOOKUP " + op.toString());
+
+        return op;
+    }
+
+
+    public Edge createConnection(Node src, Node target, EdgeKind kind,
+                                 int prio) {
+        Edge e = new Edge(src, target, kind, prio);
+        listeners.forEach(l -> l.beforeConnectionAdd(e.getSource(), e.getTarget(),e));
+        return e;
+    }
+
+    public Edge addConnection(Node src, Node target, EdgeKind kind, int prio)
+            throws InconsistencyException {
+        return cn.addConnection(createConnection(src,target,kind,prio));
+    }
+
+
+    public void addListener(ConstraintNetworkListenerInterface<Node, Edge> listener) {
         this.listeners.add(listener);
     }
 
-    public void addListener(Set<ConstraintNetworkListenerInterface<Node>>
+    public void addListener(Set<ConstraintNetworkListenerInterface<Node, Edge>>
                                     listeners) {
         this.listeners.addAll(listeners);
     }
@@ -174,12 +229,25 @@ public class ConstraintNetworkBuilder implements Cloneable,
     @Override
     public Node addOperand(NodeKindInterface n, String s) {
 
-        Node op = cn.addOperand(n, s);
+        Node op = new Operand(s,n);
+
+        for (ConstraintNetworkListenerInterface l : listeners) {
+            try {
+                l.beforeNodeAdd(op);
+            } catch (InconsistencyException e) {
+                assert false;
+            }
+        }
+
+
+        //cn.addNode(op);
+
+
         LOGGER.debug("add operand {}:{}", op.getKind(), s);
 
-        for (ConstraintNetworkListenerInterface<Node> l : listeners) {
+        for (ConstraintNetworkListenerInterface<Node, Edge> l : listeners) {
             try {
-                l.onNodeAdd(op,false);
+                l.onNodeAdd(op, false);
             } catch (InconsistencyException e) {
                 // Should never ever happen
                 assert false;
@@ -190,7 +258,7 @@ public class ConstraintNetworkBuilder implements Cloneable,
         try {
             Node nop = infer(op);
 
-            if(!nop.equals(op))
+            if (!nop.equals(op))
                 removeVertex(op);
 
             return nop;
@@ -203,34 +271,57 @@ public class ConstraintNetworkBuilder implements Cloneable,
         return null;
     }
 
-    @Override
-    public void addConnection(Node frst, Node snd, int prio) throws InconsistencyException {
-        addConnection(frst, snd, EdgeKind.PAR_IN, prio);
-    }
+
 
     @Override
     public boolean checkConsistency() {
-        for(Node n : vertexSet()) {
-            if(!this.ci.check(this, n)) {
+        for (Node n : vertexSet()) {
+            if (!this.ci.check(this, n)) {
                 return false;
             }
         }
         return true;
     }
 
+    protected Operation getExtOperation(String label) {
+        if (!this.opLookup.containsKey(label))
+            return null;
+        return this.opLookup.get(label);
+    }
+
+
+
+    protected Node addExtOperation(String identifier, List<Node> params) throws InconsistencyException {
+
+        Operation ext = getExtOperation(identifier);
+
+        if (ext == null)
+            return null;
+
+
+        Pair<Node, Set<Edge>> nop = createOperation(ext, params);
+
+
+        return linkParamsToOp(nop, false);
+    }
+
+
+
+
     private Node infer(Node n) throws InconsistencyException {
 
         Node nop = (Node) lmgr.infer(n);
 
         if (n.equals(nop)) {
-            addVertex(nop);
+            addVertex(nop, nop.isConstraint());
         }
 
         LOGGER.debug("infer {}", nop.getDotLabel());
 
+        LOGGER.debug(this.getConstraintNetwork().toDot());
+
         if (!this.ci.check(this, nop)) {
-            throw new InconsistencyException("malformed operand " + nop
-                    .getKind());
+            throw new InconsistencyException("malformed operand " + nop.getKind());
         }
 
         if (n.equals(nop)) {
@@ -238,8 +329,6 @@ public class ConstraintNetworkBuilder implements Cloneable,
             updateObservers(nop);
             lmgr.attach(nop);
             lmgr.update(nop);
-            //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
-
             return nop;
         } else {
             return nop;
@@ -263,30 +352,67 @@ public class ConstraintNetworkBuilder implements Cloneable,
         return plist;
     }
 
-    public Node addOperation(NodeKindInterface kind, List<Node> params) throws InconsistencyException {
+
+    private Set<Edge> createParameterLinks(Node op, List<Node> params) {
+
+        Set<Edge> ret = new HashSet<>();
+
+        for (int i = 0; i < params.size(); i++) {
+            Node par = params.get(i);
+            ret.add(createConnection(par, op, EdgeKind.PAR_IN, i));
+        }
+
+        return ret;
+    }
+
+
+    public Node addOperation(NodeKindInterface kind, List<Node> params)
+            throws InconsistencyException {
         return addOperation(kind, params, false);
     }
 
-    private Node addOperation(NodeKindInterface kind, List<Node> params,
-                              boolean isConstraint)
-            throws
-            InconsistencyException {
+
+    public Pair<Node, Set<Edge>> createOperation(NodeKindInterface kind,
+                                                 List<Node> params) {
+        Node op = new Operation(kind);
+        Set<Edge> links = createParameterLinks(op, params);
+        return new Pair(op, links);
+    }
 
 
-        Node op = cn.addOperation(kind, inferParams(params));
+    public Pair<Node, Set<Edge>> createOperation(Operation op,
+                                                 List<Node> params) {
+        Set<Edge> links = createParameterLinks(op, params);
+        return new Pair(op, links);
+    }
+
+
+
+    private Node linkParamsToOp(Pair<Node, Set<Edge>> ops, boolean isConstraint) throws InconsistencyException {
+
+
+        Node op = ops.getFirst();
+        Set<Edge> links = ops.getSecond();
 
         for (ConstraintNetworkListenerInterface l : listeners) {
-            l.onNodeAdd(op,isConstraint);
+            l.beforeNodeAdd(op);
         }
 
+        LOGGER.debug("lbl {}", op.getLabel());
+
+        cn.addNode(op);
+
+        for (ConstraintNetworkListenerInterface l : listeners) {
+            l.onNodeAdd(op, isConstraint);
+        }
+
+
+        addConnections(links);
 
         //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
         LOGGER.debug("check node {}:{}", op.getShortLabel(), op.getId());
 
         //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
-
-        //if(op.getId() == 233)
-        //    System.exit(-1);
         Node nop = infer(op);
 
         LOGGER.debug("nop {}", nop.getId());
@@ -299,12 +425,18 @@ public class ConstraintNetworkBuilder implements Cloneable,
             removeVertex(op);
         }
 
-
-        LOGGER.debug("CN {}:{}", nop.getId(), nop.getDomain().toString());
-
-        //assert ConsistencyCheckerFactory.INSTANCE.checkConsistency(this);
-
         return nop;
+
+    }
+
+
+    private Node addOperation(NodeKindInterface kind, List<Node> params, boolean isConstraint)
+            throws
+            InconsistencyException {
+
+        Pair<Node, Set<Edge>> ops = createOperation(kind, inferParams(params));
+
+        return linkParamsToOp(ops, isConstraint);
     }
 
 
@@ -316,9 +448,6 @@ public class ConstraintNetworkBuilder implements Cloneable,
         return op;
     }
 
-    public Operation addExtOperation(String identifier, List<Node> params) {
-        return cn.addExtOperation(identifier, params);
-    }
 
     public boolean removeAllVertices(Collection<? extends Node> n) {
 
@@ -343,12 +472,18 @@ public class ConstraintNetworkBuilder implements Cloneable,
     }
 
 
-    public Edge addConnection(Node src, Node target, EdgeKind kind, int prio) throws InconsistencyException {
-        return cn.addConnection(src, target, kind, prio);
-    }
-
     public void addConnections(Set<Edge> edges) {
-        cn.addConnections(edges);
+        for(Edge e : edges) {
+            for (ConstraintNetworkListenerInterface l : listeners) {
+                l.beforeConnectionAdd(e.getSource(),e.getTarget(),e);
+            }
+
+            cn.addConnection(e);
+
+            for (ConstraintNetworkListenerInterface l : listeners) {
+                l.onConnectionAdd(e.getSource(),e.getTarget(),e);
+            }
+        }
     }
 
 
@@ -385,12 +520,20 @@ public class ConstraintNetworkBuilder implements Cloneable,
         return ret;
     }
 
-    public Node addVertex(Node n) throws InconsistencyException {
+
+    private Node addVertex(Node n, boolean isConstraint) throws InconsistencyException {
+        for (ConstraintNetworkListenerInterface<Node, ? extends EdgeInterface> l : listeners) {
+            l.beforeNodeAdd(n);
+        }
         Node v = cn.addNode(n);
-        for (ConstraintNetworkListenerInterface<Node> l : listeners) {
-            l.onNodeAdd(n, false);
+        for (ConstraintNetworkListenerInterface<Node, ? extends EdgeInterface> l : listeners) {
+            l.onNodeAdd(n, isConstraint);
         }
         return v;
+    }
+
+    public Node addNode(Node n , boolean isConstraint) throws InconsistencyException {
+        return addVertex(n, isConstraint);
     }
 
     public boolean containsVertex(Node n) {
@@ -422,32 +565,38 @@ public class ConstraintNetworkBuilder implements Cloneable,
         return cn.inDegreeOf(n);
     }
 
-    public Node registerExtOperation(String bytecodesig, NodeKindInterface ni,
-            String
-                                     lbl) {
 
-        return cn.registerExtOperation(bytecodesig, ni, lbl);
-    }
+    public void join(NodeKindInterface kind, Node cpoint, ConstraintNetworkBuilder othercn) throws InconsistencyException {
 
-    public void join(NodeKindInterface kind, Node cpoint, ConstraintNetworkBuilder
-            othercn) throws InconsistencyException {
+        Map<Node, Node> nmap = new HashMap<>();
 
         for (Node n : othercn.vertexSet()) {
 
-            if(n.isConstraint()) {
-                Node v = addVertex(n);
+            Node v = n.clone(); v.id = -1; // reset id to default so that the
+            // enumerator can assign a new value to it
+            //v.cn = this.getConstraintNetwork();
+            //v.id = this.getConstraintNetwork().nextNodeId();
+//
+
+            addVertex(v, n.isConstraint());
+
+            if (n.isConstraint())
                 v.getDomain().setTrue();
-            } else {
-                addVertex(n);
-            }
+//
+            nmap.put(n, v);
         }
 
         for (Edge e : othercn.edgeSet()) {
-            addConnection(e);
+
+            Node src = nmap.get(e.getSource());
+            Node dst = nmap.get(e.getDestNode());
+
+            Edge ne = new Edge(src, dst, e.getKind(), e.getSequence());
+
+            addConnection(ne);
         }
 
-        addConstraint(kind, cpoint, othercn.getConstraintNetwork()
-                .getStartNode());
+        addConstraint(kind, cpoint, othercn.getConstraintNetwork().getStartNode());
 
     }
 
@@ -488,8 +637,7 @@ public class ConstraintNetworkBuilder implements Cloneable,
 
         for (Edge e : out) {
             //assert !replacement.equals(e.getTarget());
-            toAdd.add(new Edge(this.cn, replacement, e.getTarget(), e
-                    .getSequence()));
+            toAdd.add(new Edge(replacement, e.getTarget(), e.getSequence()));
         }
 
         //for(Edge e : in) {
@@ -534,8 +682,7 @@ public class ConstraintNetworkBuilder implements Cloneable,
     }
 
     private Object writeReplace()
-            throws java.io.ObjectStreamException
-    {
+            throws java.io.ObjectStreamException {
         LOGGER.debug("write replace");
 
         LOGGER.debug("this");
